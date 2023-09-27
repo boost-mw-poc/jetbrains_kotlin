@@ -424,6 +424,7 @@ enum class LanguageFeature(
     UnstableSmartcastOnDelegatedProperties(KOTLIN_2_3, enabledInProgressiveMode = true, "KTLC-273"),
     ForbidAnnotationsWithUseSiteTargetOnExpressions(KOTLIN_2_3, enabledInProgressiveMode = true, "KT-75242"),
     ProhibitNullableTypeThroughTypealias(KOTLIN_2_3, enabledInProgressiveMode = true, "KTLC-279"),
+    AllowReifiedTypeInCatchClause(KOTLIN_2_3, issue = "KT-54363"),
 
     // 2.4 TODO set sinceVersion to 2.4 when it becomes available
 
