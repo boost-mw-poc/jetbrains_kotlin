@@ -331,6 +331,8 @@ public expect fun ByteArray.decodeToString(
  * Encodes this string to an array of bytes in UTF-8 encoding.
  *
  * Any malformed char sequence is replaced by the replacement byte sequence.
+ *
+ * @sample samples.text.Strings.encodeToByteArray
  */
 @SinceKotlin("1.4")
 public expect fun String.encodeToByteArray(): ByteArray
@@ -345,6 +347,8 @@ public expect fun String.encodeToByteArray(): ByteArray
  * @throws IndexOutOfBoundsException if [startIndex] is less than zero or [endIndex] is greater than the length of this string.
  * @throws IllegalArgumentException if [startIndex] is greater than [endIndex].
  * @throws CharacterCodingException if this string contains malformed char sequence and [throwOnInvalidSequence] is true.
+ *
+ * @sample samples.text.Strings.encodeToByteArray
  */
 @SinceKotlin("1.4")
 public expect fun String.encodeToByteArray(
@@ -357,8 +361,21 @@ public expect fun String.encodeToByteArray(
 internal expect fun String.nativeIndexOf(str: String, fromIndex: Int): Int
 internal expect fun String.nativeLastIndexOf(str: String, fromIndex: Int): Int
 
-
+/**
+ * Returns a substring of this string that starts at the specified [startIndex] and continues to the end of the string.
+ *
+ * @sample samples.text.Strings.substring
+ */
 public expect fun String.substring(startIndex: Int): String
+
+/**
+ * Returns the substring of this string starting at the [startIndex] and ending right before the [endIndex].
+ *
+ * @param startIndex the start index (inclusive).
+ * @param endIndex the end index (exclusive).
+ *
+ * @sample samples.text.Strings.substring
+ */
 public expect fun String.substring(startIndex: Int, endIndex: Int): String
 
 /**
@@ -402,6 +419,7 @@ public expect fun String.replaceFirst(oldValue: String, newValue: String, ignore
  * If [ignoreCase] is true, the result of `Char.uppercaseChar().lowercaseChar()` on each character is compared.
  *
  * @param ignoreCase `true` to ignore character case when comparing strings. By default `false`.
+ * @sample samples.text.Strings.equals
  */
 public expect fun String?.equals(other: String?, ignoreCase: Boolean = false): Boolean
 
@@ -414,8 +432,25 @@ public expect fun String?.equals(other: String?, ignoreCase: Boolean = false): B
 public expect fun String.compareTo(other: String, ignoreCase: Boolean = false): Int
 
 
+/**
+ * Returns `true` if this string starts with the specified prefix.
+ *
+ * @sample samples.text.Strings.startsWith
+ */
 public expect fun String.startsWith(prefix: String, ignoreCase: Boolean = false): Boolean
+
+/**
+ * Returns `true` if a substring of this string starting at the specified offset [startIndex] starts with the specified prefix.
+ *
+ * @sample samples.text.Strings.startsWith
+ */
 public expect fun String.startsWith(prefix: String, startIndex: Int, ignoreCase: Boolean = false): Boolean
+
+/**
+ * Returns `true` if this string ends with the specified suffix.
+ *
+ * @sample samples.text.Strings.endsWith
+ */
 public expect fun String.endsWith(suffix: String, ignoreCase: Boolean = false): Boolean
 
 // From stringsCode.kt
