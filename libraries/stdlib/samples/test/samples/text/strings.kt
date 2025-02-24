@@ -689,140 +689,166 @@ class Strings {
         assertFalse(pattern.matcher("Java 21.0.1").matches())
         assertFalse(pattern.matcher("Kotlin 2.0").matches())
 
-        assertFails { "[0-9".toPattern(Pattern.CASE_INSENSITIVE) } // the given regex is malformed
+        // the given regex is malformed
+        assertFails { "[0-9".toPattern(Pattern.CASE_INSENSITIVE) }
     }
 
     @Sample
     fun encodeToByteArray() {
+        // \u00a0 is a non-breaking space
         val str = "Kòtlin\u00a02.1.255"
+
+        // The original string contains 14 characters, but some of them are represented with multiple UTF-8 code units
         val byteArray = str.encodeToByteArray()
         assertPrints(byteArray.contentToString(), "[75, -61, -78, 116, 108, 105, 110, -62, -96, 50, 46, 49, 46, 50, 53, 53]")
 
-        val byteArrayWithoutFirstLetter = str.encodeToByteArray(startIndex = 1, endIndex = str.length)
-        assertPrints(byteArrayWithoutFirstLetter.contentToString(), "[-61, -78, 116, 108, 105, 110, -62, -96, 50, 46, 49, 46, 50, 53, 53]")
+        // Replacing all "wide" characters with some ASCII ones results in a byte sequence matching the length of the string
+        val byteArrayWithAsciiCharacters = str.replace("\u00a0", " ").replace("ò", "o").encodeToByteArray()
+        assertPrints(byteArrayWithAsciiCharacters.contentToString(), "[75, 111, 116, 108, 105, 110, 32, 50, 46, 49, 46, 50, 53, 53]")
 
-        val byteArrayWithoutLastLetter = str.encodeToByteArray(startIndex = 0, endIndex = str.length - 1)
-        assertPrints(byteArrayWithoutLastLetter.contentToString(), "[75, -61, -78, 116, 108, 105, 110, -62, -96, 50, 46, 49, 46, 50, 53]")
+        val byteArrayWithVersion = str.encodeToByteArray(startIndex = 7)
+        assertPrints(byteArrayWithVersion.contentToString(), "[50, 46, 49, 46, 50, 53, 53]")
 
-        val byteArrayWithoutNbsp = str.replace("\u00a0", " ").replace("ò", "o").encodeToByteArray()
-        assertPrints(byteArrayWithoutNbsp.contentToString(), "[75, 111, 116, 108, 105, 110, 32, 50, 46, 49, 46, 50, 53, 53]")
+        val byteArrayWithoutTheVersion = str.encodeToByteArray(startIndex = 0, endIndex = 6)
+        assertPrints(byteArrayWithoutTheVersion.contentToString(), "[75, -61, -78, 116, 108, 105, 110]")
     }
 
     @Sample
-    fun subStringFromStartIndex() {
+    fun substringFromStartIndex() {
         val str = "abcde"
         assertPrints(str.substring(0), "abcde")
         assertPrints(str.substring(1), "bcde")
-        assertFails { str.substring(6) } // index exceeds string length
+        // startIndex exceeds the string length
+        assertFailsWith<IndexOutOfBoundsException> { str.substring(6) }
     }
 
     @Sample
-    fun substringByStandAndEndIndices() {
+    fun substringByStartAndEndIndices() {
         val str = "abcde"
         assertPrints(str.substring(0, 0), "")
         assertPrints(str.substring(0, 1), "a")
-        assertFails { str.substring(0, 6) } // index end exceeds string length
-        assertFails { str.substring(1, 0) } // index end is smaller thant index start
+        assertPrints(str.substring(5, 5), "")
+        // endIndex exceeds string length
+        assertFailsWith<IndexOutOfBoundsException> { str.substring(0, 6) }
+        // endIndex is smaller than the startIndex
+        assertFailsWith<IndexOutOfBoundsException> { str.substring(1, 0) }
     }
 
     @Sample
-    fun startsWithFromPrefix() {
+    fun startsWithPrefixCaseSensitive() {
         val str = "abcde"
         assertTrue(str.startsWith("abc"))
         assertFalse(str.startsWith("ABC"))
         assertFalse(str.startsWith("bcd"))
-        assertFalse(str.startsWith("BCD"))
     }
 
     @Sample
-    fun startsWithFromPrefixAndIgnoreCase() {
+    fun startsWithPrefixCaseInsensitive() {
         val str = "abcde"
-        assertTrue(str.startsWith("abc", true))
-        assertTrue(str.startsWith("ABC", true))
-        assertFalse(str.startsWith("bcd", true))
-        assertFalse(str.startsWith("BCD", true))
+        assertTrue(str.startsWith("abc", ignoreCase = true))
+        assertTrue(str.startsWith("ABC", ignoreCase = true))
+        assertFalse(str.startsWith("bcd", ignoreCase = true))
     }
 
     @Sample
-    fun startsWithFromPrefixAndStartIndex() {
+    fun startsWithPrefixAtPositionCaseSensitive() {
         val str = "abcde"
-        assertFalse(str.startsWith("abc", 1))
-        assertFalse(str.startsWith("ABC", 1))
-        assertFalse(str.startsWith("BCD", 1))
-        assertTrue(str.startsWith("bcd", 1))
+        assertFalse(str.startsWith("abc", startIndex = 1))
+        assertFalse(str.startsWith("BCD", startIndex = 1))
+        assertTrue(str.startsWith("bcd", startIndex = 1))
     }
 
     @Sample
-    fun startsWithFromPrefixAndStartIndexAndIgnoreCase() {
+    fun startsWithPrefixAtPositionCaseInsensitive() {
         val str = "abcde"
-        assertFalse(str.startsWith("abc", 1, true))
-        assertFalse(str.startsWith("ABC", 1, true))
-        assertTrue(str.startsWith("bcd", 1, true))
-        assertTrue(str.startsWith("BCD", 1, true))
+        assertFalse(str.startsWith("abc", startIndex = 1, ignoreCase = true))
+        assertTrue(str.startsWith("bcd", startIndex = 1, ignoreCase = true))
+        assertTrue(str.startsWith("BCD", startIndex = 1, ignoreCase = true))
     }
 
     @Sample
-    fun endsWithFromSuffix() {
+    fun endsWithSuffixCaseSensitive() {
         val str = "abcde"
         assertTrue(str.endsWith("cde"))
         assertFalse(str.endsWith("CDE"))
         assertFalse(str.endsWith("bcd"))
-        assertFalse(str.endsWith("BCD"))
     }
 
     @Sample
-    fun endsWith() {
+    fun endsWithSuffixCaseInsensitive() {
         val str = "abcde"
-        assertTrue(str.endsWith("cde", true))
-        assertTrue(str.endsWith("CDE", true))
-        assertFalse(str.endsWith("bcd", true))
-        assertFalse(str.endsWith("BCD", true))
+        assertTrue(str.endsWith("cde", ignoreCase = true))
+        assertTrue(str.endsWith("CDE", ignoreCase = true))
+        assertFalse(str.endsWith("bcd", ignoreCase = true))
     }
 
     @Sample
     fun codePointAt() {
         val str = "abc"
+        // 'a'.code == 97
         assertPrints(str.codePointAt(0).toString(), "97")
+        // 'b'.code == 98
         assertPrints(str.codePointAt(1).toString(), "98")
+        // 'c'.code == 99
         assertPrints(str.codePointAt(2).toString(), "99")
-        assertFails { str.codePointAt(3) }
-        assertFails { str.codePointAt(-1) }
-        assertFails { str.codePointAt(str.length) }
+        // 3 is out of the str bounds
+        assertFailsWith<IndexOutOfBoundsException> { str.codePointAt(3) }
+        // index is negative
+        assertFailsWith<IndexOutOfBoundsException> { str.codePointAt(-1) }
 
         val broccoli = "🥦"
+        // 🥦 has a code point value 0x1F966 (129382 in decimal), and it is represented as a UTF-16 surrogate pair 0xD83E, 0xDD66 (or 55358, 56678 in decimal)
+        // Returns a code point value corresponding to the surrogate pair with a high surrogate at index 0
         assertPrints(broccoli.codePointAt(0), "129382")
+        // Returns a code point value corresponding to the low surrogate
         assertPrints(broccoli.codePointAt(1), "56678")
     }
 
     @Sample
     fun codePointBefore() {
         val str = "abc"
+        // 'a'.code == 97
         assertPrints(str.codePointBefore(1).toString(), "97")
+        // 'b'.code == 98
         assertPrints(str.codePointBefore(2).toString(), "98")
+        // 'c'.code == 99
         assertPrints(str.codePointBefore(3).toString(), "99")
-        assertPrints(str.codePointBefore(str.length).toString(), "99")
-        assertFails { str.codePointBefore(0) }
-        assertFails { str.codePointBefore(-1) }
-        assertFails { str.codePointBefore(str.length + 1) }
+        // There are no code points prior to index 0
+        assertFailsWith<IndexOutOfBoundsException> { str.codePointBefore(0) }
+        // The index is negative
+        assertFailsWith<IndexOutOfBoundsException> { str.codePointBefore(-1) }
+        // The index exceeds the length of the string
+        assertFailsWith<IndexOutOfBoundsException> { str.codePointBefore(str.length + 1) }
 
         val broccoli = "🥦"
+        // 🥦 has a code point value 0x1F966 (129382 in decimal), and it is represented as a UTF-16 surrogate pair 0xD83E, 0xDD66 (or 55358, 56678 in decimal)
+        // Returns a code point value corresponding to the high surrogate
         assertPrints(broccoli.codePointBefore(1), "55358")
+        // Returns a code point value corresponding to the whole surrogate pair
         assertPrints(broccoli.codePointBefore(2), "129382")
-        assertFails { broccoli.codePointBefore(3) }
     }
 
     @Sample
     fun codePointCount() {
         val str = "abc"
-        assertPrints(str.codePointCount(0, 2).toString(), "2")
+        // The string contains three code points: 97, 98 and 99
+        assertPrints(str.codePointCount(0, 3).toString(), "3")
+        // There are two code points in between characters with code points 1 (inclusive) and 3 (exclusive)
         assertPrints(str.codePointCount(1, 3).toString(), "2")
+        // There are no code points for an empty range
         assertPrints(str.codePointCount(2, 2).toString(), "0")
-        assertFails { str.codePointCount(3, 2) }
-        assertFails { str.codePointCount(-1, 2) }
-        assertFails { str.codePointCount(0, str.length+1) }
+        // The begin index cannot exceed the end index
+        assertFailsWith<IndexOutOfBoundsException> { str.codePointCount(3, 2) }
+        // Indices cannot be negative
+        assertFailsWith<IndexOutOfBoundsException> { str.codePointCount(-1, 2) }
+        // The end index cannot exceed the length of the string
+        assertFailsWith<IndexOutOfBoundsException> { str.codePointCount(0, str.length + 1) }
 
         val broccoli = "🥦"
+        // 🥦 has a code point value 0x1F966, and it is represented as a UTF-16 surrogate pair 0xD83E, 0xDD66
+        // The surrogate pair is counted as a single code point
         assertPrints(broccoli.codePointCount(0, broccoli.length /* = 2 */), "1")
+        // The high-surrogate char is counted as a single code point as well
         assertPrints(broccoli.codePointCount(0, broccoli.length - 1 /* = 1 */), "1")
     }
 

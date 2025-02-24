@@ -364,7 +364,7 @@ internal expect fun String.nativeLastIndexOf(str: String, fromIndex: Int): Int
 /**
  * Returns a substring of this string that starts at the specified [startIndex] and continues to the end of the string.
  *
- * @sample samples.text.Strings.substring
+ * @sample samples.text.Strings.substringFromStartIndex
  */
 public expect fun String.substring(startIndex: Int): String
 
@@ -374,7 +374,7 @@ public expect fun String.substring(startIndex: Int): String
  * @param startIndex the start index (inclusive).
  * @param endIndex the end index (exclusive).
  *
- * @sample samples.text.Strings.substring
+ * @sample samples.text.Strings.substringByStartAndEndIndices
  */
 public expect fun String.substring(startIndex: Int, endIndex: Int): String
 
@@ -419,7 +419,6 @@ public expect fun String.replaceFirst(oldValue: String, newValue: String, ignore
  * If [ignoreCase] is true, the result of `Char.uppercaseChar().lowercaseChar()` on each character is compared.
  *
  * @param ignoreCase `true` to ignore character case when comparing strings. By default `false`.
- * @sample samples.text.Strings.equals
  */
 public expect fun String?.equals(other: String?, ignoreCase: Boolean = false): Boolean
 
@@ -435,21 +434,24 @@ public expect fun String.compareTo(other: String, ignoreCase: Boolean = false): 
 /**
  * Returns `true` if this string starts with the specified prefix.
  *
- * @sample samples.text.Strings.startsWith
+ * @sample samples.text.Strings.startsWithPrefixCaseSensitive
+ * @sample samples.text.Strings.startsWithPrefixCaseInsensitive
  */
 public expect fun String.startsWith(prefix: String, ignoreCase: Boolean = false): Boolean
 
 /**
  * Returns `true` if a substring of this string starting at the specified offset [startIndex] starts with the specified prefix.
  *
- * @sample samples.text.Strings.startsWith
+ * @sample samples.text.Strings.startsWithPrefixAtPositionCaseSensitive
+ * @sample samples.text.Strings.startsWithPrefixAtPositionCaseInsensitive
  */
 public expect fun String.startsWith(prefix: String, startIndex: Int, ignoreCase: Boolean = false): Boolean
 
 /**
  * Returns `true` if this string ends with the specified suffix.
  *
- * @sample samples.text.Strings.endsWith
+ * @sample samples.text.Strings.endsWithSuffixCaseSensitive
+ * @sample samples.text.Strings.endsWithSuffixCaseInsensitive
  */
 public expect fun String.endsWith(suffix: String, ignoreCase: Boolean = false): Boolean
 

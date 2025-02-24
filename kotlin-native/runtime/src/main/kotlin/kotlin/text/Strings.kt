@@ -139,6 +139,8 @@ public actual fun String.replaceFirst(oldValue: String, newValue: String, ignore
  *
  * @param startIndex the start index (inclusive).
  * @param endIndex the end index (exclusive).
+ *
+ * @sample samples.text.Strings.substringByStartAndEndIndices
  */
 @kotlin.internal.InlineOnly
 public actual inline fun String.substring(startIndex: Int, endIndex: Int): String =
@@ -147,7 +149,7 @@ public actual inline fun String.substring(startIndex: Int, endIndex: Int): Strin
 /**
  * Returns a substring of this string that starts at the specified [startIndex] and continues to the end of the string.
  *
- * @sample samples.text.Strings.substring
+ * @sample samples.text.Strings.substringFromStartIndex
  */
 @kotlin.internal.InlineOnly
 public actual inline fun String.substring(startIndex: Int): String =
@@ -156,7 +158,8 @@ public actual inline fun String.substring(startIndex: Int): String =
 /**
  * Returns `true` if this string starts with the specified prefix.
  *
- * @sample samples.text.Strings.startsWith
+ * @sample samples.text.Strings.startsWithPrefixCaseSensitive
+ * @sample samples.text.Strings.startsWithPrefixCaseInsensitive
  */
 @Suppress("ACTUAL_FUNCTION_WITH_DEFAULT_ARGUMENTS")
 public actual fun String.startsWith(prefix: String, ignoreCase: Boolean = false): Boolean =
@@ -165,7 +168,8 @@ public actual fun String.startsWith(prefix: String, ignoreCase: Boolean = false)
 /**
  * Returns `true` if a substring of this string starting at the specified offset [startIndex] starts with the specified prefix.
  *
- * @sample samples.text.Strings.startsWith
+ * @sample samples.text.Strings.startsWithPrefixAtPositionCaseSensitive
+ * @sample samples.text.Strings.startsWithPrefixAtPositionCaseInsensitive
  */
 @Suppress("ACTUAL_FUNCTION_WITH_DEFAULT_ARGUMENTS")
 public actual fun String.startsWith(prefix: String, startIndex: Int, ignoreCase: Boolean = false): Boolean =
@@ -174,7 +178,8 @@ public actual fun String.startsWith(prefix: String, startIndex: Int, ignoreCase:
 /**
  * Returns `true` if this string ends with the specified suffix.
  *
- * @sample samples.text.Strings.endsWith
+ * @sample samples.text.Strings.endsWithSuffixCaseSensitive
+ * @sample samples.text.Strings.endsWithSuffixCaseInsensitive
  */
 @Suppress("ACTUAL_FUNCTION_WITH_DEFAULT_ARGUMENTS")
 public actual fun String.endsWith(suffix: String, ignoreCase: Boolean = false): Boolean =

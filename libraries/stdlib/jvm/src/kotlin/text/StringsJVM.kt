@@ -48,7 +48,6 @@ internal actual inline fun String.nativeLastIndexOf(str: String, fromIndex: Int)
  * If [ignoreCase] is true, the result of `Char.uppercaseChar().lowercaseChar()` on each character is compared.
  *
  * @param ignoreCase `true` to ignore character case when comparing strings. By default `false`.
- * @sample samples.text.Strings.equals
  */
 @Suppress("ACTUAL_FUNCTION_WITH_DEFAULT_ARGUMENTS")
 public actual fun String?.equals(other: String?, ignoreCase: Boolean = false): Boolean {
@@ -269,6 +268,8 @@ public actual fun String.encodeToByteArray(): ByteArray {
  * @throws IndexOutOfBoundsException if [startIndex] is less than zero or [endIndex] is greater than the length of this string.
  * @throws IllegalArgumentException if [startIndex] is greater than [endIndex].
  * @throws CharacterCodingException if this string contains malformed char sequence and [throwOnInvalidSequence] is true.
+ *
+ * @sample samples.text.Strings.encodeToByteArray
  */
 @SinceKotlin("1.4")
 @Suppress("ACTUAL_FUNCTION_WITH_DEFAULT_ARGUMENTS")
@@ -400,7 +401,7 @@ public fun CharSequence.split(regex: Pattern, limit: Int = 0): List<String> {
 /**
  * Returns a substring of this string that starts at the specified [startIndex] and continues to the end of the string.
  *
- * @sample samples.text.Strings.substring
+ * @sample samples.text.Strings.substringFromStartIndex
  */
 @kotlin.internal.InlineOnly
 public actual inline fun String.substring(startIndex: Int): String = (this as java.lang.String).substring(startIndex)
@@ -411,7 +412,7 @@ public actual inline fun String.substring(startIndex: Int): String = (this as ja
  * @param startIndex the start index (inclusive).
  * @param endIndex the end index (exclusive).
  *
- * @sample samples.text.Strings.substring
+ * @sample samples.text.Strings.substringByStartAndEndIndices
  */
 @kotlin.internal.InlineOnly
 public actual inline fun String.substring(startIndex: Int, endIndex: Int): String = (this as java.lang.String).substring(startIndex, endIndex)
@@ -419,7 +420,8 @@ public actual inline fun String.substring(startIndex: Int, endIndex: Int): Strin
 /**
  * Returns `true` if this string starts with the specified prefix.
  *
- * @sample samples.text.Strings.startsWith
+ * @sample samples.text.Strings.startsWithPrefixCaseSensitive
+ * @sample samples.text.Strings.startsWithPrefixCaseInsensitive
  */
 @Suppress("ACTUAL_FUNCTION_WITH_DEFAULT_ARGUMENTS")
 public actual fun String.startsWith(prefix: String, ignoreCase: Boolean = false): Boolean {
@@ -432,7 +434,8 @@ public actual fun String.startsWith(prefix: String, ignoreCase: Boolean = false)
 /**
  * Returns `true` if a substring of this string starting at the specified offset [startIndex] starts with the specified prefix.
  *
- * @sample samples.text.Strings.startsWith
+ * @sample samples.text.Strings.startsWithPrefixAtPositionCaseSensitive
+ * @sample samples.text.Strings.startsWithPrefixAtPositionCaseInsensitive
  */
 @Suppress("ACTUAL_FUNCTION_WITH_DEFAULT_ARGUMENTS")
 public actual fun String.startsWith(prefix: String, startIndex: Int, ignoreCase: Boolean = false): Boolean {
@@ -445,7 +448,8 @@ public actual fun String.startsWith(prefix: String, startIndex: Int, ignoreCase:
 /**
  * Returns `true` if this string ends with the specified suffix.
  *
- * @sample samples.text.Strings.endsWith
+ * @sample samples.text.Strings.endsWithSuffixCaseSensitive
+ * @sample samples.text.Strings.endsWithSuffixCaseInsensitive
  */
 @Suppress("ACTUAL_FUNCTION_WITH_DEFAULT_ARGUMENTS")
 public actual fun String.endsWith(suffix: String, ignoreCase: Boolean = false): Boolean {
@@ -545,8 +549,7 @@ public inline fun String(stringBuilder: java.lang.StringBuilder): String =
  *
  * @param  index the index to the [Char] values
  *
- * @throws IndexOutOfBoundsException if the [index] argument is negative.
- * @throws IndexOutOfBoundsException if the [index] argument is less than the length of this string.
+ * @throws IndexOutOfBoundsException if the [index] argument is negative, or greater than or equal to the length of this string.
  *
  * @sample samples.text.Strings.codePointAt
  */
@@ -564,8 +567,7 @@ public inline fun String.codePointAt(index: Int): Int = (this as java.lang.Strin
  *
  * @param  index the index following the code point that should be returned
  *
- * @throws IndexOutOfBoundsException if the [index] argument is less than 1.
- * @throws IndexOutOfBoundsException if the [index] argument is greater than the length of this string.
+ * @throws IndexOutOfBoundsException if the [index] argument is less than 1, or greater than the length of this string.
  *
  * @sample samples.text.Strings.codePointBefore
  */
@@ -574,16 +576,17 @@ public inline fun String.codePointBefore(index: Int): Int = (this as java.lang.S
 
 /**
  * Returns the number of Unicode code points in the specified text range of this String.
+ *
  * The text range begins at the specified [beginIndex] and extends to the [Char] at index [endIndex] - 1.
- * Thus the length (in [Char]s) of the text range is [endIndex]-[beginIndex].
+ * Thus, the length (in [Char]s) of the text range is [endIndex]-[beginIndex].
  * Unpaired surrogates within the text range count as one code point each.
  *
  * @param beginIndex the index to the first [Char] of the text range.
  * @param endIndex the index after the last [Char] of the text range.
  *
  * @throws IndexOutOfBoundsException if the [beginIndex] is negative
- * @throws IndexOutOfBoundsException if the [endIndex] is larger than the length of this [String]
- * @throws IndexOutOfBoundsException if the [beginIndex] is larger than [endIndex].
+ * @throws IndexOutOfBoundsException if the [endIndex] is greater than the length of this [String]
+ * @throws IndexOutOfBoundsException if the [beginIndex] is greater than [endIndex].
  *
  * @sample samples.text.Strings.codePointCount
  */
