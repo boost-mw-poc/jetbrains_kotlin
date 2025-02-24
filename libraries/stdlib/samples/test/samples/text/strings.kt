@@ -724,6 +724,7 @@ class Strings {
         assertTrue(str.startsWith("abc"))
         assertFalse(str.startsWith("ABC"))
         assertFalse(str.startsWith("bcd"))
+        assertFalse(str.startsWith("abcdef"))
     }
 
     @Sample
@@ -756,6 +757,7 @@ class Strings {
         assertTrue(str.endsWith("cde"))
         assertFalse(str.endsWith("CDE"))
         assertFalse(str.endsWith("bcd"))
+        assertFalse(str.endsWith("_abcde"))
     }
 
     @Sample
