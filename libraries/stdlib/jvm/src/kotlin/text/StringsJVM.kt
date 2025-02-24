@@ -334,7 +334,7 @@ public actual inline fun String.toCharArray(
  * See [java.util.Formatter] class documentation
  * for the syntax of format specifiers for the format string.
  *
- * @sample samples.text.Strings.formatExtension
+ * @sample samples.text.StringsJvmSpecific.formatExtension
  */
 @kotlin.internal.InlineOnly
 public inline fun String.format(vararg args: Any?): String = java.lang.String.format(this, *args)
@@ -347,7 +347,7 @@ public inline fun String.format(vararg args: Any?): String = java.lang.String.fo
  * See [java.util.Formatter] class documentation
  * for the syntax of format specifiers for the format string.
  *
- * @sample samples.text.Strings.formatStatic
+ * @sample samples.text.StringsJvmSpecific.formatStatic
  */
 @kotlin.internal.InlineOnly
 public inline fun String.Companion.format(format: String, vararg args: Any?): String = java.lang.String.format(format, *args)
@@ -360,7 +360,7 @@ public inline fun String.Companion.format(format: String, vararg args: Any?): St
  * See [java.util.Formatter] class documentation
  * for the syntax of format specifiers for the format string.
  *
- * @sample samples.text.Strings.formatWithLocaleExtension
+ * @sample samples.text.StringsJvmSpecific.formatWithLocaleExtension
  */
 @SinceKotlin("1.4")
 @kotlin.internal.InlineOnly
@@ -374,7 +374,7 @@ public inline fun String.format(locale: Locale?, vararg args: Any?): String = ja
  * See [java.util.Formatter] class documentation
  * for the syntax of format specifiers for the format string.
  *
- * @sample samples.text.Strings.formatWithLocaleStatic
+ * @sample samples.text.StringsJvmSpecific.formatWithLocaleStatic
  */
 @SinceKotlin("1.4")
 @kotlin.internal.InlineOnly
@@ -551,7 +551,7 @@ public inline fun String(stringBuilder: java.lang.StringBuilder): String =
  *
  * @throws IndexOutOfBoundsException if the [index] argument is negative, or greater than or equal to the length of this string.
  *
- * @sample samples.text.Strings.codePointAt
+ * @sample samples.text.StringsJvmSpecific.codePointAt
  */
 @kotlin.internal.InlineOnly
 public inline fun String.codePointAt(index: Int): Int = (this as java.lang.String).codePointAt(index)
@@ -569,7 +569,7 @@ public inline fun String.codePointAt(index: Int): Int = (this as java.lang.Strin
  *
  * @throws IndexOutOfBoundsException if the [index] argument is less than 1, or greater than the length of this string.
  *
- * @sample samples.text.Strings.codePointBefore
+ * @sample samples.text.StringsJvmSpecific.codePointBefore
  */
 @kotlin.internal.InlineOnly
 public inline fun String.codePointBefore(index: Int): Int = (this as java.lang.String).codePointBefore(index)
@@ -588,7 +588,7 @@ public inline fun String.codePointBefore(index: Int): Int = (this as java.lang.S
  * @throws IndexOutOfBoundsException if the [endIndex] is greater than the length of this [String]
  * @throws IndexOutOfBoundsException if the [beginIndex] is greater than [endIndex].
  *
- * @sample samples.text.Strings.codePointCount
+ * @sample samples.text.StringsJvmSpecific.codePointCount
  */
 @kotlin.internal.InlineOnly
 public inline fun String.codePointCount(beginIndex: Int, endIndex: Int): Int =
@@ -716,7 +716,7 @@ public inline fun String.toLowerCase(locale: java.util.Locale): String = lowerca
  * This function supports one-to-many and many-to-one character mapping,
  * thus the length of the returned string can be different from the length of the original string.
  *
- * @sample samples.text.Strings.lowercaseLocale
+ * @sample samples.text.StringsJvmSpecific.lowercaseLocale
  */
 @SinceKotlin("1.5")
 @kotlin.internal.InlineOnly
@@ -736,7 +736,7 @@ public inline fun String.toUpperCase(locale: java.util.Locale): String = upperca
  * This function supports one-to-many and many-to-one character mapping,
  * thus the length of the returned string can be different from the length of the original string.
  *
- * @sample samples.text.Strings.uppercaseLocale
+ * @sample samples.text.StringsJvmSpecific.uppercaseLocale
  */
 @SinceKotlin("1.5")
 @kotlin.internal.InlineOnly
@@ -754,7 +754,7 @@ public inline fun String.toByteArray(charset: Charset = Charsets.UTF_8): ByteArr
  * with the specified [flags] from [Pattern] or'd together
  * so that strings can be split or matched on.
  *
- * @sample samples.text.Strings.toPattern
+ * @sample samples.text.StringsJvmSpecific.toPattern
  */
 @kotlin.internal.InlineOnly
 public inline fun String.toPattern(flags: Int = 0): java.util.regex.Pattern {
