@@ -128,7 +128,7 @@ object FirContractChecker : FirFunctionChecker(MppCheckerKind.Common) {
 
         fun contractNotAllowed(message: String) = reporter.reportOn(source, FirErrors.CONTRACT_NOT_ALLOWED, message, context)
 
-        if (declaration is FirPropertyAccessor || declaration is FirAnonymousFunction) contractNotAllowed("Contracts are only allowed for functions.")
+        if (declaration is FirAnonymousFunction) contractNotAllowed("Contracts are only allowed for functions.")
         else if (declaration.isAbstract || declaration.isOpen || declaration.isOverride) contractNotAllowed("Contracts are not allowed for open or override functions.")
         else if (declaration.isOperator && declaration.isContractOnOperatorForbidden()) contractNotAllowed("Contracts are not allowed for operator ${declaration.nameOrSpecialName}.")
         else if (declaration.symbol.callableId.isLocal || declaration.visibility == Visibilities.Local) contractNotAllowed("Contracts are not allowed for local functions.")
