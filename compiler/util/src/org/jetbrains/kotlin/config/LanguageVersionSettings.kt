@@ -429,6 +429,7 @@ enum class LanguageFeature(
     AllowCheckForErasedTypesInContracts(KOTLIN_2_3, "KT-45683"),
     AllowContractsOnSomeOperators(KOTLIN_2_3, "KT-32313"),
     AllowContractsOnPropertyAccessors(KOTLIN_2_3, "KT-27090"),
+    ConditionImpliesReturnsContracts(KOTLIN_2_3, "KT-8889"),
 
     // 2.4 TODO set sinceVersion to 2.4 when it becomes available
 
