@@ -87,6 +87,16 @@ class ConeEffectExtractor(
                 }
             }
 
+            FirContractsDslNames.IMPLIES_BUILDER -> {
+                val condition = functionCall.explicitReceiver?.asContractElement() as? ConeBooleanExpression ?: noReceiver(resolvedId)
+                when (val argument = functionCall.arguments.getOrNull(0)) {
+                    null -> noArgument(resolvedId)
+                    else -> (argument.asContractElement() as? ConeEffectDeclaration)?.let {
+                        ConeConditionalReturnsDeclaration(condition, it)
+                    } ?: ConeContractDescriptionError.IllegalElement(argument).asElement()
+                }
+            }
+
             BOOLEAN_AND, BOOLEAN_OR -> {
                 val left = functionCall.explicitReceiver?.asContractBooleanExpression() ?: noReceiver(resolvedId)
                 val right = functionCall.arguments.firstOrNull()?.asContractBooleanExpression() ?: noArgument(resolvedId)

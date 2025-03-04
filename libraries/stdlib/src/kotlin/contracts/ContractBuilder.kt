@@ -83,6 +83,8 @@ public interface ContractBuilder {
     * @sample samples.contracts.callsInPlaceUnknownContract
     */
     @ContractsDsl public fun <R> callsInPlace(lambda: Function<R>, kind: InvocationKind = InvocationKind.UNKNOWN): CallsInPlace
+
+    @ContractsDsl infix public fun Boolean.implies(value: ReturnsNotNull)
 }
 
 /**

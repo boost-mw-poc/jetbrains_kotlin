@@ -266,10 +266,9 @@ abstract class LogicSystem(private val context: ConeInferenceContext) {
 
             val operation = next.operation
             val variable = next.variable
-            if (variable.isReal()) {
-                val impliedType = if (operation == Operation.EqNull) nullableNothingType else anyType
-                result.getOrPut(variable) { MutableTypeStatement(variable) }.exactType.add(impliedType)
-            }
+
+            val impliedType = if (operation == Operation.EqNull) nullableNothingType else anyType
+            result.getOrPut(variable) { MutableTypeStatement(variable) }.exactType.add(impliedType)
 
             val statements = logicStatements[variable] ?: continue
             val stillUnknown = statements.removeAll {

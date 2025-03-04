@@ -48748,6 +48748,12 @@ public class LLDiagnosticsFe10TestGenerated extends AbstractLLDiagnosticsTest {
         }
 
         @Test
+        @TestMetadata("returnContractsK2.kt")
+        public void testReturnContractsK2() {
+          runTest("compiler/testData/diagnostics/testsWithStdLib/contracts/dsl/returnContractsK2.kt");
+        }
+
+        @Test
         @TestMetadata("rewriteAtSliceFunctor.kt")
         public void testRewriteAtSliceFunctor() {
           runTest("compiler/testData/diagnostics/testsWithStdLib/contracts/dsl/rewriteAtSliceFunctor.kt");

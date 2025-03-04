@@ -278,7 +278,7 @@ private class ContextCollectorVisitor(
         if (cfgNode != null) {
             val flow = cfgNode.flow
 
-            val realVariables = flow.knownVariables
+            val realVariables = flow.knownVariables.filterIsInstance<RealVariable>()
                 .sortedBy { it.symbol.memberDeclarationNameOrNull?.asString() }
 
             for (realVariable in realVariables) {
@@ -288,7 +288,7 @@ private class ContextCollectorVisitor(
                     continue
                 }
 
-                smartCasts[typeStatement.variable] = typeStatement.exactType
+                smartCasts[typeStatement.variable as RealVariable] = typeStatement.exactType
 
                 // The compiler pushes smart-cast types for implicit receivers to ease later lookups.
                 // Here we emulate such behavior. Unlike the compiler, though, modified types are only reflected in the created snapshot.
