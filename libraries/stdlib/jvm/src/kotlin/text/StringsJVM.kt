@@ -564,14 +564,12 @@ public inline fun String(stringBuilder: java.lang.StringBuilder): String =
 /**
  * Returns the character (Unicode code point) at the specified index.
  *
- * If the [Char] value specified at the given index is in the high-surrogate range, the following index is
- * less than the length of this [String], and the [Char] value at the following index is in the low-surrogate range,
- * then the supplementary code point corresponding to this surrogate pair is returned. Otherwise, the [Char] value at
- * the given index is returned.
+ * This function delegates to `java.lang.String.codePointAt`,
+ * refer to the corresponding [documentation](https://docs.oracle.com/javase/8/docs/api/java/lang/String.html#codePointAt-int-)
+ * for more details on function's behavior.
  *
- * @param  index the index to the [Char] values
- *
- * @throws IndexOutOfBoundsException if the [index] argument is negative, or greater than or equal to the length of this string.
+ * @param index the index of [Char] whose codepoint value is needed.
+ * @throws IndexOutOfBoundsException if the [index] is negative or greater or equal to [length] of this string.
  *
  * @sample samples.text.StringsJvmSpecific.codePointAt
  */
@@ -580,16 +578,13 @@ public inline fun String.codePointAt(index: Int): Int = (this as java.lang.Strin
 
 /**
  * Returns the character (Unicode code point) before the specified index.
- * The index refers to [Char] values (Unicode code units) and ranges from 1 to [CharSequence.length].
  *
- * If the [Char] value at [index] - 1 is in the low-surrogate range, [index] - 2 is not negative, and the [Char] value
- * at [index] - 2 is in the high-surrogate range, then the supplementary code point value of the surrogate pair is returned.
+ * This function delegates to `java.lang.String.codePointBefore`,
+ * refer to the corresponding [documentation](https://docs.oracle.com/javase/8/docs/api/java/lang/String.html#codePointBefore-int-)
+ * for more details on function's behavior.
  *
- * If the [Char] value at [index - 1] is an unpaired low-surrogate or a high-surrogate, the surrogate value is returned.
- *
- * @param  index the index following the code point that should be returned
- *
- * @throws IndexOutOfBoundsException if the [index] argument is less than 1, or greater than the length of this string.
+ * @param index the index of a [Char] which follows a codepoint value that will be returned.
+ * @throws IndexOutOfBoundsException if the [index] is less than 1, or exceeds the [length] of this string.
  *
  * @sample samples.text.StringsJvmSpecific.codePointBefore
  */
@@ -599,16 +594,15 @@ public inline fun String.codePointBefore(index: Int): Int = (this as java.lang.S
 /**
  * Returns the number of Unicode code points in the specified text range of this String.
  *
- * The text range begins at the specified [beginIndex] and extends to the [Char] at index [endIndex] - 1.
- * Thus, the length (in [Char]s) of the text range is [endIndex]-[beginIndex].
- * Unpaired surrogates within the text range count as one code point each.
+ * This function delegates to `java.lang.String.codePointCount`,
+ * refer to the corresponding [documentation](https://docs.oracle.com/javase/8/docs/api/java/lang/String.html#codePointCount-int-int-)
+ * for more details on function's behavior.
  *
- * @param beginIndex the index to the first [Char] of the text range.
- * @param endIndex the index after the last [Char] of the text range.
+ * @param beginIndex the index of a [Char] corresponding to a beginning of the text range (inclusive).
+ * @param endIndex the index of a [Char] corresponding to an end of the text range (exclusive).
  *
- * @throws IndexOutOfBoundsException if the [beginIndex] is negative
- * @throws IndexOutOfBoundsException if the [endIndex] is greater than the length of this [String]
- * @throws IndexOutOfBoundsException if the [beginIndex] is greater than [endIndex].
+ * @throws IndexOutOfBoundsException when either of the indices is negative, exceeds [length] of this string, or
+ *     when [beginIndex] is greater than [endIndex].
  *
  * @sample samples.text.StringsJvmSpecific.codePointCount
  */
