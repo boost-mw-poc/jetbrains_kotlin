@@ -633,51 +633,6 @@ class Strings {
     }
 
     @Sample
-    fun splitWithPattern() {
-        val digitSplit = "apple123banana456cherry".split(Pattern.compile("\\d+"))
-        assertPrints(digitSplit, "[apple, banana, cherry]")
-
-        val wordBoundarySplit = "The quick brown fox".split(Pattern.compile("\\s+"))
-        assertPrints(wordBoundarySplit, "[The, quick, brown, fox]")
-
-        val limitSplit = "a,b,c,d,e".split(Pattern.compile(","), limit = 3)
-        assertPrints(limitSplit, "[a, b, c,d,e]")
-
-        val patternGroups = "abc-123def_456ghi".split(Pattern.compile("[\\-_]\\d+"))
-        assertPrints(patternGroups, "[abc, def, ghi]")
-
-        val caseInsensitiveSplit = "Apple123Banana45CHERRY".split(Pattern.compile("[a-z]+", Pattern.CASE_INSENSITIVE))
-        assertPrints(caseInsensitiveSplit, "[, 123, 45, ]")
-
-        val emptyInputResult = "".split(Pattern.compile("sep"))
-        assertTrue(emptyInputResult == listOf(""))
-
-        val emptyDelimiterSplit = "abc".split(Pattern.compile(""))
-        assertPrints(emptyDelimiterSplit, "[a, b, c, ]")
-
-        val splitByMultipleSpaces = "a  b    c".split(Pattern.compile("\\s+"))
-        assertPrints(splitByMultipleSpaces, "[a, b, c]")
-
-        val splitBySingleSpace = "a  b    c".split(Pattern.compile("\\s"))
-        assertPrints(splitBySingleSpace, "[a, , b, , , , c]")
-    }
-
-    @Sample
-    fun toPattern() {
-        val string = "Kotlin [1-9]+\\.[0-9]\\.[0-9]+"
-        val pattern = string.toPattern(Pattern.CASE_INSENSITIVE)
-        assertPrints(pattern.pattern(), string)
-        assertTrue(pattern.flags() == Pattern.CASE_INSENSITIVE)
-        assertTrue(pattern.matcher("Kotlin 2.1.255").matches())
-        assertTrue(pattern.matcher("kOtLiN 21.0.1").matches())
-        assertFalse(pattern.matcher("Java 21.0.1").matches())
-        assertFalse(pattern.matcher("Kotlin 2.0").matches())
-
-        // the given regex is malformed
-        assertFails { "[0-9".toPattern(Pattern.CASE_INSENSITIVE) }
-    }
-
-    @Sample
     fun encodeToByteArray() {
         // \u00a0 is a non-breaking space
         val str = "Kòtlin\u00a02.1.255"

@@ -146,4 +146,34 @@ class StringsJvmSpecific {
         // The high-surrogate char is counted as a single code point as well
         assertPrints(broccoli.codePointCount(0, broccoli.length - 1 /* = 1 */), "1")
     }
+
+    @Sample
+    fun splitWithPattern() {
+        val digitSplit = "apple123banana456cherry".split(Pattern.compile("\\d+"))
+        assertPrints(digitSplit, "[apple, banana, cherry]")
+
+        val wordBoundarySplit = "The quick brown fox".split(Pattern.compile("\\s+"))
+        assertPrints(wordBoundarySplit, "[The, quick, brown, fox]")
+
+        val limitSplit = "a,b,c,d,e".split(Pattern.compile(","), limit = 3)
+        assertPrints(limitSplit, "[a, b, c,d,e]")
+
+        val patternGroups = "abc-123def_456ghi".split(Pattern.compile("[\\-_]\\d+"))
+        assertPrints(patternGroups, "[abc, def, ghi]")
+
+        val caseInsensitiveSplit = "Apple123Banana45CHERRY".split(Pattern.compile("[a-z]+", Pattern.CASE_INSENSITIVE))
+        assertPrints(caseInsensitiveSplit, "[, 123, 45, ]")
+
+        val emptyInputResult = "".split(Pattern.compile("sep"))
+        assertTrue(emptyInputResult == listOf(""))
+
+        val emptyDelimiterSplit = "abc".split(Pattern.compile(""))
+        assertPrints(emptyDelimiterSplit, "[a, b, c, ]")
+
+        val splitByMultipleSpaces = "a  b    c".split(Pattern.compile("\\s+"))
+        assertPrints(splitByMultipleSpaces, "[a, b, c]")
+
+        val splitBySingleSpace = "a  b    c".split(Pattern.compile("\\s"))
+        assertPrints(splitBySingleSpace, "[a, , b, , , , c]")
+    }
 }
