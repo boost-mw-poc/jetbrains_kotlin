@@ -25,7 +25,7 @@ data class OperationStatement(override val variable: DataFlowVariable, val opera
 }
 
 sealed class TypeStatement : Statement() {
-    abstract override val variable: RealVariable
+    abstract override val variable: DataFlowVariable
     abstract val exactType: Set<ConeKotlinType>
 
     val isEmpty: Boolean

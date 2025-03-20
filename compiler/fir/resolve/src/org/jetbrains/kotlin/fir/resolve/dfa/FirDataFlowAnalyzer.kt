@@ -81,7 +81,8 @@ abstract class FirDataFlowAnalyzer(
 
                 @OptIn(ImplicitValue.ImplicitValueInternals::class)
                 override fun implicitUpdated(info: TypeStatement) {
-                    receiverStack.replaceImplicitValueType(info.variable.symbol, info.smartCastedType(typeContext))
+                    val dataFlowVariable = info.variable as? RealVariable ?: error("Not a real variable: ${info.variable}")
+                    receiverStack.replaceImplicitValueType(dataFlowVariable.symbol, info.smartCastedType(typeContext))
                 }
 
                 override val logicSystem: LogicSystem =
@@ -1575,7 +1576,8 @@ abstract class FirDataFlowAnalyzer(
 
     private fun MutableFlow.addTypeStatement(info: TypeStatement) {
         val newStatement = logicSystem.addTypeStatement(this, info) ?: return
-        if (newStatement.variable.isImplicit && this === currentSmartCastPosition) {
+        val dataFlowVariable = newStatement.variable
+        if (dataFlowVariable is RealVariable && dataFlowVariable.isImplicit && this === currentSmartCastPosition) {
             implicitUpdated(newStatement)
         }
     }
