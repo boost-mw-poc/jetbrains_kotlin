@@ -65,7 +65,7 @@ abstract class VariableInitializationCheckProcessor {
         doNotReportConstantUninitialized: Boolean,
         scopes: MutableMap<FirVariableSymbol<*>, FirDeclaration?>,
     ) {
-        for (node in graph.nodes.distinctBy { it.javaClass to it.fir }) {
+        for (node in graph.nodes) {
             if (node.isUnion) {
                 processUnionNode(node, properties, context, reporter)
             }

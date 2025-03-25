@@ -226,6 +226,8 @@ open class FirExpressionsResolveTransformer(transformer: FirAbstractBodyResolveT
                     is FirResolvedQualifier -> dataFlowAnalyzer.exitResolvedQualifierNode(this)
                     else -> return this
                 }
+            } else if (this.source?.kind != KtRealSourceElementKind) {
+                return this
             }
             return components.transformExpressionUsingSmartcastInfo(this).also {
                 if (it is FirSmartCastExpression) {
