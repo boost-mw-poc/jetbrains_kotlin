@@ -106,6 +106,13 @@ public interface ContractBuilder {
     @ExperimentalExtendedContracts
     @ContractsDsl
     public infix fun Boolean.implies(value: ReturnsNotNull)
+
+    /**
+     * Specifies the effect that will be observed in the body of the function [lambda]
+     */
+    @ExperimentalExtendedContracts
+    @ContractsDsl
+    public infix fun <R> Boolean.holdsIn(lambda: Function<R>): HoldsIn
 }
 
 /**
