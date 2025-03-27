@@ -74,6 +74,16 @@ open class KtCallsEffectDeclaration<Type, Diagnostic>(
         contractDescriptionVisitor.visitCallsEffectDeclaration(this, data)
 }
 
+open class KtInsideLambdaEffectDeclaration<Type, Diagnostic>(
+    val valueParameterReference: KtValueParameterReference<Type, Diagnostic>,
+) : KtEffectDeclaration<Type, Diagnostic>() {
+    override val erroneous: Boolean
+        get() = valueParameterReference.erroneous
+
+    override fun <R, D> accept(contractDescriptionVisitor: KtContractDescriptionVisitor<R, D, Type, Diagnostic>, data: D): R =
+        contractDescriptionVisitor.visitInsideLambdaEffectDeclaration(this, data)
+}
+
 class KtErroneousCallsEffectDeclaration<Type, Diagnostic>(
     valueParameterReference: KtValueParameterReference<Type, Diagnostic>,
     val diagnostic: Diagnostic

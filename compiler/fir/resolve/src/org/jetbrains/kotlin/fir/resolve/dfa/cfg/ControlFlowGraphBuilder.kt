@@ -269,7 +269,9 @@ class ControlFlowGraphBuilder {
     // created and will capture local variables. This node will be linked to the anonymous
     // function enter node and used during variable initialization analysis to determine if
     // captured vals are correctly initialized.
-    fun enterAnonymousFunctionExpression(anonymousFunctionExpression: FirAnonymousFunctionExpression): Pair<AnonymousFunctionExpressionNode?, AnonymousFunctionCaptureNode?> {
+    fun enterAnonymousFunctionExpression(anonymousFunctionExpression: FirAnonymousFunctionExpression):
+            Triple<AnonymousFunctionExpressionNode?, AnonymousFunctionCaptureNode?, FunctionCallArgumentsExitNode?> {
+
         val symbol = anonymousFunctionExpression.anonymousFunction.symbol
         val enterNode = postponedAnonymousFunctionNodes[symbol]?.first ?: run {
             val expressionNode = createAnonymousFunctionExpressionNode(anonymousFunctionExpression).also {
@@ -277,7 +279,7 @@ class ControlFlowGraphBuilder {
                 // Not in an argument list, won't be called in-place, don't need an exit node.
                 postponedAnonymousFunctionNodes[symbol] = it to null
             }
-            return expressionNode to null
+            return Triple(expressionNode, null, null)
         }
 
         val captureNode = createAnonymousFunctionCaptureNode(anonymousFunctionExpression).also {
@@ -293,7 +295,7 @@ class ControlFlowGraphBuilder {
         postponedAnonymousFunctionNodes[symbol] = enterNode to exitNode
         postponedLambdaExits.top().exits.add(exitNode to EdgeKind.Forward)
 
-        return null to captureNode
+        return Triple(null, captureNode, exitFunctionCallArgumentsNodes.topOrNull())
     }
 
     fun enterAnonymousFunction(anonymousFunction: FirAnonymousFunction): FunctionEnterNode {

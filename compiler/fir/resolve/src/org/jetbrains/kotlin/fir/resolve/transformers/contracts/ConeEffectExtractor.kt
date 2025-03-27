@@ -97,6 +97,11 @@ class ConeEffectExtractor(
                 }
             }
 
+            FirContractsDslNames.INSIDE -> {
+                val reference = functionCall.arguments[0].asContractValueExpression()
+                ConeInsideLambdaEffectDeclaration(reference)
+            }
+
             BOOLEAN_AND, BOOLEAN_OR -> {
                 val left = functionCall.explicitReceiver?.asContractBooleanExpression() ?: noReceiver(resolvedId)
                 val right = functionCall.arguments.firstOrNull()?.asContractBooleanExpression() ?: noArgument(resolvedId)

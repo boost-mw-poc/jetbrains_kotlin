@@ -92,3 +92,8 @@ public interface ReturnsNotNull : SimpleEffect
 @ExperimentalContracts
 @SinceKotlin("1.3")
 public interface CallsInPlace : Effect
+
+@ContractsDsl
+@ExperimentalContracts
+@SinceKotlin("2.0")
+public interface InsideLambda : SimpleEffect

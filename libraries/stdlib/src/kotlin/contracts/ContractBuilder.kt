@@ -85,6 +85,8 @@ public interface ContractBuilder {
     @ContractsDsl public fun <R> callsInPlace(lambda: Function<R>, kind: InvocationKind = InvocationKind.UNKNOWN): CallsInPlace
 
     @ContractsDsl infix public fun Boolean.implies(value: ReturnsNotNull)
+
+    @ContractsDsl public fun <R> inside(lambda: Function<R>): InsideLambda
 }
 
 /**
