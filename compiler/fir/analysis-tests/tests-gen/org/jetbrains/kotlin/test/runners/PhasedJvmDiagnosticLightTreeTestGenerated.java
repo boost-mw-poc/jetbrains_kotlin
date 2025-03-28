@@ -23088,9 +23088,27 @@ public class PhasedJvmDiagnosticLightTreeTestGenerated extends AbstractPhasedJvm
         }
 
         @Test
+        @TestMetadata("publicClassViaPrivateTypealias.kt")
+        public void testPublicClassViaPrivateTypealias() {
+          runTest("compiler/testData/diagnostics/tests/inline/nonPublicMember/publicClassViaPrivateTypealias.kt");
+        }
+
+        @Test
         @TestMetadata("publishedApi.kt")
         public void testPublishedApi() {
           runTest("compiler/testData/diagnostics/tests/inline/nonPublicMember/publishedApi.kt");
+        }
+
+        @Test
+        @TestMetadata("qualifier.kt")
+        public void testQualifier() {
+          runTest("compiler/testData/diagnostics/tests/inline/nonPublicMember/qualifier.kt");
+        }
+
+        @Test
+        @TestMetadata("typeRef.kt")
+        public void testTypeRef() {
+          runTest("compiler/testData/diagnostics/tests/inline/nonPublicMember/typeRef.kt");
         }
       }
 

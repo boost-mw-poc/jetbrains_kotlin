@@ -877,6 +877,17 @@ public class FirLightTreeOldFrontendDiagnosticsWithoutAliasExpansionTestGenerate
       public void testUsageIsNotInlinable() {
         runTest("compiler/testData/diagnostics/tests/inline/usageIsNotInlinable.kt");
       }
+
+      @Nested
+      @TestMetadata("compiler/testData/diagnostics/tests/inline/nonPublicMember")
+      @TestDataPath("$PROJECT_ROOT")
+      public class NonPublicMember {
+        @Test
+        @TestMetadata("publicClassViaPrivateTypealias.kt")
+        public void testPublicClassViaPrivateTypealias() {
+          runTest("compiler/testData/diagnostics/tests/inline/nonPublicMember/publicClassViaPrivateTypealias.kt");
+        }
+      }
     }
 
     @Nested
