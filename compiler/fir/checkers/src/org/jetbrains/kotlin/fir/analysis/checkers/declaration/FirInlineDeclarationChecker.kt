@@ -91,11 +91,23 @@ object FirInlineDeclarationChecker : FirFunctionChecker(MppCheckerKind.Common) {
             accessedDeclarationEffectiveVisibility: EffectiveVisibility,
             declarationVisibility: Visibility,
         ): Boolean {
-            val isCalledFunPublicOrPublishedApi = accessedDeclarationEffectiveVisibility.publicApi
+            val isAccessedDeclarationPublicOrPublishedApi = accessedDeclarationEffectiveVisibility.publicApi
             val isInlineFunPublicOrPublishedApi = inlineFunEffectiveVisibility.publicApi
             return isInlineFunPublicOrPublishedApi &&
-                    !isCalledFunPublicOrPublishedApi &&
+                    !isAccessedDeclarationPublicOrPublishedApi &&
                     declarationVisibility !== Visibilities.Local
+        }
+
+        internal fun checkResolvedQualifier(
+            source: KtSourceElement,
+            accessExpression: FirResolvedQualifier,
+            accessedSymbol: FirClassLikeSymbol<*>,
+            declarationVisibility: Visibility,
+            context: CheckerContext,
+            reporter: DiagnosticReporter,
+        ) {
+            // TODO: call checkVisibilityAndAccess() instead, because it checks "protected" cases
+            checkAccessedDeclaration(source, accessExpression, accessedSymbol, declarationVisibility, context, reporter)
         }
 
         internal fun checkAccessedDeclaration(
@@ -105,6 +117,8 @@ object FirInlineDeclarationChecker : FirFunctionChecker(MppCheckerKind.Common) {
             declarationVisibility: Visibility,
             context: CheckerContext,
             reporter: DiagnosticReporter,
+            ktDiagnosticFactoryForNonPublicCallFromPublicInline: () -> KtDiagnosticFactory2<FirBasedSymbol<*>, FirBasedSymbol<*>> =
+                { getNonPublicCallFromPublicInlineFactory(accessExpression, accessedSymbol, source, context) },
         ): AccessedDeclarationVisibilityData {
             val accessedVisibility = accessedDeclarationEffectiveVisibility(accessExpression, accessedSymbol, context)
             val accessedDataCopyVisibility = accessedSymbol.unwrapDataClassCopyWithPrimaryConstructorOrNull(context.session)
@@ -113,7 +127,7 @@ object FirInlineDeclarationChecker : FirFunctionChecker(MppCheckerKind.Common) {
                 shouldReportNonPublicCallFromPublicInline(accessedVisibility, declarationVisibility) ->
                     reporter.reportOn(
                         source,
-                        getNonPublicCallFromPublicInlineFactory(accessExpression, accessedSymbol, source, context),
+                        ktDiagnosticFactoryForNonPublicCallFromPublicInline(),
                         accessedSymbol,
                         inlineFunction.symbol,
                         context
@@ -130,7 +144,7 @@ object FirInlineDeclarationChecker : FirFunctionChecker(MppCheckerKind.Common) {
             )
         }
 
-        private fun getNonPublicCallFromPublicInlineFactory(
+        internal fun getNonPublicCallFromPublicInlineFactory(
             accessExpression: FirStatement,
             accessedSymbol: FirBasedSymbol<*>,
             source: KtSourceElement,
@@ -161,6 +175,11 @@ object FirInlineDeclarationChecker : FirFunctionChecker(MppCheckerKind.Common) {
                 }
             }
 
+            if (accessExpression is FirResolvedQualifier && accessedSymbol is FirClassLikeSymbol<*> && !accessedSymbol.isCompanion) {
+                // TODO
+            }
+            // if (fromTypeRef) { ... }
+
             return FirErrors.NON_PUBLIC_CALL_FROM_PUBLIC_INLINE
         }
 
@@ -178,8 +197,8 @@ object FirInlineDeclarationChecker : FirFunctionChecker(MppCheckerKind.Common) {
 
         internal data class AccessedDeclarationVisibilityData(
             val isInlineFunPublicOrPublishedApi: Boolean,
-            val isCalledFunPublicOrPublishedApi: Boolean,
-            val calledFunEffectiveVisibility: EffectiveVisibility
+            val isAccessedDeclarationPublicOrPublishedApi: Boolean,
+            val accessedDeclarationEffectiveVisibility: EffectiveVisibility
         )
 
         internal fun checkReceiversOfQualifiedAccessExpression(
@@ -224,7 +243,7 @@ object FirInlineDeclarationChecker : FirFunctionChecker(MppCheckerKind.Common) {
                 }
             }
         }
-
+// Более точное название функции: проверятор на USAGE_IS_NOT_INLINABLE и NON_LOCAL_RETURN_NOT_ALLOWED
         private fun checkReceiver(
             qualifiedAccessExpression: FirQualifiedAccessExpression,
             receiverExpression: FirExpression?,
@@ -315,6 +334,8 @@ object FirInlineDeclarationChecker : FirFunctionChecker(MppCheckerKind.Common) {
             )
 
             if (isInlineFunPublicOrPublishedApi && isCalledFunPublicOrPublishedApi) {
+                // if inline fun not public, it looks like it makes a bridge
+                // if called fun is not public, it is checked by other checkers
                 checkSuperCalls(calledDeclaration, accessExpression, context, reporter)
             }
 
@@ -325,6 +346,7 @@ object FirInlineDeclarationChecker : FirFunctionChecker(MppCheckerKind.Common) {
                 calledFunEffectiveVisibility.toVisibility() === Visibilities.Protected
             ) {
                 val factory = when {
+                    // TODO: we will need new diagnostic, smth like "PROTECTED_TYPE_USE_FROM_PUBLIC_INLINE(_DEPRECATE)"
                     isConstructorCall -> FirErrors.PROTECTED_CONSTRUCTOR_CALL_FROM_PUBLIC_INLINE
                     prohibitProtectedCallFromInline -> FirErrors.PROTECTED_CALL_FROM_PUBLIC_INLINE_ERROR
                     else -> FirErrors.PROTECTED_CALL_FROM_PUBLIC_INLINE
@@ -332,7 +354,7 @@ object FirInlineDeclarationChecker : FirFunctionChecker(MppCheckerKind.Common) {
                 reporter.reportOn(source, factory, inlineFunction.symbol, calledDeclaration, context)
             }
         }
-
+// because IllegalAccessError, when class is from other package
         private fun checkPrivateClassMemberAccess(
             calledDeclaration: FirBasedSymbol<*>,
             source: KtSourceElement,

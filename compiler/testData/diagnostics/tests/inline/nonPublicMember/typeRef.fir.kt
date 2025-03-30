@@ -5,9 +5,9 @@
 private class Private
 
 public inline fun inlineFun(obj: Any) {
-    obj is Private
-    obj as Private
-    useAsTypeArg<Private>()
+    obj is <!NON_PUBLIC_CALL_FROM_PUBLIC_INLINE!>Private<!>
+    obj as <!NON_PUBLIC_CALL_FROM_PUBLIC_INLINE!>Private<!>
+    useAsTypeArg<<!NON_PUBLIC_CALL_FROM_PUBLIC_INLINE!>Private<!>>()
 }
 
 internal inline fun internalInlineFun(obj: Any) {

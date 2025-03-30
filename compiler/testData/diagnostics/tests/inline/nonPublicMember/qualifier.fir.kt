@@ -8,9 +8,9 @@ private object PrivateObject {
 }
 
 public inline fun inlineFun(obj: Any) {
-    PrivateObject.toString()
-    PrivateObject.<!NON_PUBLIC_CALL_FROM_PUBLIC_INLINE!>foo<!>()
-    PrivateClass::class
+    <!NON_PUBLIC_CALL_FROM_PUBLIC_INLINE!>PrivateObject<!>.toString()
+    <!NON_PUBLIC_CALL_FROM_PUBLIC_INLINE!>PrivateObject<!>.<!NON_PUBLIC_CALL_FROM_PUBLIC_INLINE!>foo<!>()
+    <!NON_PUBLIC_CALL_FROM_PUBLIC_INLINE!>PrivateClass<!>::class
 }
 
 internal inline fun internalInlineFun(obj: Any) {
@@ -39,7 +39,7 @@ public class PublicClass2 {
     private companion object {}
 
     public inline fun inlineFun() {
-        Obj
+        <!NON_PUBLIC_CALL_FROM_PUBLIC_INLINE!>Obj<!>
         <!NON_PUBLIC_CALL_FROM_PUBLIC_INLINE!>Companion<!>
     }
 

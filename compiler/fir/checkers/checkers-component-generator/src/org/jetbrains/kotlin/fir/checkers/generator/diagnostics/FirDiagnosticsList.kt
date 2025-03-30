@@ -1885,6 +1885,11 @@ object DIAGNOSTICS_LIST : DiagnosticList("FirErrors") {
             parameter<Symbol>("referencedDeclaration")
         }
 
+        val NON_PUBLIC_TYPE_USE_FROM_PUBLIC_INLINE_DEPRECATION by warning<KtElement>(PositioningStrategy.DEFAULT) {
+            parameter<Symbol>("inlineDeclaration")
+            parameter<Symbol>("referencedDeclaration")
+        }
+
         val NON_PUBLIC_DATA_COPY_CALL_FROM_PUBLIC_INLINE by deprecationError<KtElement>(
             LanguageFeature.ErrorAboutDataClassCopyVisibilityChange,
             PositioningStrategy.REFERENCE_BY_QUALIFIED

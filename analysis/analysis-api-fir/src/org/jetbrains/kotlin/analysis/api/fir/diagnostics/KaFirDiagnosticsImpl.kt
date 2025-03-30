@@ -4521,6 +4521,13 @@ internal class NonPublicCallFromPublicInlineDeprecationImpl(
     token: KaLifetimeToken,
 ) : KaAbstractFirDiagnostic<KtElement>(firDiagnostic, token), KaFirDiagnostic.NonPublicCallFromPublicInlineDeprecation
 
+internal class NonPublicTypeUseFromPublicInlineDeprecationImpl(
+    override val inlineDeclaration: KaSymbol,
+    override val referencedDeclaration: KaSymbol,
+    firDiagnostic: KtPsiDiagnostic,
+    token: KaLifetimeToken,
+) : KaAbstractFirDiagnostic<KtElement>(firDiagnostic, token), KaFirDiagnostic.NonPublicTypeUseFromPublicInlineDeprecation
+
 internal class NonPublicDataCopyCallFromPublicInlineErrorImpl(
     override val inlineDeclaration: KaSymbol,
     firDiagnostic: KtPsiDiagnostic,
