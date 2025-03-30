@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.fir.checkers.generator.diagnostics.model.DiagnosticL
 import org.jetbrains.kotlin.generators.util.getGenerationPath
 import java.nio.file.Path
 
+// Should be in sync with 'analysis-api-fir/build.gradle.kts#generateCode' task declared outputs
 object DiagnosticClassGenerator {
     fun generate(rootPath: Path, diagnosticList: DiagnosticList, packageName: String) {
         val path = getGenerationPath(rootPath.toFile(), packageName)

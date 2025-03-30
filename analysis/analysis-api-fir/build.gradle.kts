@@ -107,6 +107,15 @@ val generateCode by tasks.registering(NoDebugJavaExec::class) {
 
     inputs.files(generatorConfigurationFiles)
 
+    // Should be in sync with org.jetbrains.kotlin.analysis.api.fir.generator.DiagnosticClassGenerator
+    val generatedOutputDir = project.layout.projectDirectory.dir("src/org/jetbrains/kotlin/analysis/api/fir/diagnostics")
+    outputs.files(
+        generatedOutputDir.file("KaFirDiagnostics.kt"),
+        generatedOutputDir.file("KaFirDiagnosticsImpl.kt"),
+        generatedOutputDir.file("KaFirDataClassConverters.kt"),
+        generatedOutputDir.file("KaFirArgumentsConverter.kt"),
+    )
+
     workingDir = rootDir
     classpath = generatorClasspath
     mainClass.set("org.jetbrains.kotlin.analysis.api.fir.generator.MainKt")
