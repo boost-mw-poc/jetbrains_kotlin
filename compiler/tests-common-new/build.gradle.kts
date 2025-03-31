@@ -128,6 +128,7 @@ projectTest(
     )
 ) {
     useJUnitPlatform()
+    outputs.cacheIf { false }
 }
 
 testsJar()
