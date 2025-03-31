@@ -28,7 +28,7 @@ abstract class AdditionalSourceProvider(val testServices: TestServices) : Servic
     protected fun URL.toTestFile(): TestFile {
         return TestFile(
             this.file.substringAfterLast("!/"),
-            this.readText(),
+            this.readText().also { assert(it.isNotBlank()) },
             originalFile = File("resource"),
             startLineNumberInOriginalFile = 0,
             isAdditional = true,
