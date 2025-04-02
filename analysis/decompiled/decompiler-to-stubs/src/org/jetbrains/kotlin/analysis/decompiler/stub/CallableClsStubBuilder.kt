@@ -307,45 +307,55 @@ private class PropertyClsStubBuilder(
             KotlinNameReferenceExpressionStubImpl(callableStub, StringRef.fromString(COMPILED_DEFAULT_INITIALIZER))
         }
         val flags = propertyProto.flags
-        if (Flags.HAS_GETTER[flags] && propertyProto.hasGetterFlags()) {
-            val getterFlags = propertyProto.getterFlags
-            if (Flags.IS_NOT_DEFAULT.get(getterFlags)) {
-                createModifierListAndAnnotationStubsForAccessor(
-                    KotlinPropertyAccessorStubImpl(
-                        /* parent = */ callableStub,
-                        /* isGetter = */ true,
-                        /* hasBody = */ false,
-                        /* hasBlockBody = */ true,
-                    ),
-                    flags = getterFlags,
-                    callableKind = AnnotatedCallableKind.PROPERTY_GETTER
-                )
-            }
+
+        // Per documentation on Property.getter_flags in metadata.proto, if an accessor flags field is absent, its value should be computed
+        // by taking hasAnnotations/visibility/modality from property flags, and using false for the rest
+        val defaultAccessorFlags = Flags.getAccessorFlags(
+            Flags.HAS_ANNOTATIONS.get(flags),
+            Flags.VISIBILITY.get(flags),
+            Flags.MODALITY.get(flags),
+            false, false, false
+        )
+
+        if (Flags.HAS_GETTER[flags]) {
+            val getterFlags = if (propertyProto.hasGetterFlags()) propertyProto.getterFlags else defaultAccessorFlags
+            val isDefault = !Flags.IS_NOT_DEFAULT[getterFlags]
+            createModifierListAndAnnotationStubsForAccessor(
+                KotlinPropertyAccessorStubImpl(
+                    /* parent = */ callableStub,
+                    /* isGetter = */ true,
+                    /* isDefault = */ isDefault,
+                    /* hasBody = */ false,
+                    /* hasBlockBody = */ true,
+                ),
+                flags = getterFlags,
+                callableKind = AnnotatedCallableKind.PROPERTY_GETTER
+            )
         }
 
-        if (Flags.HAS_SETTER[flags] && propertyProto.hasSetterFlags()) {
+        if (Flags.HAS_SETTER[flags]) {
             val setterFlags = propertyProto.setterFlags
-            if (Flags.IS_NOT_DEFAULT.get(setterFlags)) {
-                val setterStub = KotlinPropertyAccessorStubImpl(
-                    /* parent = */ callableStub,
-                    /* isGetter = */ false,
-                    /* hasBody = */ true,
-                    /* hasBlockBody = */ true,
-                )
-                createModifierListAndAnnotationStubsForAccessor(
+            val isDefault = !Flags.IS_NOT_DEFAULT[setterFlags]
+            val setterStub = KotlinPropertyAccessorStubImpl(
+                /* parent = */ callableStub,
+                /* isGetter = */ false,
+                /* isDefault = */ isDefault,
+                /* hasBody = */ true,
+                /* hasBlockBody = */ true,
+            )
+            createModifierListAndAnnotationStubsForAccessor(
+                setterStub,
+                flags = setterFlags,
+                callableKind = AnnotatedCallableKind.PROPERTY_SETTER
+            )
+            if (propertyProto.hasSetterValueParameter()) {
+                typeStubBuilder.createValueParameterListStub(
                     setterStub,
-                    flags = setterFlags,
-                    callableKind = AnnotatedCallableKind.PROPERTY_SETTER
+                    propertyProto,
+                    listOf(propertyProto.setterValueParameter),
+                    protoContainer,
+                    AnnotatedCallableKind.PROPERTY_SETTER
                 )
-                if (propertyProto.hasSetterValueParameter()) {
-                    typeStubBuilder.createValueParameterListStub(
-                        setterStub,
-                        propertyProto,
-                        listOf(propertyProto.setterValueParameter),
-                        protoContainer,
-                        AnnotatedCallableKind.PROPERTY_SETTER
-                    )
-                }
             }
         }
     }
