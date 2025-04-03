@@ -129,6 +129,18 @@ internal class KTypeImpl(
         return KTypeImpl(TypeUtils.makeNullableAsSpecified(type, nullable), computeJavaType)
     }
 
+    override fun makeDefinitelyNotNullAsSpecified(isDefinitelyNotNull: Boolean): AbstractKType {
+        val result =
+            if (isDefinitelyNotNull)
+                DefinitelyNotNullType.makeDefinitelyNotNull(type.unwrap(), true) ?: type
+            else
+                (type as? DefinitelyNotNullType)?.original ?: type
+        return KTypeImpl(result, computeJavaType)
+    }
+
+    override val isDefinitelyNotNullType: Boolean
+        get() = type.isDefinitelyNotNullType
+
     override val isNothingType: Boolean
         get() = KotlinBuiltIns.isNothingOrNullableNothing(type)
 

@@ -12,6 +12,9 @@ internal abstract class AbstractKType : KTypeBase {
 
     abstract fun makeNullableAsSpecified(nullable: Boolean): AbstractKType
 
+    abstract fun makeDefinitelyNotNullAsSpecified(isDefinitelyNotNull: Boolean): AbstractKType
+
+    abstract val isDefinitelyNotNullType: Boolean
     abstract val isNothingType: Boolean
     abstract val isMutableCollectionType: Boolean
     abstract fun lowerBoundIfFlexible(): AbstractKType?
