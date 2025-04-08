@@ -3260,6 +3260,40 @@ public class SourceResolveCandidatesFirTreeConsistencyTestGenerated extends Abst
     }
 
     @Nested
+    @TestMetadata("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/blockTags")
+    @TestDataPath("$PROJECT_ROOT")
+    public class BlockTags {
+      @Test
+      public void testAllFilesPresentInBlockTags() {
+        KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/blockTags"), Pattern.compile("^(.+)\\.(kt)$"), null, true);
+      }
+
+      @Test
+      @TestMetadata("constructorBlockTag.kt")
+      public void testConstructorBlockTag() {
+        runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/blockTags/constructorBlockTag.kt");
+      }
+
+      @Test
+      @TestMetadata("paramBlockOnFunction.kt")
+      public void testParamBlockOnFunction() {
+        runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/blockTags/paramBlockOnFunction.kt");
+      }
+
+      @Test
+      @TestMetadata("paramBlockTag.kt")
+      public void testParamBlockTag() {
+        runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/blockTags/paramBlockTag.kt");
+      }
+
+      @Test
+      @TestMetadata("prioritiesWithSameNames.kt")
+      public void testPrioritiesWithSameNames() {
+        runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/blockTags/prioritiesWithSameNames.kt");
+      }
+    }
+
+    @Nested
     @TestMetadata("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/companionObject")
     @TestDataPath("$PROJECT_ROOT")
     public class CompanionObject {
@@ -3432,6 +3466,18 @@ public class SourceResolveCandidatesFirTreeConsistencyTestGenerated extends Abst
         }
 
         @Test
+        @TestMetadata("candidateReceiverWithBoundedGeneric.kt")
+        public void testCandidateReceiverWithBoundedGeneric() {
+          runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/extensions/generics/candidateReceiverWithBoundedGeneric.kt");
+        }
+
+        @Test
+        @TestMetadata("extensionFunctionWithBoundedGeneric.kt")
+        public void testExtensionFunctionWithBoundedGeneric() {
+          runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/extensions/generics/extensionFunctionWithBoundedGeneric.kt");
+        }
+
+        @Test
         @TestMetadata("genericParameterReceiver.kt")
         public void testGenericParameterReceiver() {
           runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/extensions/generics/genericParameterReceiver.kt");
@@ -3444,9 +3490,39 @@ public class SourceResolveCandidatesFirTreeConsistencyTestGenerated extends Abst
         }
 
         @Test
+        @TestMetadata("inVarianceReceiverType.kt")
+        public void testInVarianceReceiverType() {
+          runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/extensions/generics/inVarianceReceiverType.kt");
+        }
+
+        @Test
+        @TestMetadata("multipleBoundsGenericParameterReceiver.kt")
+        public void testMultipleBoundsGenericParameterReceiver() {
+          runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/extensions/generics/multipleBoundsGenericParameterReceiver.kt");
+        }
+
+        @Test
+        @TestMetadata("outVarianceReceiverType.kt")
+        public void testOutVarianceReceiverType() {
+          runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/extensions/generics/outVarianceReceiverType.kt");
+        }
+
+        @Test
+        @TestMetadata("typeParameterSubstitution.kt")
+        public void testTypeParameterSubstitution() {
+          runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/extensions/generics/typeParameterSubstitution.kt");
+        }
+
+        @Test
         @TestMetadata("typeWithGenericsReceiver.kt")
         public void testTypeWithGenericsReceiver() {
           runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/extensions/generics/typeWithGenericsReceiver.kt");
+        }
+
+        @Test
+        @TestMetadata("typeWithStarProjectionReceiver.kt")
+        public void testTypeWithStarProjectionReceiver() {
+          runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/extensions/generics/typeWithStarProjectionReceiver.kt");
         }
       }
     }
@@ -3595,6 +3671,12 @@ public class SourceResolveCandidatesFirTreeConsistencyTestGenerated extends Abst
       }
 
       @Test
+      @TestMetadata("nestedClasses.kt")
+      public void testNestedClasses() {
+        runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/localContext/nestedClasses.kt");
+      }
+
+      @Test
       @TestMetadata("NonLocalSemiFullQualifiedCallableName.kt")
       public void testNonLocalSemiFullQualifiedCallableName() {
         runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/localContext/NonLocalSemiFullQualifiedCallableName.kt");
@@ -3604,6 +3686,12 @@ public class SourceResolveCandidatesFirTreeConsistencyTestGenerated extends Abst
       @TestMetadata("NonLocalSemiFullQualifiedClassName.kt")
       public void testNonLocalSemiFullQualifiedClassName() {
         runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/localContext/NonLocalSemiFullQualifiedClassName.kt");
+      }
+
+      @Test
+      @TestMetadata("overloadedCallablesPriorities.kt")
+      public void testOverloadedCallablesPriorities() {
+        runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/localContext/overloadedCallablesPriorities.kt");
       }
 
       @Test
@@ -3640,6 +3728,12 @@ public class SourceResolveCandidatesFirTreeConsistencyTestGenerated extends Abst
       @TestMetadata("SelfNonLocalProperty.kt")
       public void testSelfNonLocalProperty() {
         runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/localContext/SelfNonLocalProperty.kt");
+      }
+
+      @Test
+      @TestMetadata("shortNamesPriorities.kt")
+      public void testShortNamesPriorities() {
+        runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/localContext/shortNamesPriorities.kt");
       }
 
       @Test
@@ -3736,6 +3830,12 @@ public class SourceResolveCandidatesFirTreeConsistencyTestGenerated extends Abst
       @Test
       public void testAllFilesPresentInQualified() {
         KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/qualified"), Pattern.compile("^(.+)\\.(kt)$"), null, true);
+      }
+
+      @Test
+      @TestMetadata("fqnPriorities.kt")
+      public void testFqnPriorities() {
+        runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/qualified/fqnPriorities.kt");
       }
 
       @Nested
