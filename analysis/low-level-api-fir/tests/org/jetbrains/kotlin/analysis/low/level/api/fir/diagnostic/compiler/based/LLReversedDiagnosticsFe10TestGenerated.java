@@ -9187,6 +9187,12 @@ public class LLReversedDiagnosticsFe10TestGenerated extends AbstractLLReversedDi
       }
 
       @Test
+      @TestMetadata("returnFromExpressionBody.kt")
+      public void testReturnFromExpressionBody() {
+        runTest("compiler/testData/diagnostics/tests/controlStructures/returnFromExpressionBody.kt");
+      }
+
+      @Test
       @TestMetadata("returnFromLambdaInDefaultArgument.kt")
       public void testReturnFromLambdaInDefaultArgument() {
         runTest("compiler/testData/diagnostics/tests/controlStructures/returnFromLambdaInDefaultArgument.kt");
