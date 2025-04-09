@@ -1,4 +1,5 @@
-// RUN_PIPELINE_TILL: BACKEND
+// FIR_IDENTICAL
+// RUN_PIPELINE_TILL: FRONTEND
 // ISSUE: KT-76585
 
 fun test(cond1: Boolean, cond3: Boolean): String = when {

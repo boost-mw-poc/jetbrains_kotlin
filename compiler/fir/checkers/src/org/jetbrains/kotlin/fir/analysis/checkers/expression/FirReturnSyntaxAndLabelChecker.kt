@@ -44,11 +44,6 @@ object FirReturnSyntaxAndLabelChecker : FirReturnExpressionChecker(MppCheckerKin
         }?.let { reporter.reportOn(source, it)}
 
         checkBuiltInSuspend(targetSymbol, source)
-
-        val containingDeclaration = context.containingDeclarations.last()
-        if (containingDeclaration.hasExpressionBody()) {
-            reporter.reportOn(source, FirErrors.RETURN_IN_FUNCTION_WITH_EXPRESSION_BODY)
-        }
     }
 
     private fun FirDeclaration.hasExpressionBody(): Boolean {
@@ -57,18 +52,26 @@ object FirReturnSyntaxAndLabelChecker : FirReturnExpressionChecker(MppCheckerKin
 
     context(context: CheckerContext)
     private fun returnNotAllowedFactoryOrNull(targetSymbol: FirFunctionSymbol<*>): KtDiagnosticFactory0? {
+        // The logic with inline lambdas is wrong, but it has been with us forever KT-22786
+        var inlineLambdaSeen = false
+
         for (containingDeclaration in context.containingDeclarations.asReversed()) {
+            @OptIn(SymbolInternals::class)
             when (containingDeclaration) {
                 // return from member of local class or anonymous object
                 is FirClass -> return FirErrors.RETURN_NOT_ALLOWED
                 is FirFunction -> {
                     when {
                         containingDeclaration.symbol == targetSymbol -> {
-                            return null
+                            return runIf(!inlineLambdaSeen && targetSymbol.fir.hasExpressionBody()) {
+                                FirErrors.RETURN_IN_FUNCTION_WITH_EXPRESSION_BODY
+                            }
                         }
                         containingDeclaration is FirAnonymousFunction -> {
                             if (!containingDeclaration.inlineStatus.returnAllowed) {
                                 return FirErrors.RETURN_NOT_ALLOWED
+                            } else {
+                                inlineLambdaSeen = true
                             }
                         }
                         else -> return FirErrors.RETURN_NOT_ALLOWED
