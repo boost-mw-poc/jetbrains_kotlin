@@ -260,35 +260,37 @@ private fun binaryOperatorOffset(lhs: IrExpression, wholeOperatorSourceRangeInfo
  * The left-hand side expression of an infix operator/function that takes into account special cases like `in`, `!in` and `!=` operators
  * that have a more complex structure than just a single call with two arguments.
  */
-private fun IrCall.binaryOperatorLhs(): IrExpression? = when (origin) {
-    IrStatementOrigin.EXCLEQ, IrStatementOrigin.EXCLEQEQ -> {
-        // The `!=` operator call is actually a sugar for `lhs.equals(rhs).not()`.
-        // The `!==` operator call is actually a sugar for `(lhs === rhs).not()`.
-        val innerCall = (arguments[0] as? IrCall)?.takeIf { it.isInnerOfNotEqualOperator() } ?: this
-        innerCall.simpleBinaryOperatorLhs()
-    }
-    IrStatementOrigin.IN, IrStatementOrigin.NOT_IN -> {
-        val innerCall = when (origin) {
-            // The `!in` operator call is actually sugar for `rhs.contains(lhs).not()`.
-            IrStatementOrigin.NOT_IN -> arguments[0] as? IrCall ?: this
-            // The `in` operator call is actually sugar for `rhs.contains(lhs)`.
-            else -> this
+private fun IrCall.binaryOperatorLhs(): IrExpression? {
+    return when (origin) {
+        IrStatementOrigin.EXCLEQ, IrStatementOrigin.EXCLEQEQ -> {
+            // The `!=` operator call is actually a sugar for `lhs.equals(rhs).not()`.
+            // The `!==` operator call is actually a sugar for `(lhs === rhs).not()`.
+            val innerCall = (arguments[0] as? IrCall)?.takeIf { it.isInnerOfNotEqualOperator() } ?: this
+            innerCall.simpleBinaryOperatorLhs()
         }
+        IrStatementOrigin.IN, IrStatementOrigin.NOT_IN -> {
+            val innerCall = when (origin) {
+                // The `!in` operator call is actually sugar for `rhs.contains(lhs).not()`.
+                IrStatementOrigin.NOT_IN -> arguments[0] as? IrCall ?: this
+                // The `in` operator call is actually sugar for `rhs.contains(lhs)`.
+                else -> this
+            }
 
-        // There are operator functions that do not conform to the normal signature requirement:
-        // * `operator fun CharSequence.contains(other: CharSequence, ignoreCase: Boolean = false): Boolean`
-        // * `operator fun CharSequence.contains(char: Char, ignoreCase: Boolean = false)`
-        // So, need to extract the argument for the first regular parameter.
-        val function = innerCall.symbol.owner
-        val parameter = function.parameters.firstOrNull { it.kind == IrParameterKind.Regular } ?: return null
-        innerCall.arguments[parameter]
+            // There are operator functions that do not conform to the normal signature requirement:
+            // * `operator fun CharSequence.contains(other: CharSequence, ignoreCase: Boolean = false): Boolean`
+            // * `operator fun CharSequence.contains(char: Char, ignoreCase: Boolean = false)`
+            // So, need to extract the argument for the first regular parameter.
+            val function = innerCall.symbol.owner
+            val parameter = function.parameters.firstOrNull { it.kind == IrParameterKind.Regular } ?: return null
+            innerCall.arguments[parameter]
+        }
+        IrStatementOrigin.LT, IrStatementOrigin.GT, IrStatementOrigin.LTEQ, IrStatementOrigin.GTEQ -> {
+            // Comparison operator calls are actually sugar for `lhs.compareTo(rhs) <> 0`.
+            val innerCall = (arguments[0] as? IrCall)?.takeIf { it.isInnerOfComparisonOperator() } ?: this
+            innerCall.simpleBinaryOperatorLhs()
+        }
+        else -> simpleBinaryOperatorLhs()
     }
-    IrStatementOrigin.LT, IrStatementOrigin.GT, IrStatementOrigin.LTEQ, IrStatementOrigin.GTEQ -> {
-        // Comparison operator calls are actually sugar for `lhs.compareTo(rhs) <> 0`.
-        val innerCall = (arguments[0] as? IrCall)?.takeIf { it.isInnerOfComparisonOperator() } ?: this
-        innerCall.simpleBinaryOperatorLhs()
-    }
-    else -> simpleBinaryOperatorLhs()
 }
 
 /**
