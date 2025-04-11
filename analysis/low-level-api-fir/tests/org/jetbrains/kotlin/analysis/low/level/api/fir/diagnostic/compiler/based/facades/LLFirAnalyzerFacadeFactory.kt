@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.test.model.TestFile
 
 abstract class LLFirAnalyzerFacadeFactory {
     abstract fun createFirFacade(
-        firResolveSession: LLResolutionFacade,
+        llResolutionFacade: LLResolutionFacade,
         allFirFiles: Map<TestFile, FirFile>,
         diagnosticCheckerFilter: DiagnosticCheckerFilter
     ): LowLevelFirAnalyzerFacade

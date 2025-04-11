@@ -25,11 +25,11 @@ internal class KaFirEvaluator(
     override val analysisSessionProvider: () -> KaFirSession
 ) : KaBaseSessionComponent<KaFirSession>(), KaEvaluator, KaFirSessionComponent {
     override fun KtExpression.evaluate(): KaConstantValue? = withValidityAssertion {
-        return evaluateFir(getOrBuildFir(firResolveSession), this)
+        return evaluateFir(getOrBuildFir(llResolutionFacade), this)
     }
 
     override fun KtExpression.evaluateAsAnnotationValue(): KaAnnotationValue? = withValidityAssertion {
-        return (getOrBuildFir(firResolveSession) as? FirExpression)?.let {
+        return (getOrBuildFir(llResolutionFacade) as? FirExpression)?.let {
             FirAnnotationValueConverter.toConstantValue(it, analysisSession.firSymbolBuilder)
         }
     }
