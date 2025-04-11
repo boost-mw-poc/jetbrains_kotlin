@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.analysis.utils.errors.requireIsInstance
 
 abstract class AbstractStdLibSourcesLazyDeclarationResolveTest : AbstractByQualifiedNameLazyDeclarationResolveTest() {
     override fun checkSession(firSession: LLFirResolveSession) {
-        requireIsInstance<KaLibrarySourceModule>(firSession.useSiteKtModule)
+        requireIsInstance<KaLibrarySourceModule>(firSession.useSiteKaModule)
     }
 
     override val configurator get() = AnalysisApiFirStdlibSourceTestConfigurator

@@ -86,7 +86,7 @@ private constructor(
     }
 
     @Suppress("AnalysisApiMissingLifetimeCheck")
-    override val useSiteModule: KaModule get() = firResolveSession.useSiteKtModule
+    override val useSiteModule: KaModule get() = firResolveSession.useSiteKaModule
 
     internal val firSession: LLFirSession get() = firResolveSession.useSiteFirSession
     internal val targetPlatform: TargetPlatform get() = firSession.moduleData.platform
@@ -123,7 +123,7 @@ private constructor(
             token: KaLifetimeToken,
         ): KaFirSession {
             token.assertIsValid()
-            val useSiteModule = firResolveSession.useSiteKtModule
+            val useSiteModule = firResolveSession.useSiteKaModule
             val useSiteSession = firResolveSession.useSiteFirSession
 
             val extensionTools = buildList {

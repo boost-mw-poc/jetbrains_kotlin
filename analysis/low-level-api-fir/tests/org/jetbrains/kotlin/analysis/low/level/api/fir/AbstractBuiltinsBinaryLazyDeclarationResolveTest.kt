@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.test.directives.LanguageSettingsDirectives
 
 abstract class AbstractBuiltinsBinaryLazyDeclarationResolveTest : AbstractByQualifiedNameLazyDeclarationResolveTest() {
     override fun checkSession(firSession: LLFirResolveSession) {
-        requireIsInstance<KaBuiltinsModule>(firSession.useSiteKtModule)
+        requireIsInstance<KaBuiltinsModule>(firSession.useSiteKaModule)
     }
 
     override fun configureTest(builder: TestConfigurationBuilder) {

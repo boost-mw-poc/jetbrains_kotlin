@@ -52,11 +52,11 @@ class LLFirResolveSession internal constructor(
     val sessionProvider: LLSessionProvider,
     val diagnosticProvider: LLDiagnosticProvider,
 ) {
-    val useSiteKtModule: KaModule
+    val useSiteKaModule: KaModule
         get() = moduleProvider.useSiteModule
 
     val project: Project
-        get() = useSiteKtModule.project
+        get() = useSiteKaModule.project
 
     val useSiteFirSession: LLFirSession
         get() = sessionProvider.useSiteSession
@@ -193,5 +193,5 @@ class LLFirResolveSession internal constructor(
 }
 
 fun LLFirResolveSession.getModule(element: PsiElement): KaModule {
-    return KotlinProjectStructureProvider.getModule(project, element, useSiteKtModule)
+    return KotlinProjectStructureProvider.getModule(project, element, useSiteKaModule)
 }
