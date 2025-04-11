@@ -340,7 +340,7 @@ internal class KaFirCompilerFacility(
 
         /**
          * Attach the file to the appropriate chunk.
-         * The [module] parameter is used for optimization, and it corresponds to [LLFirResolveSession.getModule] called on the [file].
+         * The [module] parameter is used for optimization, and it corresponds to [LLResolutionFacade.getModule] called on the [file].
          */
         fun submit(file: KtFile, module: KaModule) {
             if (module == originalMainContextModule) {
@@ -874,7 +874,7 @@ internal class KaFirCompilerFacility(
     @OptIn(LLFirInternals::class)
     private fun computeCodeFragmentMappings(
         mainFirFile: FirFile,
-        resolveSession: LLFirResolveSession,
+        resolveSession: LLResolutionFacade,
         configuration: CompilerConfiguration,
     ): CodeFragmentMappings {
         val codeFragment = mainFirFile.codeFragment
