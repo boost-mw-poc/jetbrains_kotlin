@@ -29,10 +29,10 @@ internal interface KaFirSessionComponent : KaSessionComponent {
     val analysisSession: KaFirSession
 
     val project: Project get() = analysisSession.project
-    val rootModuleSession: FirSession get() = analysisSession.firResolveSession.useSiteFirSession
+    val rootModuleSession: FirSession get() = analysisSession.llResolutionFacade.useSiteFirSession
     val typeContext: ConeInferenceContext get() = rootModuleSession.typeContext
     val firSymbolBuilder get() = analysisSession.firSymbolBuilder
-    val firResolveSession get() = analysisSession.firResolveSession
+    val llResolutionFacade get() = analysisSession.llResolutionFacade
 
     fun ConeKotlinType.asKtType() = analysisSession.firSymbolBuilder.typeBuilder.buildKtType(this)
 
@@ -64,7 +64,7 @@ internal interface KaFirSessionComponent : KaSessionComponent {
 
     fun createTypeCheckerContext(errorTypePolicy: KaSubtypingErrorTypePolicy): TypeCheckerState {
         // TODO use correct session here,
-        return analysisSession.firResolveSession.useSiteFirSession.typeContext.newTypeCheckerState(
+        return analysisSession.llResolutionFacade.useSiteFirSession.typeContext.newTypeCheckerState(
             errorTypesEqualToAnything = errorTypePolicy == KaSubtypingErrorTypePolicy.LENIENT,
             stubTypesEqualToAnything = true,
         )

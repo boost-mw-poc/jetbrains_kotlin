@@ -19,7 +19,7 @@ internal class KaFirConstructorDelegationReference(
 ) : KtConstructorDelegationReference(expression), KaFirReference {
 
     override fun KaFirSession.computeSymbols(): Collection<KaSymbol> {
-        val fir = expression.getOrBuildFirSafe<FirDelegatedConstructorCall>(firResolveSession) ?: return emptyList()
+        val fir = expression.getOrBuildFirSafe<FirDelegatedConstructorCall>(llResolutionFacade) ?: return emptyList()
         return listOfNotNull(fir.calleeReference.getResolvedKtSymbolOfNameReference(firSymbolBuilder))
     }
 

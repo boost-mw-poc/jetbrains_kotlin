@@ -52,17 +52,17 @@ internal class KaFirVisibilityChecker(
     ): KaUseSiteVisibilityChecker = withValidityAssertion {
         require(useSiteFile is KaFirFileSymbol)
 
-        val dispatchReceiver = receiverExpression?.getOrBuildFirSafe<FirExpression>(analysisSession.firResolveSession)
+        val dispatchReceiver = receiverExpression?.getOrBuildFirSafe<FirExpression>(analysisSession.llResolutionFacade)
 
-        val positionModule = firResolveSession.moduleProvider.getModule(position)
-        val effectiveContainers = collectUseSiteContainers(position, firResolveSession).orEmpty()
+        val positionModule = llResolutionFacade.moduleProvider.getModule(position)
+        val effectiveContainers = collectUseSiteContainers(position, llResolutionFacade).orEmpty()
 
         KaFirUseSiteVisibilityChecker(
             positionModule,
             effectiveContainers,
             dispatchReceiver,
             useSiteFile,
-            firResolveSession,
+            llResolutionFacade,
             token,
         )
     }
@@ -105,7 +105,7 @@ private class KaFirUseSiteVisibilityChecker(
     private val effectiveContainers: List<FirDeclaration>,
     private val dispatchReceiver: FirExpression?,
     private val useSiteFile: KaFirFileSymbol,
-    private val firResolveSession: LLResolutionFacade,
+    private val llResolutionFacade: LLResolutionFacade,
     override val token: KaLifetimeToken,
 ) : KaUseSiteVisibilityChecker {
     override fun isVisible(candidateSymbol: KaDeclarationSymbol): Boolean = withValidityAssertion {
@@ -125,9 +125,9 @@ private class KaFirUseSiteVisibilityChecker(
         val effectiveSession = if (positionModule is KaDanglingFileModule && candidateModule != positionModule) {
             @Suppress("USELESS_CAST") // Smart cast is only available in K2
             val contextModule = (positionModule as KaDanglingFileModule).contextModule
-            firResolveSession.getSessionFor(contextModule)
+            llResolutionFacade.getSessionFor(contextModule)
         } else {
-            firResolveSession.getSessionFor(positionModule)
+            llResolutionFacade.getSessionFor(positionModule)
         }
 
         return effectiveSession.visibilityChecker.isVisible(

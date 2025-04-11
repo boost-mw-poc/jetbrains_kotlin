@@ -186,7 +186,7 @@ internal class KaFirCompilerFacility(
         val mainFirFile = getFullyResolvedFirFile(mainFile)
 
         val codeFragmentMappings = runIf(mainFile is KtCodeFragment) {
-            computeCodeFragmentMappings(mainFirFile, firResolveSession, configuration)
+            computeCodeFragmentMappings(mainFirFile, llResolutionFacade, configuration)
         }
 
         val compilationPeerData = CompilationPeerCollector.process(mainFirFile)
@@ -206,7 +206,7 @@ internal class KaFirCompilerFacility(
                 // Do not check dependency files – even though there might be errors, it's OK as long as they don't affect the main file.
                 // This is important for the code evaluation scenario, as people may modify code while debugging.
                 // The downside is that we can get unexpected exceptions from the backend (that we wrap into KaCompilationResult.Failure).
-                val diagnostics = mainFile.collectDiagnosticsForFile(firResolveSession, DiagnosticCheckerFilter.ONLY_DEFAULT_CHECKERS)
+                val diagnostics = mainFile.collectDiagnosticsForFile(llResolutionFacade, DiagnosticCheckerFilter.ONLY_DEFAULT_CHECKERS)
                 val errors = computeErrors(diagnostics, allowedErrorFilter)
                 if (errors.isNotEmpty()) {
                     return KaCompilationResult.Failure(errors)
@@ -293,7 +293,7 @@ internal class KaFirCompilerFacility(
 
         if (codeFragmentMappings != null) {
             for (capturedFile in codeFragmentMappings.capturedFiles) {
-                val module = firResolveSession.getModule(capturedFile)
+                val module = llResolutionFacade.getModule(capturedFile)
                 chunkRegistrar.submit(capturedFile, module)
             }
         }
@@ -659,7 +659,7 @@ internal class KaFirCompilerFacility(
         generateClassFilter: GenerationState.GenerateClassFilter,
         compiledCodeProvider: CompiledCodeProvider
     ): KaCompilationResult {
-        val session = firResolveSession.sessionProvider.getResolvableSession(module)
+        val session = llResolutionFacade.sessionProvider.getResolvableSession(module)
         val configuration = baseConfiguration.copy().apply {
             put(CommonConfigurationKeys.USE_FIR, true)
             put(CommonConfigurationKeys.LANGUAGE_VERSION_SETTINGS, session.languageVersionSettings)
@@ -836,7 +836,7 @@ internal class KaFirCompilerFacility(
     }
 
     private fun getFullyResolvedFirFile(file: KtFile): FirFile {
-        val firFile = file.getOrBuildFirFile(firResolveSession)
+        val firFile = file.getOrBuildFirFile(llResolutionFacade)
         firFile.lazyResolveToPhaseRecursively(FirResolvePhase.BODY_RESOLVE)
         return firFile
     }
@@ -874,12 +874,12 @@ internal class KaFirCompilerFacility(
     @OptIn(LLFirInternals::class)
     private fun computeCodeFragmentMappings(
         mainFirFile: FirFile,
-        resolveSession: LLResolutionFacade,
+        resolutionFacade: LLResolutionFacade,
         configuration: CompilerConfiguration,
     ): CodeFragmentMappings {
         val codeFragment = mainFirFile.codeFragment
 
-        val capturedData = CodeFragmentCapturedValueAnalyzer.analyze(resolveSession, codeFragment)
+        val capturedData = CodeFragmentCapturedValueAnalyzer.analyze(resolutionFacade, codeFragment)
 
         val capturedSymbols = capturedData.symbols
         val capturedValues = capturedSymbols.map { it.value }

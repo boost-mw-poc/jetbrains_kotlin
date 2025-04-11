@@ -40,20 +40,20 @@ internal val KaClassLikeSymbol.firSymbol: FirClassLikeSymbol<*> get() = (this as
 internal val KaClassSymbol.firSymbol: FirClassSymbol<*> get() = (this as KaFirSymbol<*>).firSymbol as FirClassSymbol<*>
 
 
-internal fun FirBasedSymbol<*>.getContainingKtModule(firResolveSession: LLResolutionFacade): KaModule {
+internal fun FirBasedSymbol<*>.getContainingKtModule(llResolutionFacade: LLResolutionFacade): KaModule {
     val target = when (this) {
         is FirCallableSymbol -> {
             // callable fake overrides have use-site FirModuleData
-            dispatchReceiverClassLookupTagOrNull()?.toRegularClassSymbol(firResolveSession.useSiteFirSession) ?: this
+            dispatchReceiverClassLookupTagOrNull()?.toRegularClassSymbol(llResolutionFacade.useSiteFirSession) ?: this
         }
         else -> this
     }
     return target.llFirModuleData.ktModule
 }
 
-internal fun KaSymbol.getContainingKtModule(firResolveSession: LLResolutionFacade): KaModule = when (this) {
-    is KaFirSymbol<*> -> firSymbol.getContainingKtModule(firResolveSession)
-    is KaReceiverParameterSymbol -> owningCallableSymbol.getContainingKtModule(firResolveSession)
+internal fun KaSymbol.getContainingKtModule(llResolutionFacade: LLResolutionFacade): KaModule = when (this) {
+    is KaFirSymbol<*> -> firSymbol.getContainingKtModule(llResolutionFacade)
+    is KaReceiverParameterSymbol -> owningCallableSymbol.getContainingKtModule(llResolutionFacade)
     else -> TODO("${this::class}")
 }
 
