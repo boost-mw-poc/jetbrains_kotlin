@@ -5,7 +5,7 @@
 
 package org.jetbrains.kotlin.analysis.low.level.api.fir.resolver
 
-import org.jetbrains.kotlin.analysis.low.level.api.fir.api.LLFirResolveSession
+import org.jetbrains.kotlin.analysis.low.level.api.fir.api.LLResolutionFacade
 import org.jetbrains.kotlin.analysis.low.level.api.fir.api.getOrBuildFirFile
 import org.jetbrains.kotlin.analysis.low.level.api.fir.api.resolveToFirSymbol
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.ContextCollector
@@ -71,7 +71,7 @@ class AllCandidatesResolver(private val firSession: FirSession) {
     private val resolutionContext = ResolutionContext(firSession, bodyResolveComponents, bodyResolveComponents.transformer.context)
 
     fun getAllCandidates(
-        firResolveSession: LLFirResolveSession,
+        firResolveSession: LLResolutionFacade,
         qualifiedAccess: FirQualifiedAccessExpression,
         calleeName: Name,
         element: KtElement,
@@ -93,7 +93,7 @@ class AllCandidatesResolver(private val firSession: FirSession) {
     }
 
     fun getAllCandidatesForDelegatedConstructor(
-        firResolveSession: LLFirResolveSession,
+        firResolveSession: LLResolutionFacade,
         delegatedConstructorCall: FirDelegatedConstructorCall,
         derivedClassLookupTag: ConeClassLikeLookupTag,
         element: KtElement
@@ -119,7 +119,7 @@ class AllCandidatesResolver(private val firSession: FirSession) {
     }
 
     @OptIn(PrivateForInline::class, SymbolInternals::class)
-    private fun initializeBodyResolveContext(firResolveSession: LLFirResolveSession, element: KtElement) {
+    private fun initializeBodyResolveContext(firResolveSession: LLResolutionFacade, element: KtElement) {
         val firFile = element.containingKtFile.getOrBuildFirFile(firResolveSession)
 
         // Set up needed context to get all candidates.
