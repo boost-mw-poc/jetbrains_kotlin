@@ -32,22 +32,22 @@ context(a: A, b: B) fun usage12() { <!AMBIGUOUS_CONTEXT_ARGUMENT("A")!>contextOf
 context(a: A, b: B) fun usage13(): A = <!AMBIGUOUS_CONTEXT_ARGUMENT("A")!>contextOf<!><A>()
 
 // green code
-context(a: A, c: C) fun usage14() { contextOf<A>() }
-context(a: A, c: C) fun usage15(): A = contextOf<A>()
+context(a: A, c: C) fun usage14() { <!AMBIGUOUS_CONTEXT_ARGUMENT!>contextOf<!><A>() }
+context(a: A, c: C) fun usage15(): A = <!AMBIGUOUS_CONTEXT_ARGUMENT!>contextOf<!><A>()
 
 // red code (lack of type inference via context argument)
-context(a: A) fun usage16() { contextOf() }
-context(a: A) fun usage17() = contextOf()
-fun A.usage18() { contextOf() }
-fun A.usage19() = contextOf()
+context(a: A) fun usage16() { <!CANNOT_INFER_PARAMETER_TYPE, NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER!>contextOf<!>() }
+context(a: A) fun usage17() = <!CANNOT_INFER_PARAMETER_TYPE, NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER!>contextOf<!>()
+fun A.usage18() { <!CANNOT_INFER_PARAMETER_TYPE, NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER!>contextOf<!>() }
+fun A.usage19() = <!CANNOT_INFER_PARAMETER_TYPE, NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER!>contextOf<!>()
 context(a: A) fun A.usage20() { <!AMBIGUOUS_CONTEXT_ARGUMENT, CANNOT_INFER_PARAMETER_TYPE!>contextOf<!>() }
 context(a: A, b: B) fun usage21() { <!AMBIGUOUS_CONTEXT_ARGUMENT, CANNOT_INFER_PARAMETER_TYPE!>contextOf<!>() }
 context(a: A, c: C) fun usage22() { <!AMBIGUOUS_CONTEXT_ARGUMENT, CANNOT_INFER_PARAMETER_TYPE!>contextOf<!>() }
 
 // red code (lack of type inference via return type)
-context(a: A) fun usage23(): A = contextOf()
-fun A.usage24(): A = contextOf()
-context(b: B) fun usage25(): A = contextOf()
+context(a: A) fun usage23(): A = <!CANNOT_INFER_PARAMETER_TYPE, NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER!>contextOf<!>()
+fun A.usage24(): A = <!CANNOT_INFER_PARAMETER_TYPE, NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER!>contextOf<!>()
+context(b: B) fun usage25(): A = <!CANNOT_INFER_PARAMETER_TYPE, NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER!>contextOf<!>()
 context(a: A) fun A.usage26(): A = <!AMBIGUOUS_CONTEXT_ARGUMENT, CANNOT_INFER_PARAMETER_TYPE!>contextOf<!>()
 context(a: A, b: B) fun usage27(): A = <!AMBIGUOUS_CONTEXT_ARGUMENT, CANNOT_INFER_PARAMETER_TYPE!>contextOf<!>()
 context(a: A, c: C) fun usage28(): A = <!AMBIGUOUS_CONTEXT_ARGUMENT, CANNOT_INFER_PARAMETER_TYPE!>contextOf<!>()
