@@ -46829,6 +46829,12 @@ public class PhasedJvmDiagnosticPsiTestGenerated extends AbstractPhasedJvmDiagno
         }
 
         @Test
+        @TestMetadata("operatorsCheckingInK2.kt")
+        public void testOperatorsCheckingInK2() {
+          runTest("compiler/testData/diagnostics/testsWithStdLib/contracts/dsl/operatorsCheckingInK2.kt");
+        }
+
+        @Test
         @TestMetadata("operatorsForbiddenInK2.kt")
         public void testOperatorsForbiddenInK2() {
           runTest("compiler/testData/diagnostics/testsWithStdLib/contracts/dsl/operatorsForbiddenInK2.kt");
