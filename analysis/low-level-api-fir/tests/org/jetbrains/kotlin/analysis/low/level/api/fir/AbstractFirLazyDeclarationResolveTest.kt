@@ -20,7 +20,7 @@ import org.jetbrains.kotlin.test.directives.JvmEnvironmentConfigurationDirective
 import org.jetbrains.kotlin.test.services.TestServices
 
 abstract class AbstractFirLazyDeclarationResolveTest : AbstractFirLazyDeclarationResolveOverAllPhasesTest() {
-    override fun checkSession(llResolutionFacade: LLResolutionFacade) {
+    override fun checkResolutionFacade(llResolutionFacade: LLResolutionFacade) {
         require(llResolutionFacade.isSourceSession)
     }
 
