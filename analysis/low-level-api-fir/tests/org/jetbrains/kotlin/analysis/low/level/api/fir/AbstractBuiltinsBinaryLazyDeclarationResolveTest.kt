@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.test.directives.LanguageSettingsDirectives
 
 abstract class AbstractBuiltinsBinaryLazyDeclarationResolveTest : AbstractByQualifiedNameLazyDeclarationResolveTest() {
     override fun checkResolutionFacade(llResolutionFacade: LLResolutionFacade) {
-        requireIsInstance<KaBuiltinsModule>(llResolutionFacade.useSiteKtModule)
+        requireIsInstance<KaBuiltinsModule>(llResolutionFacade.useSiteModule)
     }
 
     override fun configureTest(builder: TestConfigurationBuilder) {
