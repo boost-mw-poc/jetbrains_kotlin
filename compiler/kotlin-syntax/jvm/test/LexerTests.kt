@@ -3,6 +3,7 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
+import infra.AbstractLexer
 import infra.NewLexer
 import infra.OldLexer
 import infra.TestDataUtils
@@ -16,6 +17,14 @@ class LexerTests {
             fun main() {
                 println("Hello, World!")
             }
+
+            /**
+             * @param [p] Some parameter.
+             * @return [Exception]
+             */
+            fun test(p: String) {
+                throw Exception()
+            }
         """.trimIndent()
 
     @Test
@@ -24,7 +33,17 @@ class LexerTests {
     }
 
     @Test
-    fun testTokenDump() {
+    fun testEmpty() {
+        checkLexerOnKotlinCode("")
+    }
+
+    @Test
+    fun testOldTokensDump() = testTokensDump(OldLexer())
+
+    @Test
+    fun testNewTokensDump() = testTokensDump(NewLexer())
+
+    private fun testTokensDump(lexer: AbstractLexer<*>) {
         assertEquals("""
             fun [0..3)
             WHITE_SPACE [3..4)
@@ -42,7 +61,47 @@ class LexerTests {
             RPAR [40..41)
             WHITE_SPACE [41..42)
             RBRACE [42..43)
-        """.trimIndent(), NewLexer().tokenize(kotlinCodeSample).dump())
+            WHITE_SPACE [43..45)
+            KDoc [45..105)
+                KDOC_START [45..48)
+                WHITE_SPACE [48..50)
+                KDOC_LEADING_ASTERISK [50..51)
+                KDOC_TEXT [51..52)
+                KDOC_TAG_NAME [52..58)
+                WHITE_SPACE [58..59)
+                KDOC_MARKDOWN_LINK [59..62)
+                WHITE_SPACE [62..63)
+                KDOC_TEXT [63..78)
+                WHITE_SPACE [78..80)
+                KDOC_LEADING_ASTERISK [80..81)
+                KDOC_TEXT [81..82)
+                KDOC_TAG_NAME [82..89)
+                WHITE_SPACE [89..90)
+                KDOC_MARKDOWN_LINK [90..101)
+                WHITE_SPACE [101..103)
+                KDOC_END [103..105)
+            WHITE_SPACE [105..106)
+            fun [106..109)
+            WHITE_SPACE [109..110)
+            IDENTIFIER [110..114)
+            LPAR [114..115)
+            IDENTIFIER [115..116)
+            COLON [116..117)
+            WHITE_SPACE [117..118)
+            IDENTIFIER [118..124)
+            RPAR [124..125)
+            WHITE_SPACE [125..126)
+            LBRACE [126..127)
+            WHITE_SPACE [127..132)
+            throw [132..137)
+            WHITE_SPACE [137..138)
+            IDENTIFIER [138..147)
+            LPAR [147..148)
+            RPAR [148..149)
+            WHITE_SPACE [149..150)
+            RBRACE [150..151)
+
+        """.trimIndent(), lexer.tokenize(kotlinCodeSample).dump())
     }
 
     @Test

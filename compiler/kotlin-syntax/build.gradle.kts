@@ -60,37 +60,38 @@ dependencies {
     }
 }
 
-tasks.register<JavaExec>("generateKotlinLexer") {
-    mainClass = "jflex.Main"
-    classpath = files(flexGeneratorClasspath)
+for (lexerName in listOf("Kotlin", "KDoc")) {
+    tasks.register<JavaExec>("generate${lexerName}Lexer") {
+        mainClass = "jflex.Main"
+        classpath = files(flexGeneratorClasspath)
 
-    val lexerDir = projectDir.resolve("common/src/org/jetbrains/kotlin/kmp/lexer")
-
-    // TODO: get rid of the skeleton or implement its caching
-    // It's blocked by https://github.com/JetBrains/intellij-deps-jflex/issues/9
-    // Currently it's forced to use the latest skeleton version from master with the assumption that the latest flex version is used.
-    val skeletonFile = layout.buildDirectory.file("idea-flex-kotlin.skeleton").get().asFile
-
-    doFirst {
-        val skeletonUrl = "https://raw.githubusercontent.com/JetBrains/intellij-community/master/tools/lexer/idea-flex-kotlin.skeleton"
-        println("Downloading skeleton file $skeletonUrl")
-        URI.create(skeletonUrl).toURL().openStream().use { input ->
-            skeletonFile.outputStream().use { output ->
-                input.copyTo(output)
+        // TODO: get rid of the skeleton or implement its caching
+        // It's blocked by https://github.com/JetBrains/intellij-deps-jflex/issues/9
+        // Currently it's forced to use the latest skeleton version from master with the assumption that the latest flex version is used.
+        val skeletonFile = layout.buildDirectory.file("idea-flex-kotlin.skeleton").get().asFile
+        doFirst {
+            val skeletonUrl = "https://raw.githubusercontent.com/JetBrains/intellij-community/master/tools/lexer/idea-flex-kotlin.skeleton"
+            println("Downloading skeleton file $skeletonUrl")
+            URI.create(skeletonUrl).toURL().openStream().use { input ->
+                skeletonFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
             }
         }
-    }
 
-    argumentProviders.add(CommandLineArgumentProvider {
-        listOf(
-            lexerDir.resolve("Kotlin.flex").absolutePath,
-            "-skel",
-            skeletonFile.absolutePath,
-            "-d",
-            lexerDir.absolutePath,
-            "--output-mode",
-            "kotlin",
-            "--nobak", // Prevent generating backup `.kt~` files
-        )
-    })
+        val lexerDir = projectDir.resolve("common/src/org/jetbrains/kotlin/kmp/lexer")
+
+        argumentProviders.add(CommandLineArgumentProvider {
+            listOf(
+                lexerDir.resolve("$lexerName.flex").absolutePath,
+                "-skel",
+                skeletonFile.absolutePath,
+                "-d",
+                lexerDir.absolutePath,
+                "--output-mode",
+                "kotlin",
+                "--nobak", // Prevent generating backup `.kt~` files
+            )
+        })
+    }
 }
