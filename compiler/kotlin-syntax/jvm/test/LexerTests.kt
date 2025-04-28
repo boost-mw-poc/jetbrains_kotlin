@@ -4,9 +4,11 @@
  */
 
 import infra.AbstractLexer
+import infra.MultiToken
 import infra.NewLexer
 import infra.OldLexer
 import infra.TestDataUtils
+import infra.Token
 import infra.dump
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
@@ -125,20 +127,29 @@ class LexerTests {
             assertEquals(oldTokens.dump(), newTokens.dump(), path?.let { "Different tokens on file: $it" })
         }
 
-        if (oldTokens.size != newTokens.size) {
-            failWithDifferentTokens()
-        }
-
-        for (i in oldTokens.indices) {
-            val oldToken = oldTokens[i]
-            val newToken = newTokens[i]
-
-            if (oldToken.name != newToken.name ||
-                oldToken.start != newToken.start ||
-                oldToken.end != newToken.end
-            ) {
+        fun compareTokens(oldTokens: List<Token<*>>, newTokens: List<Token<*>>) {
+            if (oldTokens.size != newTokens.size) {
                 failWithDifferentTokens()
             }
+
+            for (index in oldTokens.indices) {
+                val oldToken = oldTokens[index]
+                val newToken = newTokens[index]
+
+                if (oldToken.name != newToken.name ||
+                    oldToken.start != newToken.start ||
+                    oldToken.end != newToken.end
+                ) {
+                    failWithDifferentTokens()
+                }
+
+                if (oldToken is MultiToken<*>) {
+                    newToken as MultiToken<*>
+                    compareTokens(oldToken.children, newToken.children)
+                }
+            }
         }
+
+        compareTokens(oldTokens, newTokens)
     }
 }
