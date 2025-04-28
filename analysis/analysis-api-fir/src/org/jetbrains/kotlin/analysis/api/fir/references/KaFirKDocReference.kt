@@ -28,7 +28,7 @@ internal class KaFirKDocReference(element: KDocName) : KDocReference(element), K
             fullFqName,
             element,
             knownContainedTagSection
-        ).toSet()
+        )
     }
 
     override fun getResolvedToPsi(

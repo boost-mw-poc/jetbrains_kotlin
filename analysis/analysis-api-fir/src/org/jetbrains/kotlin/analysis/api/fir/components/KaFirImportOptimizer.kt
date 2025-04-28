@@ -37,7 +37,10 @@ import org.jetbrains.kotlin.fir.types.*
 import org.jetbrains.kotlin.fir.visitors.FirVisitorVoid
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocLink
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocName
-import org.jetbrains.kotlin.name.*
+import org.jetbrains.kotlin.name.CallableId
+import org.jetbrains.kotlin.name.ClassId
+import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getCallNameExpression
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
@@ -276,7 +279,7 @@ internal class KaFirImportOptimizer(
                         .resolveKdocFqName(useSiteSession, qualifiedNameAsFqName, qualifiedNameAsFqName, docLink)
                     if (resolvedSymbols.none()) {
                         unresolvedNames += qualifiedNameAsFqName.shortName()
-                        emptySequence()
+                        emptyList()
                     } else {
                         resolvedSymbols.flatMap { toImportableFqNames(it, qualifiedNameAsFqName) }
                     }
