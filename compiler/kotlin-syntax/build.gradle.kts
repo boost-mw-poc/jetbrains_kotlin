@@ -22,7 +22,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(kotlinStdlib())
-                implementation("org.jetbrains:syntax-api:0.3.332")
+                implementation(libs.org.jetbrains.syntax.api)
             }
             kotlin {
                 srcDir("common/src")
