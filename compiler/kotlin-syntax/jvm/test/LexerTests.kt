@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class LexerTests {
     companion object {
@@ -123,10 +124,16 @@ class LexerTests {
             newLexerTotalNanos += newLexerNanos
             filesCounter++
         }
-        println("Number of tested files (kt, kts, nkt): $filesCounter") // It should print around 30K
+
+        val newOldLexerTimeRatio = newLexerTotalNanos.toDouble() / oldLexerTotalNanos
+
+        assertTrue(filesCounter > 31000, "Number of tested files (kt, kts, nkt) should be more than 31K")
+        assertEquals(newOldLexerTimeRatio, 1.0, 0.2, "Lexers performance should be almost equal")
+
+        println("Number of tested files (kt, kts, nkt): $filesCounter")
         println("Old lexer total time: ${TimeUnit.NANOSECONDS.toMillis(oldLexerTotalNanos)} ms")
         println("New lexer total time: ${TimeUnit.NANOSECONDS.toMillis(newLexerTotalNanos)} ms")
-        println("New/Old lexer time ratio: %.4f".format((newLexerTotalNanos.toDouble() / oldLexerTotalNanos)))
+        println("New/Old lexer time ratio: %.4f".format(newOldLexerTimeRatio))
     }
 
     private fun checkLexerOnKotlinCode(kotlinCodeSample: String, path: Path? = null): LexerTime {

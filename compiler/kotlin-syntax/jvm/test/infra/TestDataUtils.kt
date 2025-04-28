@@ -10,7 +10,11 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 object TestDataUtils {
-    val testDataDir: Path = Paths.get(File(System.getProperty("user.dir") ?: ".").parent, "testData")
+    val userDir = File(System.getProperty("user.dir") ?: ".").parent
+    val testDataDirs: List<Path> = listOf(
+        Paths.get(userDir, "testData"),
+        Paths.get(userDir, "tests-spec/testData"),
+    )
 
     // TODO: for some reason, it's not possible to depend on `:compiler:test-infrastructure-utils` here
     // See org.jetbrains.kotlin.codeMetaInfo.CodeMetaInfoParser
@@ -23,12 +27,15 @@ object TestDataUtils {
         """(${closingDiagnosticRegex.pattern}|${openingDiagnosticRegex.pattern}|${xmlLikeTagsRegex.pattern})""".toRegex()
 
     fun checkKotlinFiles(kotlinFileChecker: (String, Path) -> Unit) {
-        testDataDir.toFile().walkTopDown().filter { it.isFile && it.extension.let { ext -> ext == "kt" || ext == "kts" || ext == "nkt" } }
-            .forEach {
-                val text = it.readText()
-                val refinedText = text.replace(allMetadataRegex, "")
-                kotlinFileChecker(refinedText, it.toPath())
-            }
+        for (testDataDir in testDataDirs) {
+            testDataDir.toFile().walkTopDown()
+                .filter { it.isFile && it.extension.let { ext -> ext == "kt" || ext == "kts" || ext == "nkt" } }
+                .forEach {
+                    val text = it.readText()
+                    val refinedText = text.replace(allMetadataRegex, "")
+                    kotlinFileChecker(refinedText, it.toPath())
+                }
+        }
     }
 }
 
