@@ -159,12 +159,12 @@ internal object KDocReferenceResolver {
 
             yieldIfNotNull(findPackage(fqName)?.toResolveResult())
 
-            yieldAll(getTypeQualifiedExtensions(fqName, scopeContextScopes))
-
             val callables = allScopesContainingName.map { scope -> scope.callables(shortName) }
             yieldAll(callables.flatMap { callableSymbols -> callableSymbols.filterIsInstance<KaFunctionSymbol>() }.toResolveResults())
             yieldAll(getSymbolsFromSyntheticProperty(fqName, allScopesContainingName).toResolveResults())
             yieldAll(callables.flatMap { scope -> scope.filterIsInstance<KaVariableSymbol>() }.toResolveResults())
+
+            yieldAll(getTypeQualifiedExtensions(fqName, scopeContextScopes))
             yieldAll(AdditionalKDocResolutionProvider.resolveKdocFqName(useSiteSession, fqName, contextElement).toResolveResults())
         }.distinct()
 
