@@ -6,7 +6,6 @@
 package org.jetbrains.kotlin.konan.test.blackbox.support.group
 
 import org.jetbrains.kotlin.config.LanguageFeature
-import org.jetbrains.kotlin.config.LanguageFeature.Kind.UNSTABLE_FEATURE
 import org.jetbrains.kotlin.config.LanguageVersion
 import org.jetbrains.kotlin.konan.target.Architecture
 import org.jetbrains.kotlin.konan.target.Family
@@ -50,23 +49,12 @@ val Settings.releasedCompilerVersion: LanguageVersion
 
 internal fun Settings.isDisabledByUnsupportedLanguageFeature(testDataFileLanguageSettings: Set<String>): Boolean {
     val compatibilityTestMode = get<CompatibilityTestMode>()
-    if (compatibilityTestMode == CompatibilityTestMode.NONE)
+    if (compatibilityTestMode == CompatibilityTestMode.None)
         return false
     return testDataFileLanguageSettings.any {
         val feature = LanguageFeature.valueOf(it.substring(1))
         feature.sinceVersion?.let { it > releasedCompilerVersion }
-            ?: (feature.kind == UNSTABLE_FEATURE ||
-                    when (releasedCompilerVersion) {
-                        LanguageVersion.KOTLIN_1_9 -> TODO("Please check for language features unsupported by Kotlin 1.9")
-                        LanguageVersion.KOTLIN_2_0 -> TODO("Please check for language features unsupported by Kotlin 2.0")
-                        LanguageVersion.KOTLIN_2_1 -> when (compatibilityTestMode) {
-                            CompatibilityTestMode.BACKWARD -> feature == LanguageFeature.ContextReceivers
-                            else -> error("Should not reach here")
-                        }
-                        LanguageVersion.KOTLIN_2_2 -> TODO("Please check for language features unsupported by Kotlin 2.2")
-                        LanguageVersion.KOTLIN_2_3 -> TODO("Please check for language features unsupported by Kotlin 2.3")
-                        else -> false
-                    })
+            ?: false
     }
 }
 
