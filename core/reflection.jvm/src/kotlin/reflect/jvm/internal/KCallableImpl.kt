@@ -43,31 +43,36 @@ internal abstract class KCallableImpl<out R> : KCallable<R>, KTypeParameterOwner
 
     override val annotations: List<Annotation> get() = _annotations()
 
+    val receiverParameters: List<KParameter> by ReflectProperties.lazySoft {
+        val result = ArrayList<KParameter>()
+        val instanceReceiver = descriptor.instanceReceiverParameter
+        if (instanceReceiver != null) {
+            result.add(KParameterImpl(this, result.size, KParameter.Kind.INSTANCE) { instanceReceiver })
+        }
+
+        val contextParameters = descriptor.computeContextParameters()
+        for (i in contextParameters.indices) {
+            @OptIn(ExperimentalContextParameters::class)
+            result.add(KParameterImpl(this, result.size, KParameter.Kind.CONTEXT) { contextParameters[i] })
+        }
+
+        val extensionReceiver = descriptor.extensionReceiverParameter
+        if (extensionReceiver != null) {
+            result.add(KParameterImpl(this, result.size, KParameter.Kind.EXTENSION_RECEIVER) { extensionReceiver })
+        }
+        result
+    }
+
     private val _parameters = ReflectProperties.lazySoft {
         val descriptor = descriptor
         val result = ArrayList<KParameter>()
-        var index = 0
 
         if (!isBound) {
-            val instanceReceiver = descriptor.instanceReceiverParameter
-            if (instanceReceiver != null) {
-                result.add(KParameterImpl(this, index++, KParameter.Kind.INSTANCE) { instanceReceiver })
-            }
-
-            val contextParameters = descriptor.computeContextParameters()
-            for (i in contextParameters.indices) {
-                @OptIn(ExperimentalContextParameters::class)
-                result.add(KParameterImpl(this, index++, KParameter.Kind.CONTEXT) { contextParameters[i] })
-            }
-
-            val extensionReceiver = descriptor.extensionReceiverParameter
-            if (extensionReceiver != null) {
-                result.add(KParameterImpl(this, index++, KParameter.Kind.EXTENSION_RECEIVER) { extensionReceiver })
-            }
+            result.addAll(receiverParameters)
         }
 
         for (i in descriptor.valueParameters.indices) {
-            result.add(KParameterImpl(this, index++, KParameter.Kind.VALUE) { descriptor.valueParameters[i] })
+            result.add(KParameterImpl(this, result.size, KParameter.Kind.VALUE) { descriptor.valueParameters[i] })
         }
 
         // Constructor parameters of Java annotations are not ordered in any way, we order them by name here to be more stable.
