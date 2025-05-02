@@ -133,6 +133,9 @@ public final class kotlin/metadata/ClassNameKt {
 public abstract interface annotation class kotlin/metadata/ExperimentalAnnotationsInMetadata : java/lang/annotation/Annotation {
 }
 
+public abstract interface annotation class kotlin/metadata/ExperimentalContextParameters : java/lang/annotation/Annotation {
+}
+
 public abstract interface annotation class kotlin/metadata/ExperimentalContextReceivers : java/lang/annotation/Annotation {
 }
 
@@ -519,6 +522,7 @@ public final class kotlin/metadata/KmFunction {
 	public field returnType Lkotlin/metadata/KmType;
 	public fun <init> (Ljava/lang/String;)V
 	public final fun getAnnotations ()Ljava/util/List;
+	public final fun getContextParameters ()Ljava/util/List;
 	public final fun getContextReceiverTypes ()Ljava/util/List;
 	public final fun getContract ()Lkotlin/metadata/KmContract;
 	public final fun getExtensionReceiverParameterAnnotations ()Ljava/util/List;
@@ -553,6 +557,7 @@ public final class kotlin/metadata/KmProperty {
 	public fun <init> (Ljava/lang/String;)V
 	public final fun getAnnotations ()Ljava/util/List;
 	public final fun getBackingFieldAnnotations ()Ljava/util/List;
+	public final fun getContextParameters ()Ljava/util/List;
 	public final fun getContextReceiverTypes ()Ljava/util/List;
 	public final fun getDelegateFieldAnnotations ()Ljava/util/List;
 	public final fun getExtensionReceiverParameterAnnotations ()Ljava/util/List;

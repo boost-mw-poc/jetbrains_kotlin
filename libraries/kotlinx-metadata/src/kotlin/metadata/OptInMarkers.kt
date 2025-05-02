@@ -5,8 +5,13 @@
 
 package kotlin.metadata
 
+internal const val CtxReceiversDeprecated =
+    "Context receivers feature is superseded with context parameters. Please use context parameters API instead. See documentation for details."
+
 /**
  * Marks an API related to the Kotlin's [context receivers](https://github.com/Kotlin/KEEP/blob/master/proposals/context-receivers.md) experimental feature.
+ * This feature is superseded by context parameters.
+ * Replace the '-Xcontext-receivers' compiler argument with '-Xcontext-parameters' and migrate to the new syntax.
  *
  * Marked API reflects metadata written by this feature, and can be changed or removed as development continues.
  * Therefore, it does not provide any compatibility guarantees.
@@ -17,6 +22,19 @@ package kotlin.metadata
 )
 @MustBeDocumented
 public annotation class ExperimentalContextReceivers
+
+/**
+ * Marks an API related to the Kotlin's [context parameters](https://github.com/Kotlin/KEEP/blob/context-parameters/proposals/context-parameters.md) experimental feature.
+ *
+ * Marked API reflects metadata written by this feature, and can be changed or removed as development continues.
+ * Therefore, it does not provide any compatibility guarantees.
+ */
+@RequiresOptIn(
+    "The API is related to the experimental feature \"context parameters\" (see KEEP-367) and may be changed or removed in any future release.",
+    RequiresOptIn.Level.ERROR
+)
+@MustBeDocumented
+public annotation class ExperimentalContextParameters
 
 /**
  * Marks an API related to the experimental feature "annotations in metadata", enabled by the compiler flag `-Xannotations-in-metadata`
