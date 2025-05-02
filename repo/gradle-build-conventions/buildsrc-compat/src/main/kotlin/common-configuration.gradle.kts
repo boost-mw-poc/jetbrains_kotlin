@@ -357,6 +357,7 @@ afterEvaluate {
 
 // temporary workaround until IJPL-181266 is backported to 251
 afterEvaluate {
+    if (project.path == ":jps:jps-plugin") return@afterEvaluate
     if (!configurations.names.contains("implementation")) return@afterEvaluate
     configurations.named("implementation").configure {
         if (!isCanBeDeclared) return@configure
