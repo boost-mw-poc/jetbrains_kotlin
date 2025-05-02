@@ -13,7 +13,9 @@ import com.intellij.lang.MetaLanguage
 import com.intellij.mock.MockApplication
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.util.Computable
+import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.ThrowableComputable
 import com.intellij.openapi.vfs.VirtualFileSystem
@@ -26,6 +28,7 @@ import org.jetbrains.kotlin.cli.common.localfs.KotlinLocalFileSystem
 import org.jetbrains.kotlin.cli.jvm.compiler.IdeaExtensionPoints.registerVersionSpecificAppExtensionPoints
 import org.jetbrains.kotlin.cli.jvm.compiler.jarfs.FastJarFileSystem
 import org.jetbrains.kotlin.cli.jvm.modules.CoreJrtFileSystem
+import javax.swing.SwingUtilities
 
 sealed interface KotlinCoreApplicationEnvironmentMode {
     object Production : KotlinCoreApplicationEnvironmentMode
@@ -53,7 +56,23 @@ class KotlinCoreApplicationEnvironment private constructor(
     }
 
     override fun createApplication(parentDisposable: Disposable): MockApplication {
-        val mock = super.createApplication(parentDisposable)
+        val mock = object : MockApplication(parentDisposable) {
+            override fun invokeLater(runnable: Runnable, expired: Condition<*>) {
+                SwingUtilities.invokeLater(runnable)
+            }
+
+            override fun invokeLater(runnable: Runnable, state: ModalityState, expired: Condition<*>) {
+                SwingUtilities.invokeLater(runnable)
+            }
+
+            override fun invokeLater(runnable: Runnable) {
+                SwingUtilities.invokeLater(runnable)
+            }
+
+            override fun invokeLater(runnable: Runnable, state: ModalityState) {
+                SwingUtilities.invokeLater(runnable)
+            }
+        }
 
         /**
          * We can't use [environmentMode] from the constructor to decide whether we're in unit test mode, because the corresponding property
@@ -155,6 +174,22 @@ private class KotlinCoreUnitTestApplication(parentDisposable: Disposable) : Mock
         withWriteAccessAllowedInThread { computation.compute() }
 
     private inline fun <A> withWriteAccessAllowedInThread(action: () -> A): A = PlatformWriteAccessSupport.withWriteAccessAllowedInThread(action)
+
+    override fun invokeLater(runnable: Runnable, expired: Condition<*>) {
+        SwingUtilities.invokeLater(runnable)
+    }
+
+    override fun invokeLater(runnable: Runnable, state: ModalityState, expired: Condition<*>) {
+        SwingUtilities.invokeLater(runnable)
+    }
+
+    override fun invokeLater(runnable: Runnable) {
+        SwingUtilities.invokeLater(runnable)
+    }
+
+    override fun invokeLater(runnable: Runnable, state: ModalityState) {
+        SwingUtilities.invokeLater(runnable)
+    }
 }
 
 /**
