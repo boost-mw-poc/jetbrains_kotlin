@@ -395,6 +395,8 @@ class DeclarationGenerator(
 
             buildConstI64(wasmFileCodegenContext.referenceTypeId(symbol), location)
 
+            buildConstI32(if (klass.isAnonymousObject) 1 else 0, location)
+
             buildStructNew(wasmFileCodegenContext.rttiType, location)
         }
 

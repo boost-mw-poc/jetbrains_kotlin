@@ -238,6 +238,7 @@ class WasmCompiledModuleFragment(
                 WasmStructFieldDeclaration("simpleNameLength", WasmI32, false),
                 WasmStructFieldDeclaration("simpleNamePoolId", WasmI32, false),
                 WasmStructFieldDeclaration("klassId", WasmI64, false),
+                WasmStructFieldDeclaration("isAnonymousClass", WasmI32, false),
             ),
             superType = null,
             isFinal = true
