@@ -54,7 +54,13 @@ internal fun Settings.isDisabledByUnsupportedLanguageFeature(testDataFileLanguag
     return testDataFileLanguageSettings.any {
         val feature = LanguageFeature.valueOf(it.substring(1))
         feature.sinceVersion?.let { it > releasedCompilerVersion }
-            ?: false
+            ?: when (releasedCompilerVersion) {
+                LanguageVersion.KOTLIN_2_1 -> when (compatibilityTestMode) {
+                    CompatibilityTestMode.OldArtifactNewCompiler -> feature == LanguageFeature.ContextReceivers
+                    else -> error("Unsupported here: compatibilityTestMode=${compatibilityTestMode.name}")
+                }
+                else -> TODO("Please fill in here the language features unsupported by ${releasedCompilerVersion.name}")
+            }
     }
 }
 
