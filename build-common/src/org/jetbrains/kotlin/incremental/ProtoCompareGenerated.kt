@@ -1362,6 +1362,11 @@ open class ProtoCompareGenerated(
             if (old.kind != new.kind) return false
         }
 
+        if (old.hasConditionKind() != new.hasConditionKind()) return false
+        if (old.hasConditionKind()) {
+            if (old.conditionKind != new.conditionKind) return false
+        }
+
         return true
     }
 
@@ -3027,6 +3032,10 @@ fun ProtoBuf.Effect.hashCode(stringIndexes: (Int) -> Int, fqNameIndexes: (Int) -
 
     if (hasKind()) {
         hashCode = 31 * hashCode + kind.hashCode()
+    }
+
+    if (hasConditionKind()) {
+        hashCode = 31 * hashCode + conditionKind.hashCode()
     }
 
     return hashCode
