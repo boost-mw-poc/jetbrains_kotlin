@@ -25,7 +25,6 @@ import org.jetbrains.kotlin.analysis.api.symbols.KaClassifierSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KaReceiverParameterSymbol
 import org.jetbrains.kotlin.analysis.api.types.KaErrorType
 import org.jetbrains.kotlin.analysis.api.types.KaType
-import org.jetbrains.kotlin.analysis.api.types.KaTypeNullability
 import org.jetbrains.kotlin.analysis.low.level.api.fir.api.InvalidFirElementTypeException
 import org.jetbrains.kotlin.analysis.low.level.api.fir.api.getOrBuildFir
 import org.jetbrains.kotlin.analysis.low.level.api.fir.api.getOrBuildFirFile
@@ -256,9 +255,9 @@ internal class KaFirTypeProvider(
         return typeArguments.firstOrNull()?.type
     }
 
-    override fun KaType.withNullability(newNullability: KaTypeNullability): KaType = withValidityAssertion {
+    override fun KaType.withNullability(isMarkedNullable: Boolean): KaType = withValidityAssertion {
         require(this is KaFirType)
-        return coneType.withNullability(nullable = newNullability == KaTypeNullability.NULLABLE, rootModuleSession.typeContext).asKtType()
+        return coneType.withNullability(isMarkedNullable, rootModuleSession.typeContext).asKtType()
     }
 
     override fun KaType.hasCommonSubtypeWith(that: KaType): Boolean = withValidityAssertion {
