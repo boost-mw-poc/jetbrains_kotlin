@@ -7,37 +7,27 @@ package org.jetbrains.kotlin.fir.analysis.checkers.declaration
 
 import org.jetbrains.kotlin.KtSourceElement
 import org.jetbrains.kotlin.descriptors.EffectiveVisibility
-import org.jetbrains.kotlin.fir.types.FirTypeRef
+import org.jetbrains.kotlin.descriptors.isInterface
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.KtDiagnosticFactory1
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
-import org.jetbrains.kotlin.fir.analysis.checkers.toClassLikeSymbol
+import org.jetbrains.kotlin.fir.analysis.checkers.getContainingClassSymbol
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
-import org.jetbrains.kotlin.fir.declarations.DirectDeclarationsAccess
-import org.jetbrains.kotlin.fir.declarations.FirAnonymousObject
 import org.jetbrains.kotlin.fir.declarations.FirClass
 import org.jetbrains.kotlin.fir.declarations.FirClassLikeDeclaration
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
-import org.jetbrains.kotlin.fir.declarations.FirSimpleFunction
-import org.jetbrains.kotlin.fir.declarations.FirTypeAlias
 import org.jetbrains.kotlin.fir.declarations.processAllDeclarations
 import org.jetbrains.kotlin.fir.declarations.utils.classId
 import org.jetbrains.kotlin.fir.declarations.utils.effectiveVisibility
-import org.jetbrains.kotlin.fir.declarations.utils.modality
 import org.jetbrains.kotlin.fir.declarations.utils.visibility
 import org.jetbrains.kotlin.fir.resolve.getContainingDeclaration
 import org.jetbrains.kotlin.fir.resolve.toClassLikeSymbol
 import org.jetbrains.kotlin.fir.symbols.SymbolInternals
-import org.jetbrains.kotlin.fir.symbols.impl.FirCallableSymbol
-import org.jetbrains.kotlin.fir.symbols.impl.FirClassLikeSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirNamedFunctionSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
 import org.jetbrains.kotlin.fir.types.ConeTypeProjection
-import org.jetbrains.kotlin.fir.types.coneType
-import org.jetbrains.kotlin.fir.types.coneTypeOrNull
-import org.jetbrains.kotlin.fir.types.renderForDebugging
 import org.jetbrains.kotlin.fir.types.type
 import org.jetbrains.kotlin.fir.types.typeContext
 import kotlin.reflect.full.memberProperties
@@ -76,16 +66,13 @@ class IEReporter(
 
 
 data class IEData(
-    val subclass: String? = null,
-    val subclassKind: String? = null,
-    val subclassVisibility: String? = null,
-    val superclass: String? = null,
-    val superclassKind: String? = null,
-    val superclassVisibility: String? = null,
-    val superclassHasMethods: Boolean? = null,
+    val name: String? = null,
+    val visibility: String? = null,
+    val topLevel: Boolean? = null,
+    val effectiveVisibility: String? = null,
+    val exposes: Boolean? = null,
     val exposingFunction: String? = null,
-    val defaultKind: String? = null,
-    val defaults: String? = null,
+    val minimalRequiredVisibility: String? = null,
     val error: String? = null,
 )
 
@@ -94,21 +81,47 @@ object FirSuperclassVisibilityChecker : FirClassChecker(MppCheckerKind.Common) {
     context(context: CheckerContext, reporter: DiagnosticReporter)
     override fun check(declaration: FirClass) {
         val report = IEReporter(declaration.source, context, reporter, FirErrors.MY_ERROR)
-        val selfEffVis = selfEffVis(declaration)
-        declaration.superTypeRefs.forEach {
-            try {
-                checkSupertype(it, selfEffVis) {
-                    report(
-                        it.copy(
-                            subclass = declaration.classId.asFqNameString(),
-                            subclassKind = declaration.classKind.toString(),
-                            subclassVisibility = declaration.visibility.toString(),
-                        )
-                    )
+        if (declaration !is FirRegularClass) return
+        if (!declaration.classKind.isInterface) return
+        try {
+            val name = declaration.classId.asFqNameString()
+            val visibility = declaration.visibility.toString()
+            val topLevel = declaration.getContainingClassSymbol() == null
+            val selfEffVis = selfEffVis(declaration)
+            val exposingFunctions = mutableListOf<String>()
+            var minimalRequiredVisibility: EffectiveVisibility = EffectiveVisibility.Public
+            declaration.processAllDeclarations(context.session) {
+                when (it) {
+                    is FirNamedFunctionSymbol -> {
+                        var effVis: EffectiveVisibility = EffectiveVisibility.Public
+                        effVis = it.valueParameterSymbols.fold(effVis) { acc, new -> lbWithType(new.resolvedReturnType, acc) }
+                        effVis = lbWithType(it.resolvedReturnType, effVis)
+                        if (effVis != EffectiveVisibility.Public) exposingFunctions.add(it.name.toString())
+                        minimalRequiredVisibility =
+                            minimalRequiredVisibility.lowerBound(effVis, context.session.typeContext)
+                    }
+                    is FirPropertySymbol -> {
+                        var effVis: EffectiveVisibility = EffectiveVisibility.Public
+                        effVis = lbWithType(it.resolvedReturnType, effVis)
+                        if (effVis != EffectiveVisibility.Public) exposingFunctions.add(it.name.toString())
+                        minimalRequiredVisibility =
+                            minimalRequiredVisibility.lowerBound(effVis, context.session.typeContext)
+                    }
                 }
-            } catch (e: Exception) {
-                report(IEData(error = e.message))
             }
+            report(
+                IEData(
+                    name = name,
+                    visibility = visibility,
+                    topLevel = topLevel,
+                    effectiveVisibility = selfEffVis.toString(),
+                    exposes = exposingFunctions.isNotEmpty(),
+                    exposingFunction = exposingFunctions.joinToString(", ") { "'$it'" },
+                    minimalRequiredVisibility = minimalRequiredVisibility.toString(),
+                )
+            )
+        } catch (e: Exception) {
+            report(IEData(error = e.message))
         }
     }
 
@@ -125,121 +138,9 @@ object FirSuperclassVisibilityChecker : FirClassChecker(MppCheckerKind.Common) {
     }
 
     context(context: CheckerContext)
-    fun checkTypeParameter(typeProj: ConeTypeProjection, selfEffVis: EffectiveVisibility, report: (IEData) -> Unit) {
-        typeProj.type?.typeArguments?.forEach { checkTypeParameter(it, selfEffVis, report) }
-        val classLikeSymbol = typeProj.type?.toClassLikeSymbol(context.session) ?: return
-        val effVis = classLikeSymbol.effectiveVisibility
-        when (effVis.relation(selfEffVis, context.session.typeContext)) {
-            EffectiveVisibility.Permissiveness.LESS, EffectiveVisibility.Permissiveness.UNKNOWN -> {
-                report(dataForSymbol(classLikeSymbol))
-            }
-            else -> return
-        }
-    }
-
-    context(context: CheckerContext)
-    fun checkSigType(typeProj: ConeTypeProjection, selfEffVis: EffectiveVisibility): Boolean {
-        val parameters = typeProj.type?.typeArguments?.any { checkSigType(it, selfEffVis) }
-        if (parameters == true) return true
-        val classLikeSymbol = typeProj.type?.toClassLikeSymbol(context.session) ?: return false
-        val effVis = classLikeSymbol.effectiveVisibility
-        return when (effVis.relation(selfEffVis, context.session.typeContext)) {
-            EffectiveVisibility.Permissiveness.LESS, EffectiveVisibility.Permissiveness.UNKNOWN -> true
-            else -> false
-        }
-    }
-
-    @OptIn(SymbolInternals::class)
-    context(context: CheckerContext)
-    fun checkSupertype(typeRef: FirTypeRef, selfEffVis: EffectiveVisibility, report: (IEData) -> Unit) {
-        typeRef.coneTypeOrNull?.typeArguments?.forEach {
-            checkTypeParameter(it, selfEffVis) { d -> report(d) }
-        }
-        val classLikeSymbol = typeRef.toClassLikeSymbol(context.session) ?: return
-        val effVis = classLikeSymbol.effectiveVisibility
-        when (effVis.relation(selfEffVis, context.session.typeContext)) {
-            EffectiveVisibility.Permissiveness.LESS, EffectiveVisibility.Permissiveness.UNKNOWN -> {
-                var exposes: String? = null
-                val defaults = mutableListOf<String>()
-                var defaultKind: String? = null
-                when (val fir = classLikeSymbol.fir) {
-                    is FirRegularClass -> fir.processAllDeclarations(context.session) {
-                        when (it) {
-                            is FirNamedFunctionSymbol -> {
-                                if (checkSigType(it.resolvedReturnType, selfEffVis)) {
-                                    exposes = it.name.toString()
-                                }
-                                if (it.valueParameterSymbols.any { checkSigType(it.resolvedReturnType, selfEffVis) }) {
-                                    exposes = it.name.toString()
-                                }
-                                if (it.hasBody) {
-                                    defaults.add(it.name.toString())
-                                    when (defaultKind) {
-                                        null -> defaultKind = "ALL"
-                                        "NONE" -> defaultKind = "SOME"
-                                        "ALL", "SOME" -> {}
-                                        else -> error("Unreachable")
-                                    }
-                                } else {
-                                    when (defaultKind) {
-                                        null -> defaultKind = "NONE"
-                                        "NONE", "SOME" -> {}
-                                        "ALL" -> defaultKind = "SOME"
-                                        else -> error("Unreachable")
-                                    }
-                                }
-                            }
-                            is FirPropertySymbol -> {
-                                if (checkSigType(it.resolvedReturnType, selfEffVis)) {
-                                    exposes = it.name.toString()
-                                }
-                                if (it.hasInitializer || it.hasDelegate || it.getterSymbol?.hasBody == true || it.setterSymbol?.hasBody == true) {
-                                    defaults.add(it.name.toString())
-                                    when (defaultKind) {
-                                        null -> defaultKind = "ALL"
-                                        "NONE" -> defaultKind = "SOME"
-                                        "ALL", "SOME" -> {}
-                                        else -> error("Unreachable")
-                                    }
-                                } else {
-                                    when (defaultKind) {
-                                        null -> defaultKind = "NONE"
-                                        "NONE", "SOME" -> {}
-                                        "ALL" -> defaultKind = "SOME"
-                                        else -> error("Unreachable")
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    is FirAnonymousObject -> {}
-                    is FirTypeAlias -> {}
-                }
-                report(
-                    dataForSymbol(classLikeSymbol).copy(
-                        exposingFunction = exposes,
-                        defaultKind = defaultKind,
-                        defaults = defaults.joinToString(", ") { "'$it'" },
-                    )
-                )
-            }
-            else -> return
-        }
-    }
-
-    @OptIn(SymbolInternals::class, DirectDeclarationsAccess::class)
-    fun dataForSymbol(cls: FirClassLikeSymbol<*>): IEData {
-        val fir = cls.fir
-
-        return IEData(
-            superclass = fir.classId.asFqNameString(),
-            superclassHasMethods = when (fir) {
-                is FirAnonymousObject -> null
-                is FirRegularClass -> fir.declarations.isNotEmpty()
-                is FirTypeAlias -> null
-            },
-            superclassKind = (fir as? FirClass)?.classKind.toString(),
-            superclassVisibility = fir.visibility.toString(),
-        )
+    fun lbWithType(typeProj: ConeTypeProjection, effVis: EffectiveVisibility): EffectiveVisibility {
+        val lbEffVis = typeProj.type?.typeArguments?.fold(effVis) { acc, new -> lbWithType(new, acc) } ?: effVis
+        return typeProj.type?.toClassLikeSymbol(context.session)?.effectiveVisibility?.lowerBound(lbEffVis, context.session.typeContext)
+            ?: lbEffVis
     }
 }
