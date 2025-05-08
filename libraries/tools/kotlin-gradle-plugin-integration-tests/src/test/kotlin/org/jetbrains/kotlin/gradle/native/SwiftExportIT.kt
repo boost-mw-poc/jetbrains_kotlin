@@ -9,8 +9,8 @@ import org.gradle.kotlin.dsl.kotlin
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.testbase.*
 import org.jetbrains.kotlin.gradle.uklibs.applyMultiplatform
+import org.jetbrains.kotlin.gradle.uklibs.include
 import org.jetbrains.kotlin.gradle.util.*
-import org.jetbrains.kotlin.test.TestMetadata
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.api.io.TempDir
@@ -22,6 +22,7 @@ import kotlin.io.path.readText
 import kotlin.io.path.writeText
 import kotlin.test.assertContains
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 @OsCondition(supportedOn = [OS.MAC], enabledOnCI = [OS.MAC])
 @DisplayName("Tests for Swift Export")
@@ -50,7 +51,6 @@ class SwiftExportIT : KGPBaseTest() {
     }
 
     @DisplayName("embedSwiftExport executes normally when Swift Export is enabled")
-    @TestMetadata("empty")
     @GradleTest
     fun testSwiftExportExecutionWithSwiftExportEnabled(
         gradleVersion: GradleVersion,
@@ -371,6 +371,104 @@ class SwiftExportIT : KGPBaseTest() {
 
             assert(arm64Compilation.isSuccessful)
             assert(x64Compilation.isSuccessful)
+        }
+    }
+
+    @DisplayName("Text exporting transitive dependencies")
+    @GradleTest
+    fun testExportingTransitiveDependencies(
+        gradleVersion: GradleVersion,
+        @TempDir testBuildDir: Path,
+    ) {
+        project("empty", gradleVersion) {
+            plugins {
+                kotlin("multiplatform")
+            }
+            settingsBuildScriptInjection {
+                settings.rootProject.name = "shared"
+            }
+            buildScriptInjection {
+                project.applyMultiplatform {
+                    iosArm64()
+
+                    sourceSets.commonMain {
+                        compileSource(
+                            """
+                            import org.foo.One
+                            fun foo(): One = One()
+                            """.trimIndent()
+                        )
+
+                        dependencies {
+                            implementation(project(":dep-one"))
+                            implementation(project(":dep-two"))
+                        }
+                    }
+                }
+            }
+
+            val subprojectOne = project("empty", gradleVersion) {
+                buildScriptInjection {
+                    project.applyMultiplatform {
+                        iosArm64()
+                        sourceSets.commonMain.get().compileSource(
+                            """
+                            package org.foo
+                            class One
+                            """.trimIndent()
+                        )
+                    }
+                }
+            }
+
+            val subprojectTwo = project("empty", gradleVersion) {
+                buildScriptInjection {
+                    project.applyMultiplatform {
+                        iosArm64()
+                        sourceSets.commonMain.get().compileSource(
+                            """
+                            package org.bar
+                            class Two
+                            """.trimIndent()
+                        )
+                    }
+                }
+            }
+
+            include(subprojectOne, "dep-one")
+            include(subprojectTwo, "dep-two")
+
+            build(
+                "embedSwiftExportForXcode",
+                environmentVariables = swiftExportEmbedAndSignEnvVariables(testBuildDir)
+            ) {
+                assertTasksExecuted(":dep-one:compileKotlinIosArm64")
+                assertTasksExecuted(":dep-two:compileKotlinIosArm64")
+                assertTasksExecuted(":compileKotlinIosArm64")
+                assertTasksExecuted(":copyDebugSPMIntermediates")
+
+                val sharedPath = projectPath.resolve("build/SwiftExport/iosArm64/Debug/files/Shared")
+                val depOnePath = projectPath.resolve("build/SwiftExport/iosArm64/Debug/files/DepOne")
+                val depTwoPath = projectPath.resolve("build/SwiftExport/iosArm64/Debug/files/DepTwo")
+
+                assertDirectoryExists(sharedPath)
+                assertDirectoryExists(depOnePath)
+                assertDirectoryDoesNotExist(depTwoPath)
+
+                val modulesFile = projectPath.resolve("build/SwiftExport/iosArm64/Debug/modules/Shared.json")
+                assertFileExists(modulesFile)
+
+                val modules = parseJsonToMap(modulesFile).getNestedValue<List<Map<String, Any>>>("modules")
+                assertNotNull(modules)
+
+                val sharedModule = modules.firstOrNull { it["name"] == "Shared" }
+                val depOneModule = modules.firstOrNull { it["name"] == "DepOne" }
+                val depTwoModule = modules.firstOrNull { it["name"] == "DepTwo" }
+
+                assertNotNull(sharedModule)
+                assertNotNull(depOneModule)
+                assertNull(depTwoModule)
+            }
         }
     }
 }

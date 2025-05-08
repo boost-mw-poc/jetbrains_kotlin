@@ -5,12 +5,15 @@
 
 package org.jetbrains.kotlin.gradle.util
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import org.jetbrains.kotlin.gradle.testbase.EnvironmentalVariables
 import org.jetbrains.kotlin.gradle.testbase.EnvironmentalVariablesOverride
 import org.jetbrains.kotlin.gradle.testbase.GradleProject
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.readText
 
 @OptIn(EnvironmentalVariablesOverride::class)
 internal fun GradleProject.swiftExportEmbedAndSignEnvVariables(
@@ -50,3 +53,15 @@ internal val swiftConsumerSource
     #error("Not supposed to happen")
     #endif
 """.trimIndent()
+
+// To access nested maps safely
+@Suppress("UNCHECKED_CAST")
+internal fun <T> Map<String, Any>.getNestedValue(key: String): T? {
+    return this[key] as? T
+}
+
+internal fun parseJsonToMap(jsonFile: Path): Map<String, Any> {
+    val jsonText = jsonFile.readText()
+    val typeToken = object : TypeToken<Map<String, Any>>() {}
+    return Gson().fromJson(jsonText, typeToken.type)
+}
