@@ -15,16 +15,22 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 
-class OldTestParser : AbstractTestParser<PsiElement>() {
+class PsiTestParser(parseMode: ParseMode) : AbstractTestParser<PsiElement>(parseMode) {
     companion object {
-        private val disposable = Disposer.newDisposable("Disposable for the ${OldTestParser::class.simpleName}")
+        private val disposable = Disposer.newDisposable("Disposable for the ${PsiTestParser::class.simpleName}")
         private val environment: KotlinCoreEnvironment =
             KotlinCoreEnvironment.createForTests(disposable, CompilerConfiguration.EMPTY, EnvironmentConfigFiles.JVM_CONFIG_FILES)
         private val ktPsiFactory = KtPsiFactory(environment.project)
     }
 
-    override fun parse(fileName: String, text: String, kDocOnly: Boolean): TestParseNode<out PsiElement> {
-        return ktPsiFactory.createFile(fileName, text).toParseTree(kDocOnly = kDocOnly).wrapRootsIfNeeded(text.length)
+    init {
+        require(parseMode == ParseMode.KDocOnly || parseMode == ParseMode.Full) {
+            "${PsiTestParser::class.simpleName} currently supports only ${ParseMode.KDocOnly::class.simpleName} and ${ParseMode.Full::class.simpleName} modes"
+        }
+    }
+
+    override fun parse(fileName: String, text: String): TestParseNode<out PsiElement> {
+        return ktPsiFactory.createFile(fileName, text).toParseTree(kDocOnly = parseMode == ParseMode.KDocOnly).wrapRootsIfNeeded(text.length)
     }
 
     private fun PsiElement.toParseTree(kDocOnly: Boolean, insideKDoc: Boolean = false): List<TestParseNode<PsiElement>> {

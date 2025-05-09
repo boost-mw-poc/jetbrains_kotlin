@@ -6,7 +6,7 @@
 package org.jetbrains.kotlin.kmp.lexer
 
 import fleet.com.intellij.platform.syntax.util.lexer.FlexAdapter
-import org.jetbrains.annotations.ApiStatus
+//import org.jetbrains.annotations.ApiStatus
 
-@ApiStatus.Experimental
+//@ApiStatus.Experimental
 class KotlinLexer : FlexAdapter(KotlinFlexLexer())

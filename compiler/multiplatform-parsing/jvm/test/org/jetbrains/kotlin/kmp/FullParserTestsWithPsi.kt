@@ -6,25 +6,28 @@
 package org.jetbrains.kotlin.kmp
 
 import org.jetbrains.kotlin.kmp.LexerTests.Companion.initializeLexers
-import org.junit.jupiter.api.Disabled
+import org.jetbrains.kotlin.kmp.infra.ParseMode
 import org.junit.jupiter.api.Test
 
-class FullParserTests : AbstractParserTests() {
+class FullParserTestsWithPsi : AbstractParserTestsWithPsi() {
     companion object {
         init {
             // Make sure the static declarations are initialized before time measurements to get more refined results
             initializeLexers()
-            KDocParserTests.initializeKDocParsers()
+            KDocParserTestsWithPsi.initializeKDocParsers()
             initializeParsers()
         }
 
         fun initializeParsers() {
             org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes.CLASS
             org.jetbrains.kotlin.KtNodeTypes.KT_FILE
+
+            org.jetbrains.kotlin.kmp.parser.KtStubElementTypes.CLASS
+            org.jetbrains.kotlin.kmp.parser.KtNodeTypes.KT_FILE
         }
     }
 
-    override val kDocOnly: Boolean = false
+    override val parseMode: ParseMode = ParseMode.Full
 
     override val expectedExampleDump: String = """kotlin.FILE [1:1..14:2)
   PACKAGE_DIRECTIVE `` [1:1..1)
@@ -149,7 +152,16 @@ class FullParserTests : AbstractParserTests() {
       WHITE_SPACE [13:22..14:1)
       RBRACE `}` [14:1..2)"""
 
-    override val expectedExampleSyntaxElementsNumber: Long = 40
+    override val expectedExampleSyntaxElementsNumber: Long = 122
+
+    override val expectedEmptySyntaxElementsNumber: Long = 3
+
+    override val expectedDumpOnWindowsNewLine: String = """kotlin.FILE [1:1..2:1)
+  PACKAGE_DIRECTIVE `` [1:1..1)
+  IMPORT_LIST `` [1:1..1)
+  ERROR_ELEMENT [1:1..2)
+    BAD_CHARACTER [1:1..2)
+  WHITE_SPACE [1:2..2:1)"""
 
     override val expectedDumpOnWindowsNewLine: String = """kotlin.FILE [1:1..2:1)
   PACKAGE_DIRECTIVE `` [1:1..1)
@@ -159,13 +171,18 @@ class FullParserTests : AbstractParserTests() {
   WHITE_SPACE [1:2..2:1)"""
 
     @Test
-    @Disabled("TODO: implement KT-77144")
-    override fun testSimple() {
+    fun testBlockInsideBlock() {
+        checkOnKotlinCode("""fun test() {
+    try {
+        println("Block inside block")
+    } catch (e: Exception) {
+    }
+}""")
     }
 
     @Test
-    @Disabled("TODO: implement KT-77144")
-    override fun testEmpty() {
+    fun testCollapsedEnumModifierToken() {
+        checkOnKotlinCode("""enum class Direction {}""")
     }
 
     @Test
@@ -174,7 +191,13 @@ class FullParserTests : AbstractParserTests() {
     }
 
     @Test
-    @Disabled("TODO: implement KT-77144")
-    override fun testOnTestData() {
+    fun testLambda() {
+        checkOnKotlinCode("""val lambda: (Int) -> Unit = { i -> println(i) }""")
+    }
+
+    @Test
+    fun testParseErrors() {
+        checkOnKotlinCode("""@Retention(AnnotationRetention.RUNTIME /* ) was removed */
+annotation class Validation()""")
     }
 }

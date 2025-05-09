@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+//import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import java.net.URI
 
 plugins {
@@ -16,19 +16,19 @@ repositories {
 kotlin {
     jvm()
 
-    @OptIn(ExperimentalWasmDsl::class)
+    /*@OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
         nodejs()
         d8()
-    }
+    }*/
 
     sourceSets {
         val commonMain by getting {
             dependencies {
                 api(kotlinStdlib())
                 implementation(libs.org.jetbrains.syntax.api)
-                implementation(libs.org.jetbrains.annotations)
+                //implementation(libs.org.jetbrains.annotations)
             }
             kotlin {
                 srcDir("common/src")

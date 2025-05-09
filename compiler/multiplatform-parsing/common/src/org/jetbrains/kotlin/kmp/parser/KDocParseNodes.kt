@@ -6,9 +6,9 @@
 package org.jetbrains.kotlin.kmp.parser
 
 import fleet.com.intellij.platform.syntax.SyntaxElementType
-import org.jetbrains.annotations.ApiStatus
+//import org.jetbrains.annotations.ApiStatus
 
-@ApiStatus.Experimental
+//@ApiStatus.Experimental
 object KDocParseNodes {
     val KDOC_SECTION: SyntaxElementType = SyntaxElementType("KDOC_SECTION")
     val KDOC_TAG: SyntaxElementType = SyntaxElementType("KDOC_TAG")

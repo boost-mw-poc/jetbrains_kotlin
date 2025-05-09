@@ -6,7 +6,6 @@
 package org.jetbrains.kotlin.kmp.infra
 
 import fleet.com.intellij.platform.syntax.SyntaxElementType
-import fleet.com.intellij.platform.syntax.element.SyntaxTokenTypes
 import fleet.com.intellij.platform.syntax.parser.SyntaxTreeBuilder
 import fleet.com.intellij.platform.syntax.parser.SyntaxTreeBuilderFactory
 import fleet.com.intellij.platform.syntax.parser.prepareProduction
@@ -18,6 +17,7 @@ import org.jetbrains.kotlin.kmp.lexer.KtTokens
 import org.jetbrains.kotlin.kmp.parser.AbstractParser
 import org.jetbrains.kotlin.kmp.parser.KDocLinkParser
 import org.jetbrains.kotlin.kmp.parser.KDocParser
+import org.jetbrains.kotlin.kmp.parser.KotlinParser
 import java.util.ArrayDeque
 
 sealed class NewParserTestNode
@@ -26,16 +26,17 @@ class NewParserTestToken(val token: SyntaxElementType) : NewParserTestNode()
 
 class NewParserTestParseNode(val production: SyntaxTreeBuilder.Production) : NewParserTestNode()
 
-class NewTestParser : AbstractTestParser<NewParserTestNode>() {
-    companion object {
-        val kDocWhitespaces = setOf(SyntaxTokenTypes.WHITE_SPACE)
-    }
-
-    override fun parse(fileName: String, text: String, kDocOnly: Boolean): TestParseNode<out NewParserTestNode> {
-        if (kDocOnly) {
-            return parseKDocOnlyNodes(text).wrapRootsIfNeeded(text.length)
+class NewTestParser(parseMode: ParseMode) : AbstractTestParser<NewParserTestNode>(parseMode) {
+    override fun parse(fileName: String, text: String): TestParseNode<out NewParserTestNode> {
+        return if (parseMode == ParseMode.KDocOnly) {
+            parseKDocOnlyNodes(text).wrapRootsIfNeeded(text.length)
         } else {
-            TODO("Implement new parser (KT-77144)")
+            val dotLastIndex = fileName.lastIndexOf('.')
+            val extension = if (dotLastIndex == -1) "" else fileName.substring(dotLastIndex + 1)
+            val isFile = extension == "kt" || extension == ""
+            val isLazy = parseMode == ParseMode.NoCollapsableAndKDoc
+            val parser = KotlinParser(isFile, isLazy)
+            parseToTestParseNode(text, 0, KotlinLexer(), parser)
         }
     }
 
@@ -53,7 +54,6 @@ class NewTestParser : AbstractTestParser<NewParserTestNode>() {
                             kotlinLexer.getTokenStart(),
                             KDocLexer(),
                             KDocParser,
-                            kDocWhitespaces
                         )
                     )
                 }
@@ -78,23 +78,33 @@ class NewTestParser : AbstractTestParser<NewParserTestNode>() {
                 val tokenType = tokens.getTokenType(leafTokenIndex)!!
                 val tokenStart = tokens.getTokenStart(leafTokenIndex) + start
 
-                // Here is the extension point that can be used for sub-parsing or probably handling lazy elements
-                val node = if (tokenType == KDocTokens.MARKDOWN_LINK) {
-                    parseToTestParseNode(
-                        tokens.getTokenText(leafTokenIndex)!!,
-                        tokenStart,
-                        KotlinLexer(),
-                        KDocLinkParser,
-                        emptySet(),
-                    )
-                } else {
-                    TestParseNode(
-                        tokenType.toString(),
-                        tokenStart,
-                        tokens.getTokenEnd(leafTokenIndex) + start,
-                        NewParserTestToken(tokenType),
-                        emptyList()
-                    )
+                val node = when (tokenType) {
+                    // `MARKDOWN_LINK` only can be encountered inside KDoc
+                    KDocTokens.MARKDOWN_LINK if (parseMode.isParseKDoc) -> {
+                        parseToTestParseNode(
+                            tokens.getTokenText(leafTokenIndex)!!,
+                            tokenStart,
+                            KotlinLexer(),
+                            KDocLinkParser,
+                        )
+                    }
+                    KtTokens.DOC_COMMENT if (parseMode.isParseKDoc) -> {
+                        parseToTestParseNode(
+                            tokens.getTokenText(leafTokenIndex)!!,
+                            tokenStart,
+                            KDocLexer(),
+                            KDocParser,
+                        )
+                    }
+                    else -> {
+                        TestParseNode(
+                            tokenType.toString(),
+                            tokenStart,
+                            tokens.getTokenEnd(leafTokenIndex) + start,
+                            NewParserTestToken(tokenType),
+                            emptyList()
+                        )
+                    }
                 }
 
                 add(node)
@@ -112,14 +122,13 @@ class NewTestParser : AbstractTestParser<NewParserTestNode>() {
                     val children = childrenStack.pop().also {
                         it.appendLeafNodes(production.getEndTokenIndex())
                     }
-
                     childrenStack.peek().add(
                         TestParseNode(
                             production.getNodeType().toString(),
                             production.getStartOffset(),
                             production.getEndOffset(),
                             NewParserTestParseNode(production),
-                            children,
+                            if (production.isCollapsed()) emptyList() else children,
                         )
                     )
                 }
@@ -154,11 +163,11 @@ class NewTestParser : AbstractTestParser<NewParserTestNode>() {
         start: Int,
         lexer: LexerBase,
         parser: AbstractParser,
-        whitespaces: Set<SyntaxElementType>,
     ): TestParseNode<out NewParserTestNode> {
         val syntaxTreeBuilder = SyntaxTreeBuilderFactory.builder(
             charSequence,
-            whitespaces = whitespaces, comments = emptySet(),
+            whitespaces = parser.whitespaces,
+            comments = parser.comments,
             lexer
         ).withStartOffset(start).build()
 

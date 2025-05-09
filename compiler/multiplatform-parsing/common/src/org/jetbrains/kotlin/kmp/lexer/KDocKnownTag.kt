@@ -5,9 +5,9 @@
 
 package org.jetbrains.kotlin.kmp.lexer
 
-import org.jetbrains.annotations.ApiStatus
+//import org.jetbrains.annotations.ApiStatus
 
-@ApiStatus.Experimental
+//@ApiStatus.Experimental
 enum class KDocKnownTag(val isReferenceRequired: Boolean, val isSectionStart: Boolean) {
     AUTHOR(false, false),
     THROWS(true, false),
