@@ -31,12 +31,9 @@ class NewTestParser(parseMode: ParseMode) : AbstractTestParser<NewParserTestNode
         return if (parseMode == ParseMode.KDocOnly) {
             parseKDocOnlyNodes(text).wrapRootsIfNeeded(text.length)
         } else {
-            val dotLastIndex = fileName.lastIndexOf('.')
-            val extension = if (dotLastIndex == -1) "" else fileName.substring(dotLastIndex + 1)
-            val isFile = extension == "kt" || extension == ""
             val isLazy = parseMode == ParseMode.NoCollapsableAndKDoc
-            val parser = KotlinParser(isFile, isLazy)
-            parseToTestParseNode(text, 0, KotlinLexer(), parser)
+            val parser = KotlinParser(isScript(fileName), isLazy)
+            parseToTestParseElement(text, 0, KotlinLexer(), parser)
         }
     }
 
@@ -49,7 +46,7 @@ class NewTestParser(parseMode: ParseMode) : AbstractTestParser<NewParserTestNode
             while (kotlinTokenType != null) {
                 if (kotlinTokenType == KtTokens.DOC_COMMENT) {
                     add(
-                        parseToTestParseNode(
+                        parseToTestParseElement(
                             kotlinLexer.getTokenText(),
                             kotlinLexer.getTokenStart(),
                             KDocLexer(),
@@ -64,7 +61,7 @@ class NewTestParser(parseMode: ParseMode) : AbstractTestParser<NewParserTestNode
         }
     }
 
-    private fun convertToTestParseNode(builder: SyntaxTreeBuilder, start: Int): TestParseNode<out NewParserTestNode> {
+    private fun convertToTestParseElement(builder: SyntaxTreeBuilder, start: Int): TestParseNode<out NewParserTestNode> {
         val productions = prepareProduction(builder).productionMarkers
         val tokens = builder.tokens
 
@@ -72,16 +69,23 @@ class NewTestParser(parseMode: ParseMode) : AbstractTestParser<NewParserTestNode
             add(mutableListOf())
         }
         var prevTokenIndex = 0
+        var lastErrorTokenIndex = -1
 
-        fun MutableList<TestParseNode<out NewParserTestNode>>.appendLeafNodes(lastTokenIndex: Int) {
+        fun MutableList<TestParseNode<out NewParserTestNode>>.appendLeafElements(lastTokenIndex: Int) {
             for (leafTokenIndex in prevTokenIndex until lastTokenIndex) {
                 val tokenType = tokens.getTokenType(leafTokenIndex)!!
                 val tokenStart = tokens.getTokenStart(leafTokenIndex) + start
+                val tokenEnd = tokens.getTokenEnd(leafTokenIndex) + start
+
+                // LightTree and PSI builders ignores empty leaf tokens by default
+                if (tokenStart == tokenEnd) {
+                    continue
+                }
 
                 val node = when (tokenType) {
                     // `MARKDOWN_LINK` only can be encountered inside KDoc
                     KDocTokens.MARKDOWN_LINK if (parseMode.isParseKDoc) -> {
-                        parseToTestParseNode(
+                        parseToTestParseElement(
                             tokens.getTokenText(leafTokenIndex)!!,
                             tokenStart,
                             KotlinLexer(),
@@ -89,7 +93,7 @@ class NewTestParser(parseMode: ParseMode) : AbstractTestParser<NewParserTestNode
                         )
                     }
                     KtTokens.DOC_COMMENT if (parseMode.isParseKDoc) -> {
-                        parseToTestParseNode(
+                        parseToTestParseElement(
                             tokens.getTokenText(leafTokenIndex)!!,
                             tokenStart,
                             KDocLexer(),
@@ -100,7 +104,7 @@ class NewTestParser(parseMode: ParseMode) : AbstractTestParser<NewParserTestNode
                         TestParseNode(
                             tokenType.toString(),
                             tokenStart,
-                            tokens.getTokenEnd(leafTokenIndex) + start,
+                            tokenEnd,
                             NewParserTestToken(tokenType),
                             emptyList()
                         )
@@ -120,7 +124,7 @@ class NewTestParser(parseMode: ParseMode) : AbstractTestParser<NewParserTestNode
             when {
                 isEndMarker -> {
                     val children = childrenStack.pop().also {
-                        it.appendLeafNodes(production.getEndTokenIndex())
+                        it.appendLeafElements(production.getEndTokenIndex())
                     }
                     childrenStack.peek().add(
                         TestParseNode(
@@ -134,8 +138,15 @@ class NewTestParser(parseMode: ParseMode) : AbstractTestParser<NewParserTestNode
                 }
 
                 isErrorMarker -> {
+                    val errorTokenIndex = production.getStartTokenIndex()
+                    if (errorTokenIndex == lastErrorTokenIndex) {
+                        // Prevent inserting of duplicated error elements
+                        continue
+                    } else {
+                        lastErrorTokenIndex = errorTokenIndex
+                    }
                     childrenStack.peek().let {
-                        it.appendLeafNodes(production.getStartTokenIndex())
+                        it.appendLeafElements(errorTokenIndex)
                         it.add(
                             TestParseNode(
                                 production.getNodeType().toString(),
@@ -150,7 +161,7 @@ class NewTestParser(parseMode: ParseMode) : AbstractTestParser<NewParserTestNode
 
                 else -> {
                     // start marker
-                    childrenStack.peek().appendLeafNodes(production.getStartTokenIndex())
+                    childrenStack.peek().appendLeafElements(production.getStartTokenIndex())
                     childrenStack.push(mutableListOf())
                 }
             }
@@ -158,7 +169,7 @@ class NewTestParser(parseMode: ParseMode) : AbstractTestParser<NewParserTestNode
         return childrenStack.single().single()
     }
 
-    private fun parseToTestParseNode(
+    private fun parseToTestParseElement(
         charSequence: CharSequence,
         start: Int,
         lexer: LexerBase,
@@ -169,10 +180,12 @@ class NewTestParser(parseMode: ParseMode) : AbstractTestParser<NewParserTestNode
             whitespaces = parser.whitespaces,
             comments = parser.comments,
             lexer
-        ).withStartOffset(start).build()
+        ).withStartOffset(start)
+            .withWhitespaceOrCommentBindingPolicy(parser.whitespaceOrCommentBindingPolicy)
+            .build()
 
         parser.parse(syntaxTreeBuilder)
 
-        return convertToTestParseNode(syntaxTreeBuilder, start)
+        return convertToTestParseElement(syntaxTreeBuilder, start)
     }
 }

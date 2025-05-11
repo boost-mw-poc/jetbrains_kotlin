@@ -17,12 +17,12 @@ abstract class SyntaxElementTypesWithIds {
 
     /**
      * Returns [NO_ID] (`0`) if an element has no associated ID.
-     * It mustn't be returned for all Kotlin elements because all of they are registered using [registerElementType].
+     * It mustn't be returned for all Kotlin elements because all of they are registered using [register].
      * But it's returned for external elements or can be used for `null` element types.
      */
     fun getElementTypeId(syntaxElementType: SyntaxElementType): Int = indexToIdMap[syntaxElementType.index]
 
-    fun registerElementType(id: Int, name: String): SyntaxElementType {
+    fun register(id: Int, name: String): SyntaxElementType {
         return SyntaxElementType(name).also {
             if (indexToIdMap.containsValue(id)) {
                 error("The element with id $id is already registered!")

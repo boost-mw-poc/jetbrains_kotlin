@@ -9,7 +9,7 @@ enum class ParseMode {
     // Used for the new parser testing, KDoc was implemented at first.
     // Probably it will be removed later because it's superseded by [Full] mode
     KDocOnly,
-    NoCollapsableAndKDoc, // Maybe useful for working in IDE and testing comparison of the same mode in PSI
+    NoCollapsableAndKDoc, // Blocks and lambdas remaining collapsed. It is maybe useful for working in IDE and testing with the same mode in PSI
     NoKDoc, // Useful when compiler used just for compiling from CLI (KDoc doesn't affect result artifacts)
     Full; // Useful for testing and comparison with PSI
 
@@ -19,6 +19,12 @@ enum class ParseMode {
 
 abstract class AbstractTestParser<T>(val parseMode: ParseMode) {
     abstract fun parse(fileName: String, text: String): TestParseNode<out T>
+
+    protected fun isScript(fileName: String): Boolean {
+        val dotLastIndex = fileName.lastIndexOf('.')
+        val extension = if (dotLastIndex == -1) "" else fileName.substring(dotLastIndex + 1)
+        return extension == "kts"
+    }
 
     protected fun List<TestParseNode<out T>>.wrapRootsIfNeeded(end: Int): TestParseNode<out T> {
         return if (size != 1) {

@@ -30,10 +30,11 @@ class PsiTestParser(parseMode: ParseMode) : AbstractTestParser<PsiElement>(parse
     }
 
     override fun parse(fileName: String, text: String): TestParseNode<out PsiElement> {
-        return ktPsiFactory.createFile(fileName, text).toParseTree(kDocOnly = parseMode == ParseMode.KDocOnly).wrapRootsIfNeeded(text.length)
+        return ktPsiFactory.createFile(fileName, text).toTestParseTree(kDocOnly = parseMode == ParseMode.KDocOnly)
+            .wrapRootsIfNeeded(text.length)
     }
 
-    private fun PsiElement.toParseTree(kDocOnly: Boolean, insideKDoc: Boolean = false): List<TestParseNode<PsiElement>> {
+    private fun PsiElement.toTestParseTree(kDocOnly: Boolean, insideKDoc: Boolean = false): List<TestParseNode<PsiElement>> {
         val kDocStartOrInside = elementType == KtTokens.DOC_COMMENT || insideKDoc
         return when {
             !kDocOnly || kDocStartOrInside -> {
@@ -43,25 +44,25 @@ class PsiTestParser(parseMode: ParseMode) : AbstractTestParser<PsiElement>(parse
                         startOffset,
                         startOffset + textLength,
                         this,
-                        collectChildren(kDocOnly = kDocOnly, insideKDoc = kDocStartOrInside)
+                        convertChildren(kDocOnly = kDocOnly, insideKDoc = kDocStartOrInside)
                     )
                 )
             }
             else -> {
                 // Flat map children for ignored elements
-                collectChildren(kDocOnly = true, insideKDoc = false)
+                convertChildren(kDocOnly = true, insideKDoc = false)
             }
         }
     }
 
-    fun PsiElement.collectChildren(kDocOnly: Boolean, insideKDoc: Boolean = false): List<TestParseNode<PsiElement>> {
+    fun PsiElement.convertChildren(kDocOnly: Boolean, insideKDoc: Boolean = false): List<TestParseNode<PsiElement>> {
         return buildList {
             // Note: use traverse with `nextSibling`
             // because in some implementations `children` are only composite elements, i.e., not leaf elements (see docs)
             // The main purpose is to extract a full-fidelity tree for fully-fledged comparison.
             var currentChild = firstChild
             while (currentChild != null) {
-                addAll(currentChild.toParseTree(kDocOnly, insideKDoc))
+                addAll(currentChild.toTestParseTree(kDocOnly, insideKDoc))
                 currentChild = currentChild.nextSibling
             }
         }

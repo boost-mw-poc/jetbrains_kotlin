@@ -94,9 +94,9 @@ private class AllCommentsBinder(val isTrailing: Boolean) : WhitespacesAndComment
     }
 }
 
-val PRECEDING_ALL_COMMENTS_BINDER: WhitespacesAndCommentsBinder = AllCommentsBinder(false)
+val PRECEDING_ALL_COMMENTS_BINDER: WhitespacesAndCommentsBinder = AllCommentsBinder(isTrailing = false)
 
-val TRAILING_ALL_COMMENTS_BINDER: WhitespacesAndCommentsBinder = AllCommentsBinder(true)
+val TRAILING_ALL_COMMENTS_BINDER: WhitespacesAndCommentsBinder = AllCommentsBinder(isTrailing = true)
 
 object DoNotBindAnything : WhitespacesAndCommentsBinder {
     override fun getEdgePosition(
@@ -126,6 +126,6 @@ class BindAll(val isTrailing: Boolean) : WhitespacesAndCommentsBinder {
     }
 }
 
-val PRECEDING_ALL_BINDER: WhitespacesAndCommentsBinder = BindAll(false)
+val PRECEDING_ALL_BINDER: WhitespacesAndCommentsBinder = BindAll(isTrailing = false)
 
-val TRAILING_ALL_BINDER: WhitespacesAndCommentsBinder = BindAll(true)
+val TRAILING_ALL_BINDER: WhitespacesAndCommentsBinder = BindAll(isTrailing = true)

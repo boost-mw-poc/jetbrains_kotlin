@@ -6,14 +6,24 @@
 package org.jetbrains.kotlin.kmp.parser
 
 import fleet.com.intellij.platform.syntax.SyntaxElementType
+import fleet.com.intellij.platform.syntax.element.SyntaxTokenTypes
 import fleet.com.intellij.platform.syntax.parser.SyntaxTreeBuilder
+import fleet.com.intellij.platform.syntax.parser.WhitespaceOrCommentBindingPolicy
 import org.jetbrains.kotlin.kmp.lexer.KtTokens
 import org.jetbrains.kotlin.kmp.parser.utils.KotlinParsing
 import org.jetbrains.kotlin.kmp.parser.utils.SemanticWhitespaceAwareSyntaxBuilderImpl
 
-class KotlinParser(val isFile: Boolean, val isLazy: Boolean) : AbstractParser() {
+class KotlinParser(val isScript: Boolean, val isLazy: Boolean) : AbstractParser() {
     override val whitespaces: Set<SyntaxElementType> = KtTokens.WHITESPACES
     override val comments: Set<SyntaxElementType> = KtTokens.COMMENTS
+
+    override val whitespaceOrCommentBindingPolicy: WhitespaceOrCommentBindingPolicy = object : WhitespaceOrCommentBindingPolicy {
+        override fun isLeftBound(elementType: SyntaxElementType): Boolean {
+            return elementType == SyntaxTokenTypes.ERROR_ELEMENT ||
+                    elementType == KtNodeTypes.CONSTRUCTOR_DELEGATION_CALL ||
+                    elementType == KtNodeTypes.CONSTRUCTOR_DELEGATION_REFERENCE
+        }
+    }
 
     override fun parse(builder: SyntaxTreeBuilder) {
         val whitespaceAwareBuilder = SemanticWhitespaceAwareSyntaxBuilderImpl(builder)
@@ -22,10 +32,10 @@ class KotlinParser(val isFile: Boolean, val isLazy: Boolean) : AbstractParser() 
         } else {
             KotlinParsing.createForTopLevelNonLazy(whitespaceAwareBuilder)
         }
-        if (isFile) {
-            builder.parseFile()
-        } else {
+        if (isScript) {
             builder.parseScript()
+        } else {
+            builder.parseFile()
         }
     }
 }

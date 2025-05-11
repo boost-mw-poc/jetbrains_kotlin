@@ -5,12 +5,18 @@
 
 package org.jetbrains.kotlin.kmp
 
+import com.intellij.lang.LighterASTNode
+import org.jetbrains.kotlin.kmp.infra.LightTreeTestParser
 import org.jetbrains.kotlin.kmp.infra.ParseMode
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
+import org.jetbrains.kotlin.kmp.infra.TestParseNode
 
-class FullParserTestsWithPsi : AbstractParserTestsWithPsi() {
-    override val parseMode: ParseMode = ParseMode.Full
+class FullParserTestsWithLightTree : AbstractParserTests<LighterASTNode>() {
+    override val parseMode: ParseMode = ParseMode.NoKDoc
+
+    override fun recognizeOldSyntaxElement(fileName: String, text: String): TestParseNode<LighterASTNode> =
+        LightTreeTestParser().parse(fileName, text)
+
+    override val oldRecognizerSuffix: String = " (LightTree)"
 
     override val expectedExampleDump: String = """kotlin.FILE [1:1..14:2)
   PACKAGE_DIRECTIVE `` [1:1..1)
@@ -62,37 +68,6 @@ class FullParserTestsWithPsi : AbstractParserTestsWithPsi() {
   WHITE_SPACE [5:20..7:1)
   FUN [7:1..14:2)
     KDoc [7:1..10:4)
-      KDOC_START `/**` [7:1..4)
-      WHITE_SPACE [7:4..8:2)
-      KDOC_SECTION [8:2..9:23)
-        KDOC_LEADING_ASTERISK `*` [8:2..3)
-        KDOC_TEXT ` ` [8:3..4)
-        KDOC_TAG `@param [C.x] Some parameter.` [8:4..32)
-          KDOC_TAG_NAME `@param` [8:4..10)
-          WHITE_SPACE ` ` [8:10..11)
-          KDOC_MARKDOWN_LINK `[C.x]` [8:11..16)
-            LBRACKET `[` [8:11..12)
-            KDOC_NAME `C.x` [8:12..15)
-              KDOC_NAME `C` [8:12..13)
-                IDENTIFIER `C` [8:12..13)
-              DOT `.` [8:13..14)
-              IDENTIFIER `x` [8:14..15)
-            RBRACKET `]` [8:15..16)
-          WHITE_SPACE ` ` [8:16..17)
-          KDOC_TEXT `Some parameter.` [8:17..32)
-        WHITE_SPACE [8:32..9:2)
-        KDOC_LEADING_ASTERISK `*` [9:2..3)
-        KDOC_TEXT ` ` [9:3..4)
-        KDOC_TAG `@return [Exception]` [9:4..23)
-          KDOC_TAG_NAME `@return` [9:4..11)
-          WHITE_SPACE ` ` [9:11..12)
-          KDOC_MARKDOWN_LINK `[Exception]` [9:12..23)
-            LBRACKET `[` [9:12..13)
-            KDOC_NAME `Exception` [9:13..22)
-              IDENTIFIER `Exception` [9:13..22)
-            RBRACKET `]` [9:22..23)
-      WHITE_SPACE [9:23..10:2)
-      KDOC_END `*/` [10:2..4)
     WHITE_SPACE [10:4..11:1)
     fun [11:1..4)
     WHITE_SPACE ` ` [11:4..5)
@@ -135,7 +110,7 @@ class FullParserTestsWithPsi : AbstractParserTestsWithPsi() {
       WHITE_SPACE [13:22..14:1)
       RBRACE `}` [14:1..2)"""
 
-    override val expectedExampleSyntaxElementsNumber: Long = 122
+    override val expectedExampleSyntaxElementsNumber: Long = 91
 
     override val expectedEmptySyntaxElementsNumber: Long = 3
 
@@ -145,13 +120,4 @@ class FullParserTestsWithPsi : AbstractParserTestsWithPsi() {
   ERROR_ELEMENT [1:1..2)
     BAD_CHARACTER [1:1..2)
   WHITE_SPACE [1:2..2:1)"""
-
-    // PSI at first parse blocks and lambdas lazily
-    // After they are parsed, it
-    override val ignoreFilesWithSyntaxError: Boolean = true
-
-    @Disabled("Different parsing of lazy blocks")
-    @Test
-    override fun testDifferentParsingOnLazyBlock() {
-    }
 }

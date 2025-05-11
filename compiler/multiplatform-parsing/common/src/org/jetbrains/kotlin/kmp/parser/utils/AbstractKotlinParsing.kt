@@ -131,13 +131,13 @@ internal abstract class AbstractKotlinParsing(
 
     protected fun at(expectation: SyntaxElementType): Boolean {
         if (_at(expectation)) return true
-        if (tt() === KtTokens.IDENTIFIER && expectation in KtTokens.SOFT_KEYWORDS) {
+        if (tt() === KtTokens.IDENTIFIER && expectation in KtTokens.SOFT_KEYWORDS_AND_MODIFIERS) {
             if (expectation.toString() == myBuilder.tokenText) {
                 myBuilder.remapCurrentToken(expectation)
                 return true
             }
         }
-        if (expectation === KtTokens.IDENTIFIER && KtTokens.isSoftKeyword(myBuilder.tokenText)) {
+        if (expectation === KtTokens.IDENTIFIER && KtTokens.isSoftKeywordOrModifier(myBuilder.tokenText)) {
             myBuilder.remapCurrentToken(KtTokens.IDENTIFIER)
             return true
         }
@@ -161,14 +161,14 @@ internal abstract class AbstractKotlinParsing(
     protected fun atSet(set: SyntaxElementTypeSet): Boolean {
         if (_atSet(set)) return true
         if (tt() === KtTokens.IDENTIFIER) {
-            val softKeywordToken: SyntaxElementType? = KtTokens.getSoftKeyword(myBuilder.tokenText)
+            val softKeywordToken: SyntaxElementType? = KtTokens.getSoftKeywordOrModifier(myBuilder.tokenText)
             if (softKeywordToken != null && set.contains(softKeywordToken)) {
                 myBuilder.remapCurrentToken(softKeywordToken)
                 return true
             }
         } else {
             // We know at this point that `set` does not contain `token`
-            if (set.contains(KtTokens.IDENTIFIER) && KtTokens.isSoftKeyword(myBuilder.tokenText)) {
+            if (set.contains(KtTokens.IDENTIFIER) && KtTokens.isSoftKeywordOrModifier(myBuilder.tokenText)) {
                 myBuilder.remapCurrentToken(KtTokens.IDENTIFIER)
                 return true
             }

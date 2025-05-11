@@ -66,5 +66,7 @@ object KDocLinkParser : AbstractParser() {
         }
     }
 
-    private fun isName(tokenType: SyntaxElementType?) = tokenType == KtTokens.IDENTIFIER || tokenType in KtTokens.KEYWORDS
+    private fun isName(tokenType: SyntaxElementType?): Boolean {
+        return tokenType == KtTokens.IDENTIFIER || tokenType in KtTokens.HARD_KEYWORDS_AND_MODIFIERS
+    }
 }

@@ -13,38 +13,7 @@ import fleet.com.intellij.platform.syntax.parser.WhitespacesBinders
 import fleet.com.intellij.platform.syntax.syntaxElementTypeSetOf
 import org.jetbrains.annotations.Contract
 import org.jetbrains.kotlin.kmp.lexer.KtTokens
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.ABSTRACT_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.ACTUAL_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.ANNOTATION_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.COMPANION_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.CONST_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.CONTRACT_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.CROSSINLINE_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.DATA_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.ENUM_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.EXPECT_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.EXTERNAL_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.FINAL_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.INFIX_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.INLINE_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.INNER_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.INTERNAL_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.IN_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.LATEINIT_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.NOINLINE_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.OPEN_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.OPERATOR_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.OUT_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.OVERRIDE_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.PRIVATE_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.PROTECTED_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.PUBLIC_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.REIFIED_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.SEALED_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.SUSPEND_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.TAILREC_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.VALUE_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.VARARG_KEYWORD
+import org.jetbrains.kotlin.kmp.lexer.KtTokens.CONTRACT_MODIFIER
 import org.jetbrains.kotlin.kmp.parser.KtNodeTypes
 
 internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwareSyntaxBuilder, isTopLevel: Boolean, isLazy: Boolean) :
@@ -54,7 +23,7 @@ internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwar
 
         private val TOP_LEVEL_DECLARATION_FIRST = syntaxElementTypeSetOf(
             KtTokens.TYPE_ALIAS_KEYWORD, KtTokens.INTERFACE_KEYWORD, KtTokens.CLASS_KEYWORD, KtTokens.OBJECT_KEYWORD,
-            KtTokens.FUN_KEYWORD, KtTokens.VAL_KEYWORD, KtTokens.VAR_KEYWORD, KtTokens.PACKAGE_KEYWORD
+            KtTokens.FUN_MODIFIER, KtTokens.VAL_KEYWORD, KtTokens.VAR_KEYWORD, KtTokens.PACKAGE_KEYWORD
         )
         private val TOP_LEVEL_DECLARATION_FIRST_SEMICOLON_SET =
             TOP_LEVEL_DECLARATION_FIRST + syntaxElementTypeSetOf(KtTokens.SEMICOLON)
@@ -82,22 +51,17 @@ internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwar
             syntaxElementTypeSetOf(KtTokens.COLON, KtTokens.COMMA, KtTokens.LBRACE, KtTokens.RBRACE) + TYPE_REF_FIRST
         private val RECEIVER_TYPE_TERMINATORS = syntaxElementTypeSetOf(KtTokens.DOT, KtTokens.SAFE_ACCESS)
 
-
-        private val MODIFIER_KEYWORDS_WITHOUT_FUN = syntaxElementTypeSetOf(
-            ABSTRACT_KEYWORD, ENUM_KEYWORD, CONTRACT_KEYWORD, OPEN_KEYWORD, INNER_KEYWORD, OVERRIDE_KEYWORD, PRIVATE_KEYWORD,
-            PUBLIC_KEYWORD, INTERNAL_KEYWORD, PROTECTED_KEYWORD, OUT_KEYWORD, IN_KEYWORD, FINAL_KEYWORD, VARARG_KEYWORD,
-            REIFIED_KEYWORD, COMPANION_KEYWORD, SEALED_KEYWORD, LATEINIT_KEYWORD,
-            DATA_KEYWORD, INLINE_KEYWORD, NOINLINE_KEYWORD, TAILREC_KEYWORD, EXTERNAL_KEYWORD, ANNOTATION_KEYWORD, CROSSINLINE_KEYWORD,
-            CONST_KEYWORD, OPERATOR_KEYWORD, INFIX_KEYWORD, SUSPEND_KEYWORD,
-            EXPECT_KEYWORD, ACTUAL_KEYWORD, VALUE_KEYWORD
-        )
-        // TODO: add comment about set operations
+        // Syntax lib doesn't support set operations except `+`
+        // Create an intermediate set that equivalent of MODIFIERS - FUN_MODIFIER
+        private val MODIFIER_WITHOUT_FUN = KtTokens.MODIFIERS.toMutableSet().also {
+            it.remove(KtTokens.FUN_MODIFIER)
+        }.toSet()
         private val VALUE_PARAMETER_FIRST =
             syntaxElementTypeSetOf(KtTokens.IDENTIFIER, KtTokens.LBRACKET, KtTokens.VAL_KEYWORD, KtTokens.VAR_KEYWORD) +
-                    MODIFIER_KEYWORDS_WITHOUT_FUN
+                    MODIFIER_WITHOUT_FUN
         private val LAMBDA_VALUE_PARAMETER_FIRST =
             syntaxElementTypeSetOf(KtTokens.IDENTIFIER, KtTokens.LBRACKET) +
-                    MODIFIER_KEYWORDS_WITHOUT_FUN
+                    MODIFIER_WITHOUT_FUN
 
         private val SOFT_KEYWORDS_AT_MEMBER_START = syntaxElementTypeSetOf(KtTokens.CONSTRUCTOR_KEYWORD, KtTokens.INIT_KEYWORD)
         private val ANNOTATION_TARGETS = syntaxElementTypeSetOf(
@@ -128,7 +92,7 @@ internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwar
             KtTokens.SEMICOLON,
             KtTokens.VAL_KEYWORD,
             KtTokens.VAR_KEYWORD,
-            KtTokens.FUN_KEYWORD,
+            KtTokens.FUN_MODIFIER,
             KtTokens.CLASS_KEYWORD
         )
         private val PROPERTY_NAME_FOLLOW_MULTI_DECLARATION_RECOVERY_SET =
@@ -139,7 +103,7 @@ internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwar
             syntaxElementTypeSetOf(KtTokens.IDENTIFIER, KtTokens.EQ, KtTokens.COLON, KtTokens.SEMICOLON)
         private val COMMA_RPAR_COLON_EQ_SET = syntaxElementTypeSetOf(KtTokens.COMMA, KtTokens.RPAR, KtTokens.COLON, KtTokens.EQ)
         private val ACCESSOR_FIRST_OR_PROPERTY_END =
-            KtTokens.MODIFIER_KEYWORDS +
+            KtTokens.MODIFIERS +
                     syntaxElementTypeSetOf(
                         KtTokens.AT,
                         KtTokens.GET_KEYWORD,
@@ -163,7 +127,7 @@ internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwar
         private val CONTEXT_PARAMETERS_FOLLOW_SET = syntaxElementTypeSetOf(
             KtTokens.CLASS_KEYWORD,
             KtTokens.OBJECT_KEYWORD,
-            KtTokens.FUN_KEYWORD,
+            KtTokens.FUN_MODIFIER,
             KtTokens.VAL_KEYWORD,
             KtTokens.VAR_KEYWORD
         )
@@ -564,19 +528,16 @@ internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwar
             declType = KtNodeTypes.FUN
         }
 
-        when (declType) {
-            null if at(KtTokens.IMPORT_KEYWORD) -> {
+        if (declType == null) {
+            if (at(KtTokens.IMPORT_KEYWORD)) {
                 error("imports are only allowed in the beginning of file")
                 parseImportDirectives()
-                decl.drop()
-            }
-            null -> {
+            } else {
                 errorAndAdvance("Expecting a top level declaration")
-                decl.drop()
             }
-            else -> {
-                closeDeclarationWithCommentBinders(decl, declType, true)
-            }
+            decl.drop()
+        } else {
+            closeDeclarationWithCommentBinders(decl, declType, true)
         }
     }
 
@@ -590,7 +551,7 @@ internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwar
             KtTokens.INTERFACE_KEYWORD_ID -> return parseClass(
                 detector.isEnumDetected, true
             )
-            KtTokens.FUN_KEYWORD_ID -> return parseFunction()
+            KtTokens.FUN_MODIFIER_ID -> return parseFunction()
             KtTokens.VAL_KEYWORD_ID,
             KtTokens.VAR_KEYWORD_ID -> return parseProperty(declarationParsingMode)
             KtTokens.TYPE_ALIAS_KEYWORD_ID -> return parseTypeAlias()
@@ -621,13 +582,13 @@ internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwar
      * (modifier | annotation)*
      *
      *
-     * Feeds modifiers (not annotations) into the passed consumer, if it is not null
+     * Feeds modifiers (not annotations) into the passed consumer if it is not null
      *
      * @param noModifiersBefore is a token set with elements indicating when met them
-     * that previous token must be parsed as an identifier rather than modifier
+     * that the previous token must be parsed as an identifier rather than modifier
      */
     fun parseModifierList(tokenConsumer: Consumer<SyntaxElementType>?, noModifiersBefore: SyntaxElementTypeSet): Boolean {
-        return doParseModifierList(tokenConsumer, KtTokens.MODIFIER_KEYWORDS, AnnotationParsingMode.DEFAULT, noModifiersBefore)
+        return doParseModifierList(tokenConsumer, KtTokens.MODIFIERS, AnnotationParsingMode.DEFAULT, noModifiersBefore)
     }
 
     private fun parseFunctionTypeValueParameterModifierList() {
@@ -670,7 +631,10 @@ internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwar
                     beforeAnnotationMarker.rollbackTo()
                     // try parse again, but with significant whitespace
                     val newMode =
-                        if (annotationParsingMode.allowContextList) AnnotationParsingMode.WITH_SIGNIFICANT_WHITESPACE_BEFORE_ARGUMENTS else AnnotationParsingMode.WITH_SIGNIFICANT_WHITESPACE_BEFORE_ARGUMENTS_NO_CONTEXT
+                        if (annotationParsingMode.allowContextList)
+                            AnnotationParsingMode.WITH_SIGNIFICANT_WHITESPACE_BEFORE_ARGUMENTS
+                        else
+                            AnnotationParsingMode.WITH_SIGNIFICANT_WHITESPACE_BEFORE_ARGUMENTS_NO_CONTEXT
                     doParseModifierListBody(tokenConsumer, modifierKeywords, newMode, noModifiersBefore)
                     empty = false
                     break
@@ -723,7 +687,7 @@ internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwar
         if (atSet(modifierKeywords)) {
             val lookahead = lookahead(1)
 
-            if (at(KtTokens.FUN_KEYWORD) && lookahead !== KtTokens.INTERFACE_KEYWORD) {
+            if (at(KtTokens.FUN_MODIFIER) && lookahead !== KtTokens.INTERFACE_KEYWORD) {
                 marker.rollbackTo()
                 return false
             }
@@ -942,6 +906,7 @@ internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwar
     }
 
     private fun parseAnnotationTarget(keyword: SyntaxElementType) {
+        // TODO: extract to companion to get rid of extra allocations on each call
         val message =
             "Expecting \"" + keyword.toString() + KtTokens.COLON.toString() + "\" prefix for " + keyword.toString() + " annotations"
 
@@ -1466,9 +1431,9 @@ internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwar
         val accessorsAllowed: Boolean,
         val canBeEnumUsedAsSoftKeyword: Boolean
     ) {
-        MEMBER_OR_TOPLEVEL(false, true, true),
-        LOCAL(true, false, false),
-        SCRIPT_TOPLEVEL(true, true, false)
+        MEMBER_OR_TOPLEVEL(destructuringAllowed = false, accessorsAllowed = true, canBeEnumUsedAsSoftKeyword = true),
+        LOCAL(destructuringAllowed = true, accessorsAllowed = false, canBeEnumUsedAsSoftKeyword = false),
+        SCRIPT_TOPLEVEL(destructuringAllowed = true, accessorsAllowed = true, canBeEnumUsedAsSoftKeyword = false)
     }
 
     /*
@@ -1785,7 +1750,7 @@ internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwar
      */
     @Contract("false -> !null")
     fun parseFunction(failIfIdentifierExists: Boolean): SyntaxElementType? {
-        require(_at(KtTokens.FUN_KEYWORD))
+        require(_at(KtTokens.FUN_MODIFIER))
 
         advance() // FUN_KEYWORD
 
@@ -2138,7 +2103,7 @@ internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwar
     }
 
     private fun parseFunctionContract(): Boolean {
-        if (at(CONTRACT_KEYWORD)) {
+        if (at(CONTRACT_MODIFIER)) {
             myExpressionParsing.parseContractDescriptionBlock()
             return true
         }
@@ -2687,7 +2652,6 @@ internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwar
         return createForTopLevel(builder)
     }
 
-    /*package*/
     class ModifierDetector : Consumer<SyntaxElementType> {
         var isEnumDetected: Boolean = false
             private set
@@ -2695,9 +2659,9 @@ internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwar
             private set
 
         override fun consume(item: SyntaxElementType?) {
-            if (item === KtTokens.ENUM_KEYWORD) {
+            if (item === KtTokens.ENUM_MODIFIER) {
                 this.isEnumDetected = true
-            } else if (item === KtTokens.COMPANION_KEYWORD) {
+            } else if (item === KtTokens.COMPANION_MODIFIER) {
                 this.isCompanionDetected = true
             }
         }
@@ -2710,12 +2674,54 @@ internal class KotlinParsing private constructor(builder: SemanticWhitespaceAwar
         val typeContext: Boolean,
         val withSignificantWhitespaceBeforeArguments: Boolean
     ) {
-        DEFAULT(false, true, true, false, false),
-        FILE_ANNOTATIONS_BEFORE_PACKAGE(true, true, false, false, false),
-        FILE_ANNOTATIONS_WHEN_PACKAGE_OMITTED(true, true, false, false, false),
-        TYPE_CONTEXT(false, true, false, true, false),
-        WITH_SIGNIFICANT_WHITESPACE_BEFORE_ARGUMENTS(false, true, true, true, true),
-        WITH_SIGNIFICANT_WHITESPACE_BEFORE_ARGUMENTS_NO_CONTEXT(false, true, false, true, true),
-        NO_ANNOTATIONS_NO_CONTEXT(false, false, false, false, false)
+        DEFAULT(
+            isFileAnnotationParsingMode = false,
+            allowAnnotations = true,
+            allowContextList = true,
+            typeContext = false,
+            withSignificantWhitespaceBeforeArguments = false
+        ),
+        FILE_ANNOTATIONS_BEFORE_PACKAGE(
+            isFileAnnotationParsingMode = true,
+            allowAnnotations = true,
+            allowContextList = false,
+            typeContext = false,
+            withSignificantWhitespaceBeforeArguments = false
+        ),
+        FILE_ANNOTATIONS_WHEN_PACKAGE_OMITTED(
+            isFileAnnotationParsingMode = true,
+            allowAnnotations = true,
+            allowContextList = false,
+            typeContext = false,
+            withSignificantWhitespaceBeforeArguments = false
+        ),
+        TYPE_CONTEXT(
+            isFileAnnotationParsingMode = false,
+            allowAnnotations = true,
+            allowContextList = false,
+            typeContext = true,
+            withSignificantWhitespaceBeforeArguments = false
+        ),
+        WITH_SIGNIFICANT_WHITESPACE_BEFORE_ARGUMENTS(
+            isFileAnnotationParsingMode = false,
+            allowAnnotations = true,
+            allowContextList = true,
+            typeContext = true,
+            withSignificantWhitespaceBeforeArguments = true
+        ),
+        WITH_SIGNIFICANT_WHITESPACE_BEFORE_ARGUMENTS_NO_CONTEXT(
+            isFileAnnotationParsingMode = false,
+            allowAnnotations = true,
+            allowContextList = false,
+            typeContext = true,
+            withSignificantWhitespaceBeforeArguments = true
+        ),
+        NO_ANNOTATIONS_NO_CONTEXT(
+            isFileAnnotationParsingMode = false,
+            allowAnnotations = false,
+            allowContextList = false,
+            typeContext = false,
+            withSignificantWhitespaceBeforeArguments = false
+        )
     }
 }

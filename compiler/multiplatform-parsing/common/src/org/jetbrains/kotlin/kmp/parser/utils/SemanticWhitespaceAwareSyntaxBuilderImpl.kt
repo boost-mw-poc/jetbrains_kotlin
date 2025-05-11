@@ -35,7 +35,11 @@ internal class SemanticWhitespaceAwareSyntaxBuilderImpl(val delegate: SyntaxTree
         for (i in 1..currentOffset) {
             val previousToken = rawLookup(-i)
 
-            if (previousToken === KtTokens.BLOCK_COMMENT || previousToken === KtTokens.DOC_COMMENT || previousToken === KtTokens.EOL_COMMENT || previousToken === KtTokens.SHEBANG_COMMENT) {
+            if (previousToken === KtTokens.BLOCK_COMMENT ||
+                previousToken === KtTokens.DOC_COMMENT ||
+                previousToken === KtTokens.EOL_COMMENT ||
+                previousToken === KtTokens.SHEBANG_COMMENT
+            ) {
                 continue
             }
 

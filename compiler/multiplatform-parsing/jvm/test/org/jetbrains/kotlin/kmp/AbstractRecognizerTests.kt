@@ -5,13 +5,7 @@
 
 package org.jetbrains.kotlin.kmp
 
-import com.intellij.psi.PsiElement
 import com.intellij.util.containers.addIfNotNull
-import org.jetbrains.kotlin.kmp.infra.NewParserTestNode
-import org.jetbrains.kotlin.kmp.infra.NewTestParser
-import org.jetbrains.kotlin.kmp.infra.ParseMode
-import org.jetbrains.kotlin.kmp.infra.PsiTestParser
-import org.jetbrains.kotlin.kmp.infra.TestParseNode
 import org.jetbrains.kotlin.kmp.infra.TestSyntaxElement
 import org.jetbrains.kotlin.kmp.infra.checkSyntaxElements
 import org.jetbrains.kotlin.toSourceLinesMapping
@@ -49,7 +43,7 @@ abstract class AbstractRecognizerTests<OldT, NewT, OldSyntaxElement : TestSyntax
 
     abstract val expectedExampleDump: String
     abstract val expectedExampleSyntaxElementsNumber: Long
-    abstract val expectedDumpOnWindowsNewLine: String
+    open val expectedExampleContainsSyntaxError: Boolean = true
     open val expectedEmptySyntaxElementsNumber: Long = 0
     abstract val expectedDumpOnWindowsNewLine: String
 
@@ -77,14 +71,17 @@ fun test(p: String) {
             expectedExampleDump
         )
         assertEquals(14, linesCount)
-        assertEquals(expectedExampleSyntaxElementsNumber, oldSyntaxElement.countSyntaxElements())
+        val (syntaxElementsNumber, containsErrorElement) = oldSyntaxElement.countSyntaxElements()
+        assertEquals(expectedExampleSyntaxElementsNumber, syntaxElementsNumber)
+        assertEquals(expectedExampleContainsSyntaxError, containsErrorElement)
     }
 
     @Test
     fun testEmpty() {
         val (_, _, _, oldSyntaxElement, _, linesCount) = checkOnKotlinCode("")
         assertEquals(1, linesCount)
-        assertEquals(expectedEmptySyntaxElementsNumber, oldSyntaxElement.countSyntaxElements())
+        val (syntaxElementsNumber, _) = oldSyntaxElement.countSyntaxElements()
+        assertEquals(expectedEmptySyntaxElementsNumber, syntaxElementsNumber)
     }
 
     /**
@@ -96,6 +93,8 @@ fun test(p: String) {
         checkOnKotlinCode("\r\n", expectedDumpOnWindowsNewLine)
     }
 
+    open val ignoreFilesWithSyntaxError: Boolean = false
+
     @Test
     fun testOnTestData() {
         var filesCounter = 0
@@ -104,17 +103,14 @@ fun test(p: String) {
         var totalCharsNumber = 0L
         var totalLinesNumber = 0L
         var totalSyntaxElementNumber = 0L
+        var totalNumberOfFilesWithSyntaxErrors = 0L
+        var totalNumberOfIgnoredFiles = 0L
         val comparisonFailures = mutableListOf<() -> Unit>()
-        var counter = 0
 
         files@ for (testDataDir in testDataDirs) {
             testDataDir.walkTopDown()
                 .filter { it.isFile && it.extension.let { ext -> ext == "kt" || ext == "kts" || ext == "nkt" } }
                 .forEach { file ->
-                    if (counter++ > 200) {
-                        break@files
-                    }
-
                     val refinedText = file.readText()
                         .replace(allMetadataRegex, "")
                         .replace("\r\n", "\n") // Test infrastructure normalizes line endings
@@ -123,12 +119,26 @@ fun test(p: String) {
                         refinedText,
                         file.toPath()
                     )
-                    comparisonFailures.addIfNotNull(comparisonFailure)
                     oldTotalElapsedNanos += oldNanos
                     newTotalElapsedNanos += newNanos
                     filesCounter++
                     totalCharsNumber += refinedText.length
-                    totalSyntaxElementNumber += oldSyntaxElement.countSyntaxElements()
+                    val (syntaxElementNumber, hasSyntaxError) = oldSyntaxElement.countSyntaxElements()
+                    totalSyntaxElementNumber += syntaxElementNumber
+
+                    if (hasSyntaxError) {
+                        totalNumberOfFilesWithSyntaxErrors++
+                        if (comparisonFailure != null) {
+                            if (!ignoreFilesWithSyntaxError) {
+                                comparisonFailures.add(comparisonFailure)
+                            } else {
+                                totalNumberOfIgnoredFiles++
+                            }
+                        }
+                    } else {
+                        comparisonFailures.addIfNotNull(comparisonFailure)
+                    }
+
                     totalLinesNumber += linesCount
                 }
         }
@@ -136,11 +146,15 @@ fun test(p: String) {
         val newOldLexerTimeRatio = newTotalElapsedNanos.toDouble() / oldTotalElapsedNanos
 
         println("Number of tested files (kt, kts, nkt): $filesCounter")
+        println("Number of files with syntax errors: $totalNumberOfFilesWithSyntaxErrors")
+        if (totalNumberOfIgnoredFiles > 0) {
+            println("Number of ignored files with syntax errors: $totalNumberOfIgnoredFiles")
+        }
         println("Number of chars: $totalCharsNumber")
         println("Number of lines: $totalLinesNumber")
         println("Number of ${recognizerSyntaxElementName}s: $totalSyntaxElementNumber")
         if (comparisonFailures.isNotEmpty()) {
-            println("Number of errors: ${comparisonFailures.size}")
+            println("Number of tree mismatches: ${comparisonFailures.size}")
         }
         if (printOldRecognizerTimeInfo) {
             println("Old ${recognizerName + oldRecognizerSuffix} total time: ${TimeUnit.NANOSECONDS.toMillis(oldTotalElapsedNanos)} ms")
@@ -150,9 +164,9 @@ fun test(p: String) {
             println("New/Old $recognizerName time ratio: %.4f".format(newOldLexerTimeRatio))
         }
 
-        /*comparisonFailures.add {
+        comparisonFailures.add {
             assertTrue(filesCounter > 31000, "Number of tested files (kt, kts, nkt) should be more than 31K")
-        }*/
+        }
 
         assertAll(comparisonFailures)
     }
@@ -224,19 +238,6 @@ fun test(p: String) {
     )
 }
 
-abstract class AbstractParserTestsWithPsi : AbstractRecognizerTests<PsiElement, NewParserTestNode, TestParseNode<out PsiElement>, TestParseNode<out NewParserTestNode>>() {
-    abstract val parseMode: ParseMode
-    override fun recognizeOldSyntaxElement(fileName: String, text: String): TestParseNode<out PsiElement> =
-        PsiTestParser(parseMode).parse(fileName, text)
-
-    override fun recognizeNewSyntaxElement(fileName: String, text: String): TestParseNode<out NewParserTestNode> =
-        NewTestParser(parseMode).parse(fileName, text)
-
-    override val recognizerName: String = "parser"
-    override val oldRecognizerSuffix: String = " (PSI)" // A bit later LightTree mode also will be implemented
-
-    override val recognizerSyntaxElementName: String = "parse node"
-}
 
 
 

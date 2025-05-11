@@ -21,10 +21,10 @@ import org.jetbrains.kotlin.kmp.lexer.KtTokens.DO_KEYWORD
 import org.jetbrains.kotlin.kmp.lexer.KtTokens.ELSE_KEYWORD
 import org.jetbrains.kotlin.kmp.lexer.KtTokens.FALSE_KEYWORD
 import org.jetbrains.kotlin.kmp.lexer.KtTokens.FOR_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.FUN_KEYWORD
+import org.jetbrains.kotlin.kmp.lexer.KtTokens.FUN_MODIFIER
 import org.jetbrains.kotlin.kmp.lexer.KtTokens.IF_KEYWORD
 import org.jetbrains.kotlin.kmp.lexer.KtTokens.INTERFACE_KEYWORD
-import org.jetbrains.kotlin.kmp.lexer.KtTokens.IN_KEYWORD
+import org.jetbrains.kotlin.kmp.lexer.KtTokens.IN_MODIFIER
 import org.jetbrains.kotlin.kmp.lexer.KtTokens.IS_KEYWORD
 import org.jetbrains.kotlin.kmp.lexer.KtTokens.NOT_IN
 import org.jetbrains.kotlin.kmp.lexer.KtTokens.NOT_IS
@@ -62,7 +62,7 @@ internal open class KotlinExpressionParsing(
             }
         },
 
-        AS(AS_KEYWORD, `AS_SAFE`) {
+        AS(AS_KEYWORD, AS_SAFE) {
             override fun parseRightHandSide(operation: SyntaxElementType?, parser: KotlinExpressionParsing): SyntaxElementType {
                 parser.myKotlinParsing.parseTypeRefWithoutIntersections()
                 return KtNodeTypes.BINARY_WITH_TYPE
@@ -78,7 +78,7 @@ internal open class KotlinExpressionParsing(
         RANGE(KtTokens.RANGE, KtTokens.RANGE_UNTIL),
         SIMPLE_NAME(KtTokens.IDENTIFIER),
         ELVIS(KtTokens.ELVIS),
-        IN_OR_IS(IN_KEYWORD, NOT_IN, IS_KEYWORD, NOT_IS) {
+        IN_OR_IS(IN_MODIFIER, NOT_IN, IS_KEYWORD, NOT_IS) {
             override fun parseRightHandSide(operation: SyntaxElementType?, parser: KotlinExpressionParsing): SyntaxElementType {
                 if (operation === IS_KEYWORD || operation === NOT_IS) {
                     parser.myKotlinParsing.parseTypeRefWithoutIntersections()
@@ -489,7 +489,7 @@ internal open class KotlinExpressionParsing(
             KtTokens.NULL_KEYWORD_ID -> parseOneTokenExpression(KtNodeTypes.NULL)
             KtTokens.CLASS_KEYWORD_ID,
             KtTokens.INTERFACE_KEYWORD_ID,
-            KtTokens.FUN_KEYWORD_ID,
+            KtTokens.FUN_MODIFIER_ID,
             KtTokens.VAL_KEYWORD_ID,
             KtTokens.VAR_KEYWORD_ID,
             KtTokens.TYPE_ALIAS_KEYWORD_ID -> {
@@ -578,7 +578,7 @@ internal open class KotlinExpressionParsing(
                 reference.done(KtNodeTypes.REFERENCE_EXPRESSION)
                 thisExpression.done(KtNodeTypes.THIS_EXPRESSION)
             } else {
-                val keyword = KtTokens.getKeyword(myBuilder.tokenText)
+                val keyword = KtTokens.getHardKeywordOrModifier(myBuilder.tokenText)
                 if (keyword != null) {
                     myBuilder.remapCurrentToken(keyword)
                     errorAndAdvance("Keyword cannot be used as a reference")
@@ -746,7 +746,7 @@ internal open class KotlinExpressionParsing(
         val condition = mark()
         myBuilder.disableNewlines()
         when (tokenId) {
-            KtTokens.IN_KEYWORD_ID,
+            KtTokens.IN_MODIFIER_ID,
             KtTokens.NOT_IN_ID -> {
                 val mark = mark()
                 advance() // IN_KEYWORD or NOT_IN
@@ -863,7 +863,7 @@ internal open class KotlinExpressionParsing(
     }
 
     fun parseContractDescriptionBlock() {
-        require(_at(KtTokens.CONTRACT_KEYWORD))
+        require(_at(KtTokens.CONTRACT_MODIFIER))
 
         advance() // CONTRACT_KEYWORD
 
@@ -1041,7 +1041,6 @@ internal open class KotlinExpressionParsing(
         return false
     }
 
-
     /*
      * lambdaParameter{","}
      *
@@ -1101,11 +1100,15 @@ internal open class KotlinExpressionParsing(
             if (!atSet(STATEMENT_FIRST)) {
                 errorAndAdvance("Expecting an element")
             }
+
             if (atSet(STATEMENT_FIRST)) {
                 parseStatement(isScriptTopLevel)
             }
+
             if (at(KtTokens.SEMICOLON)) {
-                while (at(KtTokens.SEMICOLON)) advance()
+                while (at(KtTokens.SEMICOLON)) {
+                    advance()
+                }
             } else if (at(KtTokens.RBRACE)) {
                 break
             } else if (!isScriptTopLevel && !myBuilder.newlineBeforeCurrentToken()) {
@@ -1181,7 +1184,7 @@ internal open class KotlinExpressionParsing(
     ): SyntaxElementType? {
         val keywordToken = tt()
         if (failIfDefinitelyNotExpression) {
-            if (keywordToken !== FUN_KEYWORD) return null
+            if (keywordToken !== FUN_MODIFIER) return null
 
             return myKotlinParsing.parseFunction( /* failIfIdentifierExists = */true)
         }
@@ -1268,7 +1271,7 @@ internal open class KotlinExpressionParsing(
             if (!at(KtTokens.RPAR)) {
                 val parameter = mark()
 
-                if (!at(IN_KEYWORD)) {
+                if (!at(IN_MODIFIER)) {
                     myKotlinParsing.parseModifierList(IN_KEYWORD_R_PAR_COLON_SET)
                 }
 
@@ -1289,7 +1292,7 @@ internal open class KotlinExpressionParsing(
                 }
                 parameter.done(KtNodeTypes.VALUE_PARAMETER)
 
-                if (expect(IN_KEYWORD, "Expecting 'in'", L_PAR_L_BRACE_R_PAR_SET)) {
+                if (expect(IN_MODIFIER, "Expecting 'in'", L_PAR_L_BRACE_R_PAR_SET)) {
                     val range = mark()
                     parseExpression()
                     range.done(KtNodeTypes.LOOP_RANGE)
@@ -1640,7 +1643,9 @@ internal open class KotlinExpressionParsing(
         if (expect(KtTokens.LPAR, "Expecting an argument list", EXPRESSION_FOLLOW)) {
             if (!at(KtTokens.RPAR)) {
                 while (true) {
-                    while (at(KtTokens.COMMA)) errorAndAdvance("Expecting an argument")
+                    while (at(KtTokens.COMMA)) {
+                        errorAndAdvance("Expecting an argument")
+                    }
                     parseValueArgument()
                     if (at(KtTokens.COLON) && lookahead(1) === KtTokens.IDENTIFIER) {
                         errorAndAdvance("Unexpected type specification", 2)
@@ -1648,6 +1653,7 @@ internal open class KotlinExpressionParsing(
                     if (!at(KtTokens.COMMA)) {
                         if (atSet(EXPRESSION_FIRST)) {
                             error("Expecting ','")
+                            continue
                         } else {
                             break
                         }
@@ -1715,7 +1721,7 @@ internal open class KotlinExpressionParsing(
     companion object {
         private val WHEN_CONDITION_RECOVERY_SET = syntaxElementTypeSetOf(
             KtTokens.RBRACE,
-            IN_KEYWORD,
+            IN_MODIFIER,
             NOT_IN,
             IS_KEYWORD,
             NOT_IS,
@@ -1723,7 +1729,7 @@ internal open class KotlinExpressionParsing(
         )
         private val WHEN_CONDITION_RECOVERY_SET_WITH_ARROW = syntaxElementTypeSetOf(
             KtTokens.RBRACE,
-            IN_KEYWORD,
+            IN_MODIFIER,
             NOT_IN,
             IS_KEYWORD,
             NOT_IS,
@@ -1739,12 +1745,12 @@ internal open class KotlinExpressionParsing(
         private val EQ_RPAR_SET = syntaxElementTypeSetOf(KtTokens.EQ, KtTokens.RPAR)
         private val ARROW_SET = syntaxElementTypeSetOf(KtTokens.ARROW)
         private val ARROW_COMMA_SET = syntaxElementTypeSetOf(KtTokens.ARROW, KtTokens.COMMA)
-        private val IN_KEYWORD_R_PAR_COLON_SET = syntaxElementTypeSetOf(IN_KEYWORD, KtTokens.RPAR, KtTokens.COLON)
-        private val IN_KEYWORD_L_BRACE_SET = syntaxElementTypeSetOf(IN_KEYWORD, KtTokens.LBRACE)
+        private val IN_KEYWORD_R_PAR_COLON_SET = syntaxElementTypeSetOf(IN_MODIFIER, KtTokens.RPAR, KtTokens.COLON)
+        private val IN_KEYWORD_L_BRACE_SET = syntaxElementTypeSetOf(IN_MODIFIER, KtTokens.LBRACE)
         private val IN_KEYWORD_L_BRACE_RECOVERY_SET = IN_KEYWORD_L_BRACE_SET + KotlinParsing.PARAMETER_NAME_RECOVERY_SET
-        private val COLON_IN_KEYWORD_SET = syntaxElementTypeSetOf(KtTokens.COLON, IN_KEYWORD)
+        private val COLON_IN_KEYWORD_SET = syntaxElementTypeSetOf(KtTokens.COLON, IN_MODIFIER)
         private val L_PAR_L_BRACE_R_PAR_SET = syntaxElementTypeSetOf(KtTokens.LPAR, KtTokens.LBRACE, KtTokens.RPAR)
-        private val IN_KEYWORD_SET = syntaxElementTypeSetOf(IN_KEYWORD)
+        private val IN_KEYWORD_SET = syntaxElementTypeSetOf(IN_MODIFIER)
         private val TRY_CATCH_RECOVERY_TOKEN_SET =
             syntaxElementTypeSetOf(KtTokens.LBRACE, KtTokens.RBRACE, KtTokens.FINALLY_KEYWORD, KtTokens.CATCH_KEYWORD)
 
@@ -1762,7 +1768,7 @@ internal open class KotlinExpressionParsing(
             THIS_KEYWORD,
             VAL_KEYWORD,
             VAR_KEYWORD,
-            FUN_KEYWORD,
+            FUN_MODIFIER,
             FOR_KEYWORD,
             NULL_KEYWORD,
             TRUE_KEYWORD,
@@ -1830,7 +1836,7 @@ internal open class KotlinExpressionParsing(
             NULL_KEYWORD,
 
             KtTokens.LBRACE,  // functionLiteral
-            FUN_KEYWORD,  // expression function
+            FUN_MODIFIER,  // expression function
 
             THIS_KEYWORD,  // this
             SUPER_KEYWORD,  // super
@@ -1859,13 +1865,14 @@ internal open class KotlinExpressionParsing(
 
         val STATEMENT_FIRST: SyntaxElementTypeSet = EXPRESSION_FIRST +
                 syntaxElementTypeSetOf( // declaration
-                    FUN_KEYWORD,
-                    VAL_KEYWORD, VAR_KEYWORD,
+                    FUN_MODIFIER,
+                    VAL_KEYWORD,
+                    VAR_KEYWORD,
                     INTERFACE_KEYWORD,
                     CLASS_KEYWORD,
                     TYPE_ALIAS_KEYWORD
                 ) +
-                KtTokens.MODIFIER_KEYWORDS
+                KtTokens.MODIFIERS
 
         // It's the result of
         //
@@ -1875,12 +1882,28 @@ internal open class KotlinExpressionParsing(
         //
         // a Syntax library supports only union set operation
         private val STATEMENT_NEW_LINE_QUICK_RECOVERY_SET: SyntaxElementTypeSet = syntaxElementTypeSetOf(
-            FUN_KEYWORD,
+            TYPE_ALIAS_KEYWORD,
+            CLASS_KEYWORD,
+            THIS_KEYWORD,
+            SUPER_KEYWORD,
             VAL_KEYWORD,
             VAR_KEYWORD,
+            FUN_MODIFIER,
+            FOR_KEYWORD,
+            NULL_KEYWORD,
+            TRUE_KEYWORD,
+            FALSE_KEYWORD,
+            THROW_KEYWORD,
+            RETURN_KEYWORD,
+            BREAK_KEYWORD,
+            CONTINUE_KEYWORD,
+            OBJECT_KEYWORD,
+            IF_KEYWORD,
+            TRY_KEYWORD,
+            WHILE_KEYWORD,
+            DO_KEYWORD,
+            WHEN_KEYWORD,
             INTERFACE_KEYWORD,
-            CLASS_KEYWORD,
-            TYPE_ALIAS_KEYWORD,
             KtTokens.EOL_OR_SEMICOLON,
         )
 
@@ -1890,7 +1913,9 @@ internal open class KotlinExpressionParsing(
 
         private val ALLOW_NEWLINE_OPERATIONS = syntaxElementTypeSetOf(
             KtTokens.DOT, KtTokens.SAFE_ACCESS,
-            KtTokens.COLON, AS_KEYWORD, `AS_SAFE`,
+            KtTokens.COLON,
+            AS_KEYWORD,
+            AS_SAFE,
             KtTokens.ELVIS,  // Can't allow `is` and `!is` because of when entry conditions: IS_KEYWORD, NOT_IS,
             KtTokens.ANDAND,
             KtTokens.OROR
