@@ -11,6 +11,8 @@ import org.jetbrains.kotlin.gradle.BrokenOnMacosTestFailureExpectation
 import org.jetbrains.kotlin.gradle.testbase.*
 import org.junit.jupiter.api.DisplayName
 
+private const val STABLE_VERSION = "2.0.20"
+
 @DisplayName("Tests for K/N with enabled configuration cache")
 @NativeGradlePluginTests
 class NativeWithConfigurationCacheIT : KGPBaseTest() {
@@ -31,8 +33,8 @@ class NativeWithConfigurationCacheIT : KGPBaseTest() {
                 // We need to download compiler on the first build, that is why we are setting custom konan home dir without any compiler inside
                 konanDataDir = workingDir.resolve(".konan"),
                 nativeOptions = defaultBuildOptions.nativeOptions.copy(
-                    version = null,
-                    distributionDownloadFromMaven = true, // please, remove the whole test, when this flag will be removed
+                    version = STABLE_VERSION,
+                    distributionDownloadFromMaven = false, // please, remove the whole test, when this flag will be removed
                 ),
             ),
         ) {
