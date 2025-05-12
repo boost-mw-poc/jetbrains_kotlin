@@ -53,7 +53,7 @@ public class KtPropertyAccessor extends KtDeclarationStub<KotlinPropertyAccessor
         if (stub != null) {
             return stub.isDefault();
         }
-        return getBodyExpression() != null;
+        return getBodyExpression() == null;
     }
 
     @Nullable
