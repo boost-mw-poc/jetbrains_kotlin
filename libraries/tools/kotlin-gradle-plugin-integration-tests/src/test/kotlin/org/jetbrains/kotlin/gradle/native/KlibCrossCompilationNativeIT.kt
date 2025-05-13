@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.gradle.native
 
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.testbase.*
-import org.jetbrains.kotlin.gradle.util.replaceText
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.test.TestMetadata
 import org.junit.jupiter.api.DisplayName
@@ -24,10 +23,10 @@ class KlibCrossCompilationNativeIT : KGPBaseTest() {
         )
 
     @GradleTest
-    @TestMetadata("klibCrossCompilationDefaultSettings")
+    @TestMetadata("klibCrossCompilationWithGradlePropertyDisabled")
     @OsCondition(supportedOn = [OS.LINUX, OS.WINDOWS], enabledOnCI = [OS.LINUX, OS.WINDOWS])
-    fun compileIosTargetOnNonDarwinHostWithDefaultSettings(gradleVersion: GradleVersion) {
-        nativeProject("klibCrossCompilationDefaultSettings", gradleVersion) {
+    fun compileIosTargetOnNonDarwinHostWithGradlePropertyDisabled(gradleVersion: GradleVersion) {
+        nativeProject("klibCrossCompilationWithGradlePropertyDisabled", gradleVersion) {
             build(":compileKotlinIosArm64") {
                 assertEqualsToFile(
                     projectPath.resolve("diagnostics.txt").toFile(),
@@ -39,9 +38,9 @@ class KlibCrossCompilationNativeIT : KGPBaseTest() {
     }
 
     @GradleTest
-    @TestMetadata("klibCrossCompilationWithGradlePropertyDisabled")
+    @TestMetadata("klibCrossCompilationDefaultSettings")
     @OsCondition(supportedOn = [OS.LINUX, OS.WINDOWS], enabledOnCI = [OS.LINUX, OS.WINDOWS])
-    fun compileIosTargetOnNonDarwinHostWithGradlePropertyEnabled(gradleVersion: GradleVersion, @TempDir konanDataDir: Path) {
+    fun compileIosTargetOnNonDarwinHostWithDefaultSettings(gradleVersion: GradleVersion, @TempDir konanDataDir: Path) {
         val buildOptions =
             // KT-62761: on Windows machine there are problems with removing tmp directory due to opened files
             // Thus, the logic of Kotlin Native toolchain provisioning may not be involved here, KT-72068 may not be tested
@@ -53,31 +52,13 @@ class KlibCrossCompilationNativeIT : KGPBaseTest() {
                 // even when target is not supported(@see KT-72068). Even without this line the test will not fail,
                 // but please don't remove while `kotlin.native.enableKlibsCrossCompilation` flag exists.
                 konanDataDir = konanDataDir,
-                // TODO: remove explicit version selection after resolution of KTI-1928
-                nativeOptions = defaultBuildOptions.nativeOptions.copy(
-                    version = "2.0.20",
-                )
             )
         nativeProject(
-            "klibCrossCompilationWithGradlePropertyDisabled",
+            "klibCrossCompilationDefaultSettings",
             gradleVersion,
             buildOptions = buildOptions
         ) {
-
-            val expectedDiagnostics = projectPath.resolve("expected-diagnostics.txt")
-            if (!HostManager.hostIsMingw) {
-                expectedDiagnostics.replaceText(
-                    "> Configure project :",
-                    """
-                    |> Configure project :
-                    |w: [OldNativeVersionDiagnostic | WARNING] Kotlin/Native and Kotlin Versions Incompatible
-                    |'2.0.20' Kotlin/Native is being used with an newer '${buildOptions.kotlinVersion}' Kotlin.
-                    |Please adjust versions to avoid incompatibilities.
-                    |#diagnostic-end
-                    |    
-                    """.trimMargin()
-                )
-            }
+            val expectedDiagnostics = projectPath.resolve("diagnostics.txt")
 
             build(":compileKotlinIosArm64") {
                 assertEqualsToFile(expectedDiagnostics.toFile(), extractProjectsAndTheirDiagnostics())
