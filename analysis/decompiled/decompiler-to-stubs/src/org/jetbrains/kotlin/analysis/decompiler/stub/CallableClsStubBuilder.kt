@@ -340,7 +340,7 @@ private class PropertyClsStubBuilder(
                 /* parent = */ callableStub,
                 /* isGetter = */ false,
                 /* isDefault = */ isDefault,
-                /* hasBody = */ false,
+                /* hasBody = */ true,
                 /* hasBlockBody = */ true,
             )
             createModifierListAndAnnotationStubsForAccessor(
