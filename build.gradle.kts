@@ -546,14 +546,14 @@ val projectsWithOptInToUnsafeCastFunctionsFromAddToStdLib by extra {
 }
 
 val gradlePluginProjects = listOf(
-    //":kotlin-gradle-plugin",
+    ":kotlin-gradle-plugin",
     ":kotlin-gradle-plugin-api",
     ":kotlin-gradle-plugin-annotations",
     ":kotlin-gradle-plugin-idea",
     ":kotlin-gradle-plugin-idea-proto",
     ":kotlin-gradle-plugin-model",
     ":kotlin-gradle-plugin-tcs-android",
-    //":compose-compiler-gradle-plugin",
+    ":compose-compiler-gradle-plugin",
     ":kotlin-allopen",
     ":kotlin-noarg",
     ":kotlin-power-assert",
@@ -562,6 +562,11 @@ val gradlePluginProjects = listOf(
     ":kotlin-lombok",
     ":kotlin-assignment",
     ":kotlin-dataframe"
+)
+
+val gradlePluginProjectsWithNative = listOf(
+    ":kotlin-gradle-plugin",
+    ":compose-compiler-gradle-plugin",
 )
 
 val ignoreTestFailures by extra(project.kotlinBuildProperties.ignoreTestFailures)
@@ -794,9 +799,16 @@ tasks {
         }
     }
 
+    register("gradlePluginTestWithoutNative") {
+        (gradlePluginProjects - gradlePluginProjectsWithNative).forEach {
+            dependsOn("$it:check")
+        }
+    }
+
     register("gradlePluginTestWithNative") {
-        dependsOn("compose-compiler-gradle-plugin:check")
-        dependsOn("kotlin-gradle-plugin:check")
+        gradlePluginProjectsWithNative.forEach {
+            dependsOn("$it:check")
+        }
     }
 
     register("gradlePluginIntegrationTest") {
@@ -950,7 +962,7 @@ tasks {
 
     register("miscTest") {
         dependsOn("coreLibsTest")
-        dependsOn("gradlePluginTest")
+        dependsOn("gradlePluginTestWithoutNative")
         dependsOn("toolsTest")
         dependsOn("examplesTest")
         dependsOn(":kotlin-build-common:test")
@@ -962,6 +974,11 @@ tasks {
         dependsOn(":kotlinx-metadata-klib:test")
         dependsOn(":generators:test")
         dependsOn(":kotlin-gradle-plugin-dsl-codegen:test")
+    }
+
+    register("miscTestWithNative") {
+        dependsOn("gradlePluginTestWithNative")
+        dependsOn(":native:kotlin-klib-commonizer-api:test")
     }
 
     register("incrementalCompilationTest") {
@@ -989,7 +1006,6 @@ tasks {
     register("toolsTest") {
         dependsOn(":tools:kotlinp-jvm:test")
         dependsOn(":native:kotlin-klib-commonizer:test")
-       // dependsOn(":native:kotlin-klib-commonizer-api:test")
         dependsOn(":kotlin-tooling-core:check")
         dependsOn(":kotlin-tooling-metadata:check")
         dependsOn(":compiler:build-tools:kotlin-build-tools-api:check")
