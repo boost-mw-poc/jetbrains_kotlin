@@ -22,7 +22,15 @@ class ConstraintIncorporator(
     val trivialConstraintTypeInferenceOracle: TrivialConstraintTypeInferenceOracle,
     val utilContext: ConstraintSystemUtilContext,
     private val languageVersionSettings: LanguageVersionSettings,
+    val constraintsLogger: ConstraintsLogger? = null,
 ) {
+    // Prevents `Container: LazyResolveWithJava: Dependencies for ConstraintInjector(...) cannot be satisfied`
+    constructor(
+        typeApproximator: AbstractTypeApproximator,
+        trivialConstraintTypeInferenceOracle: TrivialConstraintTypeInferenceOracle,
+        utilContext: ConstraintSystemUtilContext,
+        languageVersionSettings: LanguageVersionSettings,
+    ) : this(typeApproximator, trivialConstraintTypeInferenceOracle, utilContext, languageVersionSettings, constraintsLogger = null)
 
     interface Context : TypeSystemInferenceExtensionContext {
         val allTypeVariablesWithConstraints: Collection<VariableWithConstraints>
@@ -81,13 +89,18 @@ class ConstraintIncorporator(
         if (constraint.kind != ConstraintKind.LOWER) {
             forEachConstraint(typeVariable) {
                 if (it.kind != ConstraintKind.UPPER) {
-                    processNewInitialConstraintFromIncorporation(
-                        it.type,
-                        constraint.type,
-                        shouldBeTypeVariableFlexible,
-                        constraint.computeNewDerivedFrom(it),
-                        it.isNullabilityConstraint
-                    )
+                    constraintsLogger.withPrevious(
+                        typeVariable, it,
+                        typeVariable, constraint,
+                    ) {
+                        processNewInitialConstraintFromIncorporation(
+                            it.type,
+                            constraint.type,
+                            shouldBeTypeVariableFlexible,
+                            constraint.computeNewDerivedFrom(it),
+                            it.isNullabilityConstraint
+                        )
+                    }
                 }
             }
         }
@@ -99,13 +112,18 @@ class ConstraintIncorporator(
                     val isFromDeclaredUpperBound =
                         it.position.from is DeclaredUpperBoundConstraintPosition<*> && !it.type.typeConstructor().isTypeVariable()
 
-                    processNewInitialConstraintFromIncorporation(
-                        constraint.type,
-                        it.type,
-                        shouldBeTypeVariableFlexible,
-                        constraint.computeNewDerivedFrom(it),
-                        isFromDeclaredUpperBound = isFromDeclaredUpperBound
-                    )
+                    constraintsLogger.withPrevious(
+                        typeVariable, constraint,
+                        typeVariable, it,
+                    ) {
+                        processNewInitialConstraintFromIncorporation(
+                            constraint.type,
+                            it.type,
+                            shouldBeTypeVariableFlexible,
+                            constraint.computeNewDerivedFrom(it),
+                            isFromDeclaredUpperBound = isFromDeclaredUpperBound
+                        )
+                    }
                 }
             }
         }
@@ -139,12 +157,17 @@ class ConstraintIncorporator(
         val freshTypeConstructor = typeVariable.freshTypeConstructor()
         for (storageForOtherVariable in getVariablesWithConstraintsContainingGivenTypeVariable(freshTypeConstructor)) {
             for (otherConstraint in storageForOtherVariable.getConstraintsContainedSpecifiedTypeVariable(freshTypeConstructor)) {
-                generateNewConstraintForSecondIncorporationKind(
-                    typeVariable,
-                    constraint,
-                    storageForOtherVariable.typeVariable,
-                    otherConstraint
-                )
+                constraintsLogger.withPrevious(
+                    typeVariable, constraint,
+                    storageForOtherVariable.typeVariable, otherConstraint,
+                ) {
+                    generateNewConstraintForSecondIncorporationKind(
+                        typeVariable,
+                        constraint,
+                        storageForOtherVariable.typeVariable,
+                        otherConstraint
+                    )
+                }
             }
         }
     }

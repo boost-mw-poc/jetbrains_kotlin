@@ -156,6 +156,7 @@ fun HandlersStepBuilder<FirOutputArtifact, FrontendKinds.FIR>.setupHandlersForDi
         ::FirDumpHandler,
         ::FirCfgDumpHandler,
         ::FirVFirDumpHandler,
+        ::FirConstraintsDumpHandler,
         ::FirCfgConsistencyHandler,
         ::FirResolvedTypesVerifier,
         ::FirScopeDumpHandler,

@@ -26,7 +26,14 @@ import org.jetbrains.kotlin.types.model.TypeVariableMarker
 class VariableFixationFinder(
     private val trivialConstraintTypeInferenceOracle: TrivialConstraintTypeInferenceOracle,
     private val languageVersionSettings: LanguageVersionSettings,
+    private val constraintsLogger: ConstraintsLogger? = null,
 ) {
+    // Prevents `Container: LazyResolveWithJava: Dependencies for ConstraintInjector(...) cannot be satisfied`
+    constructor(
+        trivialConstraintTypeInferenceOracle: TrivialConstraintTypeInferenceOracle,
+        languageVersionSettings: LanguageVersionSettings,
+    ) : this(trivialConstraintTypeInferenceOracle, languageVersionSettings, constraintsLogger = null)
+
     @K2Only
     var provideFixationLogs: Boolean = false
 
@@ -323,7 +330,13 @@ class VariableFixationFinder(
             }
             chosen
         } else {
-            allTypeVariables.maxByOrNull { getTypeVariableReadiness(it, dependencyProvider) }
+            constraintsLogger.logReadiness {
+                allTypeVariables.maxByOrNull {
+                    val readiness = getTypeVariableReadiness(it, dependencyProvider)
+                    constraintsLogger?.logReadiness(it, readiness, this)
+                    readiness
+                }
+            }
         }
     }
 
