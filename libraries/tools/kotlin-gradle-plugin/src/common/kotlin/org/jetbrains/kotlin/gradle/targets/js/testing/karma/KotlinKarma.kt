@@ -49,7 +49,6 @@ import org.jetbrains.kotlin.gradle.utils.getFile
 import org.jetbrains.kotlin.gradle.utils.getValue
 import org.jetbrains.kotlin.gradle.utils.processes.ExecAsyncHandle
 import org.jetbrains.kotlin.gradle.utils.processes.ProcessLaunchOptions
-import org.jetbrains.kotlin.gradle.utils.processes.ProcessLaunchOptions.Companion.processLaunchOptions
 import org.jetbrains.kotlin.gradle.utils.property
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import org.slf4j.Logger
@@ -141,6 +140,7 @@ class KotlinKarma internal constructor(
     )
 
     val webpackConfig = KotlinWebpackConfig(
+        npmProjectDir = npmProjectDir.map { it.asFile },
         configDirectory = project.projectDir.resolve("webpack.config.d"),
         optimization = KotlinWebpackConfig.Optimization(
             runtimeChunk = null,
@@ -407,37 +407,47 @@ class KotlinKarma internal constructor(
         val modules = NpmProjectModules(npmToolingDir.getFile())
 
         config.files.add(modules.require("kotlin-web-helpers/dist/kotlin-test-karma-runner.js"))
-        if (!debug) {
-            if (platformType == KotlinPlatformType.wasm) {
-                config.files.add(
-                    createLoadWasm(npmProject.dir.getFile(), file).normalize().absolutePath
-                )
-
-                config.customContextFile = modules.require("kotlin-web-helpers/dist/static/context.html")
-                config.customDebugFile = modules.require("kotlin-web-helpers/dist/static/debug.html")
-            } else {
+        if (platformType != KotlinPlatformType.wasm) {
+            if (!debug) {
                 config.files.add(fileString)
+            } else {
+                config.singleRun = false
+
+                config.files.add(createDebuggerJs(fileString).normalize().absolutePath)
+
+                confJsWriters.add {
+                    //language=ES6
+                    it.appendLine(
+                        """
+                    if (!config.plugins) {
+                        config.plugins = config.plugins || [];
+                        config.plugins.push('karma-*'); // default
+                    }
+                    
+                    config.plugins.push('kotlin-web-helpers/dist/karma-kotlin-debug-plugin.js');
+                """.trimIndent()
+                    )
+                }
+
+                config.frameworks.add("karma-kotlin-debug")
             }
         } else {
-            config.singleRun = false
 
-            config.files.add(createDebuggerJs(fileString).normalize().absolutePath)
+            config.files.add(
+                createLoadWasm(npmProject.dir.getFile(), file).normalize().absolutePath
+            )
 
-            confJsWriters.add {
-                //language=ES6
-                it.appendLine(
-                    """
-                        if (!config.plugins) {
-                            config.plugins = config.plugins || [];
-                            config.plugins.push('karma-*'); // default
-                        }
-                        
-                        config.plugins.push('kotlin-web-helpers/dist/karma-kotlin-debug-plugin.js');
-                    """.trimIndent()
+            config.customContextFile = modules.require("kotlin-web-helpers/dist/static/context.html")
+            config.customDebugFile = modules.require("kotlin-web-helpers/dist/static/debug.html")
+
+            if (debug) {
+                config.singleRun = false
+                config.autoWatch = true
+                file.parentFile.resolve(file.nameWithoutExtension + ".wasm.map").absolutePath
+                config.webpackCopy.add(
+                    file.parentFile.resolve(file.nameWithoutExtension + ".wasm.map").absolutePath
                 )
             }
-
-            config.frameworks.add("karma-kotlin-debug")
         }
 
         if (config.browsers.isEmpty()) {
@@ -493,7 +503,7 @@ class KotlinKarma internal constructor(
         }
 
         val karmaConfigAbsolutePath = karmaConfJs.absolutePath
-        val args = if (debug) {
+        val args = if (debug && platformType != KotlinPlatformType.wasm) {
             nodeJsArgs + listOf(
                 modules.require("kotlin-web-helpers/dist/karma-debug-runner.js"),
                 karmaConfigAbsolutePath
