@@ -57271,6 +57271,47 @@ public class PhasedJvmDiagnosticPsiTestGenerated extends AbstractPhasedJvmDiagno
     }
 
     @Nested
+    @TestMetadata("compiler/fir/analysis-tests/testData/resolve/static")
+    @TestDataPath("$PROJECT_ROOT")
+    public class Static {
+      @Test
+      @TestMetadata("Dispatch.kt")
+      public void testDispatch() {
+        runTest("compiler/fir/analysis-tests/testData/resolve/static/Dispatch.kt");
+      }
+
+      @Test
+      @TestMetadata("Extension.kt")
+      public void testExtension() {
+        runTest("compiler/fir/analysis-tests/testData/resolve/static/Extension.kt");
+      }
+
+      @Test
+      @TestMetadata("Nested.kt")
+      public void testNested() {
+        runTest("compiler/fir/analysis-tests/testData/resolve/static/Nested.kt");
+      }
+
+      @Test
+      @TestMetadata("Simple.kt")
+      public void testSimple() {
+        runTest("compiler/fir/analysis-tests/testData/resolve/static/Simple.kt");
+      }
+
+      @Test
+      @TestMetadata("StaticAndCompanion.kt")
+      public void testStaticAndCompanion() {
+        runTest("compiler/fir/analysis-tests/testData/resolve/static/StaticAndCompanion.kt");
+      }
+
+      @Test
+      @TestMetadata("TypeAlias.kt")
+      public void testTypeAlias() {
+        runTest("compiler/fir/analysis-tests/testData/resolve/static/TypeAlias.kt");
+      }
+    }
+
+    @Nested
     @TestMetadata("compiler/fir/analysis-tests/testData/resolve/stdlib")
     @TestDataPath("$PROJECT_ROOT")
     public class Stdlib {
