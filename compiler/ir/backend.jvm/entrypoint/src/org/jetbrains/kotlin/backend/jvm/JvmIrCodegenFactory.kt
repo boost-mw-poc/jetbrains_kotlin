@@ -95,6 +95,7 @@ class JvmIrCodegenFactory(
         val shouldReferenceUndiscoveredExpectSymbols: Boolean = false,
         val shouldDeduplicateBuiltInSymbols: Boolean = false,
         val doNotLoadDependencyModuleHeaders: Boolean = false,
+        val evaluatorData: JvmEvaluatorData? = null,
     ) {
         init {
             if (shouldDeduplicateBuiltInSymbols && !shouldStubAndNotLinkUnboundSymbols) {
@@ -334,12 +335,9 @@ class JvmIrCodegenFactory(
         else null
         val context = JvmBackendContext(
             state, irBuiltIns, symbolTable, extensions,
-            backendExtension, irSerializer, JvmIrDeserializerImpl(), irProviders, irPluginContext
+            backendExtension, irSerializer, JvmIrDeserializerImpl(), irProviders, irPluginContext,
+            ideCodegenSettings.evaluatorData
         )
-        if (evaluatorFragmentInfoForPsi2Ir != null) {
-            context.evaluatorData =
-                JvmEvaluatorData(mutableMapOf(), evaluatorFragmentInfoForPsi2Ir.methodIR, evaluatorFragmentInfoForPsi2Ir.typeArgumentsMap)
-        }
         val generationExtensions = state.project.filteredExtensions
             .mapNotNull { it.getPlatformIntrinsicExtension(context) as? JvmIrIntrinsicExtension }
         val intrinsics by lazy { IrIntrinsicMethods(irBuiltIns, context.symbols) }
