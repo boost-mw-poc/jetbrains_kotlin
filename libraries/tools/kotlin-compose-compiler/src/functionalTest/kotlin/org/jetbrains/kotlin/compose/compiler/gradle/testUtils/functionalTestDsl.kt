@@ -24,7 +24,7 @@ fun buildProject(
     .build()
     .also {
         it.enableDependencyVerification(false)
-        disableDownloadingKonanFromMavenCentral(it)
+        //disableDownloadingKonanFromMavenCentral(it)
     }
     .apply(configureProject)
     .let { it as ProjectInternal }
