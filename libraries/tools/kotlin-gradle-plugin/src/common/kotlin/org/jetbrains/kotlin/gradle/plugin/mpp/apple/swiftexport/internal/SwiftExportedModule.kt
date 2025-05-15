@@ -34,36 +34,23 @@ internal fun createFullyExportedSwiftExportedModule(
     )
 }
 
-internal fun Project.collectModules(
-    swiftExportConfigurationProvider: Provider<LazyResolvedConfiguration>,
-    compileConfigurationProvider: Provider<LazyResolvedConfiguration>,
-    exportedModulesProvider: Provider<Set<SwiftExportedModuleVersionMetadata>>,
-): Provider<List<SwiftExportedModule>> {
-    val swiftExportedModules = swiftExportConfigurationProvider.zip(exportedModulesProvider) { configuration, modules ->
-        configuration.swiftExportedModules(modules, project)
-    }
-
-    val transitiveModules = compileConfigurationProvider.map { configuration ->
-        configuration.transitiveModules(project)
-    }
-
-    return swiftExportedModules.zip(transitiveModules) { export, transitive ->
-        export.toSet().plus(transitive).toList()
-    }
+internal fun createTransitiveSwiftExportedModule(
+    moduleName: String,
+    artifact: File
+): SwiftExportedModule {
+    return SwiftExportedModuleImp(
+        moduleName,
+        null,
+        artifact,
+        false
+    )
 }
 
-private fun LazyResolvedConfiguration.transitiveModules(
-    project: Project,
-): List<SwiftExportedModule> {
-    return artifactComponents().map { (component, artifact) ->
-        val resolvedModule = requireNotNull(component.moduleVersion)
-        SwiftExportedModuleImp(
-            resolvedModule.name.normalizedSwiftExportModuleName.also { project.validateSwiftExportModuleName(it) },
-            null,
-            artifact,
-            false
-        )
-    }
+internal fun Project.collectModules(
+    swiftExportConfigurationProvider: Provider<LazyResolvedConfiguration>,
+    exportedModulesProvider: Provider<Set<SwiftExportedModuleVersionMetadata>>,
+): Provider<List<SwiftExportedModule>> = swiftExportConfigurationProvider.zip(exportedModulesProvider) { configuration, modules ->
+    configuration.swiftExportedModules(modules, project)
 }
 
 private fun LazyResolvedConfiguration.swiftExportedModules(
@@ -112,18 +99,24 @@ private fun Project.findAndCreateSwiftExportedModule(
 ): SwiftExportedModule {
     val resolvedModule = requireNotNull(resolvedComponent.moduleVersion)
 
-    val module = exportedModules.single {
+    val explicitModule = exportedModules.singleOrNull {
         resolvedModule.name == it.moduleVersion.name && resolvedModule.group == it.moduleVersion.group
     }
 
-    return SwiftExportedModuleImp(
-        module.moduleName.orElse(
-            module.moduleVersion.name.normalizedSwiftExportModuleName.also { validateSwiftExportModuleName(it) }
-        ).get(),
-        module.flattenPackage.orNull,
-        artifact,
-        true
-    )
+    return if (explicitModule != null) {
+        createFullyExportedSwiftExportedModule(
+            explicitModule.moduleName.orElse(
+                validatedModuleName(explicitModule.moduleVersion.name)
+            ).get(),
+            explicitModule.flattenPackage.orNull,
+            artifact
+        )
+    } else {
+        createTransitiveSwiftExportedModule(
+            validatedModuleName(resolvedModule.name),
+            artifact
+        )
+    }
 }
 
 private data class SwiftExportedModuleImp(
@@ -146,3 +139,6 @@ private data class SwiftExportedModuleImp(
         return artifact.hashCode()
     }
 }
+
+private fun Project.validatedModuleName(moduleName: String) =
+    moduleName.normalizedSwiftExportModuleName.also { validateSwiftExportModuleName(it) }

@@ -58,7 +58,10 @@ internal fun Project.registerSwiftExportTask(
         target = target,
         configuration = buildConfiguration,
         swiftApiModuleName = swiftApiModuleName,
-        exportConfiguration = target.exportedSwiftExportApiConfiguration(buildType),
+        exportConfiguration = target.exportedSwiftExportApiConfiguration(
+            buildType,
+            mainCompilation.internal.configurations.compileDependencyConfiguration
+        ),
         mainCompilation = mainCompilation,
         swiftApiFlattenPackage = swiftExportExtension.flattenPackage,
         exportedModules = swiftExportExtension.exportedModules,
@@ -135,9 +138,6 @@ private fun Project.registerSwiftExportRun(
     val files = outputs.map { it.dir("files") }
     val serializedModules = outputs.map { it.dir("modules").file("${swiftApiModuleName.get()}.json") }
     val configurationProvider = provider { LazyResolvedConfiguration(exportConfiguration) }
-    val compileDependencyConfigurationProvider = provider {
-        LazyResolvedConfiguration(mainCompilation.internal.configurations.compileDependencyConfiguration)
-    }
 
     return locateOrRegisterTask<SwiftExportTask>(swiftExportTaskName) { task ->
         task.description = "Run $taskNamePrefix Swift Export process"
@@ -154,7 +154,6 @@ private fun Project.registerSwiftExportRun(
         task.parameters.swiftModules.set(
             collectModules(
                 configurationProvider,
-                compileDependencyConfigurationProvider,
                 exportedModules
             )
         )

@@ -63,11 +63,15 @@ internal fun KotlinNativeTarget.exportedSwiftExportApiConfigurationName(buildTyp
     lowerCamelCaseName(buildType.configuration, "exported", "swift", "export", "api", "configuration")
 )
 
-internal fun KotlinNativeTarget.exportedSwiftExportApiConfiguration(buildType: NativeBuildType): Configuration =
+internal fun KotlinNativeTarget.exportedSwiftExportApiConfiguration(
+    buildType: NativeBuildType,
+    extendConfiguration: Configuration
+): Configuration =
     project.configurations.maybeCreateResolvable(exportedSwiftExportApiConfigurationName(buildType)) {
         description = "Swift Export dependencies configuration for $name"
         isVisible = false
-        isTransitive = false
+        extendsFrom(extendConfiguration)
+        shouldResolveConsistentlyWith(extendConfiguration)
         usesPlatformOf(this@exportedSwiftExportApiConfiguration)
         attributes.attribute(Category.CATEGORY_ATTRIBUTE, project.categoryByName(Category.LIBRARY))
         attributes.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(KotlinUsages.KOTLIN_API))
