@@ -36,10 +36,7 @@ import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.junit.Assume
 import org.junit.Test
-import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import kotlin.test.*
 
 class SwiftExportUnitTests {
     @BeforeTest
@@ -264,6 +261,7 @@ class SwiftExportUnitTests {
         val expectedModules = buildSmartList {
             add(SwiftExportModuleForAssertion("Subproject", "subproject", true))
             add(SwiftExportModuleForAssertion("KotlinxCoroutinesCore", "kotlinx-coroutines-core.klib", true))
+            add(SwiftExportModuleForAssertion("Atomicfu", "atomicfu.klib", false))
         }
 
         assertEquals(
@@ -279,38 +277,12 @@ class SwiftExportUnitTests {
                 iosSimulatorArm64()
 
                 sourceSets.commonMain.dependencies {
-                    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
-                    implementation("com.arkivanov.decompose:decompose:3.1.0")
+                    implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.7.0")
+                    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
                 }
             },
             swiftExport = {
-                export("com.arkivanov.decompose:decompose:3.1.0")
-            }
-        )
-
-        project.evaluate()
-
-        val swiftExportTask = project.tasks.withType(SwiftExportTask::class.java).single()
-        val actualModules = swiftExportTask.parameters.swiftModules.getOrElse(emptyList()).filter { it.shouldBeFullyExported }
-
-        val expectedModules = buildSmartList {
-            add(SwiftExportModuleForAssertion("Decompose", "decompose.klib", true))
-        }
-
-        assertEquals(
-            expectedModules,
-            actualModules.toModulesForAssertion(),
-        )
-
-        val kotlinXDatetime = actualModules.singleOrNull { it.moduleName == "KotlinxDatetime" }
-        assertNull(kotlinXDatetime, "Transitive dependency kotlinx-datetime should not be exported")
-    }
-
-    @Test
-    fun `test transitive dependencies of exported dependencies are not exported`() {
-        val project = swiftExportProject(
-            swiftExport = {
-                export("com.arkivanov.decompose:decompose:3.1.0")
+                export("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
             }
         )
 
@@ -320,7 +292,33 @@ class SwiftExportUnitTests {
         val actualModules = swiftExportTask.parameters.swiftModules.getOrElse(emptyList())
 
         val expectedModules = buildSmartList {
-            add(SwiftExportModuleForAssertion("Decompose", "decompose.klib", true))
+            add(SwiftExportModuleForAssertion("KotlinxDatetime", "kotlinx-datetime.klib", true))
+        }
+
+        assertEquals(
+            expectedModules,
+            actualModules.filter { it.shouldBeFullyExported }.toModulesForAssertion(),
+        )
+
+        val KotlinxIoCore = actualModules.single { it.moduleName == "KotlinxIoCore" }
+        assertFalse(KotlinxIoCore.shouldBeFullyExported, "Compilation dependency kotlinx-io-core should not be exported")
+    }
+
+    @Test
+    fun `test transitive dependencies of exported dependencies are not exported`() {
+        val project = swiftExportProject(
+            swiftExport = {
+                export("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
+            }
+        )
+
+        project.evaluate()
+
+        val swiftExportTask = project.tasks.withType(SwiftExportTask::class.java).single()
+        val actualModules = swiftExportTask.parameters.swiftModules.getOrElse(emptyList()).filter { it.shouldBeFullyExported }
+
+        val expectedModules = buildSmartList {
+            add(SwiftExportModuleForAssertion("KotlinxDatetime", "kotlinx-datetime.klib", true))
         }
 
         assertEquals(
@@ -437,8 +435,8 @@ class SwiftExportUnitTests {
     fun `test dependency export custom parameters`() {
         val project = swiftExportProject(
             swiftExport = {
-                export("com.arkivanov.decompose:decompose:3.1.0") {
-                    moduleName.set("CustomDecompose")
+                export("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2") {
+                    moduleName.set("CustomDateTime")
                 }
             }
         )
@@ -449,7 +447,8 @@ class SwiftExportUnitTests {
         val actualModules = swiftExportTask.parameters.swiftModules.getOrElse(emptyList())
 
         val expectedModules = buildSmartList {
-            add(SwiftExportModuleForAssertion("CustomDecompose", "decompose.klib", true))
+            add(SwiftExportModuleForAssertion("CustomDateTime", "kotlinx-datetime.klib", true))
+            add(SwiftExportModuleForAssertion("KotlinxSerializationCore", "kotlinx-serialization-core.klib", false))
         }
 
         assertEquals(
@@ -495,8 +494,8 @@ class SwiftExportUnitTests {
     @Test
     fun `test swift export invalid exported module name`() {
         val project = swiftExportProject {
-            export("com.arkivanov.decompose:decompose:3.1.0") {
-                moduleName.set("Custom.Decompose")
+            export("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2") {
+                moduleName.set("Custom.DateTime")
             }
         }
         project.evaluate()
@@ -637,11 +636,11 @@ class SwiftExportUnitTests {
             multiplatform = {
                 iosSimulatorArm64()
                 sourceSets.commonMain.dependencies {
-                    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+                    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
                 }
             },
             swiftExport = {
-                export("com.arkivanov.decompose:decompose:3.1.0")
+                export("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
             }
         )
 
@@ -651,9 +650,9 @@ class SwiftExportUnitTests {
         val actualModules = swiftExportTask.parameters.swiftModules.getOrElse(emptyList())
 
         val expectedModules = buildSmartList {
-            add(SwiftExportModuleForAssertion("Decompose", "decompose.klib", true))
-            add(SwiftExportModuleForAssertion("KotlinxCoroutinesCore", "kotlinx-coroutines-core.klib", false))
-            add(SwiftExportModuleForAssertion("Atomicfu", "atomicfu.klib", false))
+            add(SwiftExportModuleForAssertion("KotlinxSerializationJson", "kotlinx-serialization-json-iosSimulatorArm64Main-1.8.1.klib", false))
+            add(SwiftExportModuleForAssertion("KotlinxDatetime", "kotlinx-datetime.klib", true))
+            add(SwiftExportModuleForAssertion("KotlinxSerializationCore", "kotlinx-serialization-core-iosSimulatorArm64Main-1.8.1.klib", false))
         }
 
         assertEquals(
@@ -786,8 +785,8 @@ class SwiftExportUnitTests {
         val actualModules = swiftExportTask.parameters.swiftModules.getOrElse(emptyList())
 
         val expectedModules = buildSmartList {
-            add(SwiftExportModuleForAssertion("KotlinxCoroutinesCore", "kotlinx-coroutines-core-iosSimulatorArm64Main-1.10.0.klib", true))
             add(SwiftExportModuleForAssertion("Subproject", "subproject", false))
+            add(SwiftExportModuleForAssertion("KotlinxCoroutinesCore", "kotlinx-coroutines-core-iosSimulatorArm64Main-1.10.0.klib", true))
             add(SwiftExportModuleForAssertion("Atomicfu", "atomicfu.klib", false))
         }
 
@@ -832,8 +831,8 @@ class SwiftExportUnitTests {
         val actualModules = swiftExportTask.parameters.swiftModules.getOrElse(emptyList())
 
         val expectedModules = buildSmartList {
-            add(SwiftExportModuleForAssertion("KotlinxCoroutinesCore", "kotlinx-coroutines-core-iosSimulatorArm64Main-1.10.0.klib", true))
             add(SwiftExportModuleForAssertion("Subproject", "subproject", false))
+            add(SwiftExportModuleForAssertion("KotlinxCoroutinesCore", "kotlinx-coroutines-core-iosSimulatorArm64Main-1.10.0.klib", true))
             add(SwiftExportModuleForAssertion("Atomicfu", "atomicfu.klib", false))
         }
 
