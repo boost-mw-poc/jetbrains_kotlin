@@ -330,13 +330,6 @@ class KonanSymbols(
 
     override val returnIfSuspended = internalFunction("returnIfSuspended")
 
-    override val suspendCoroutineUninterceptedOrReturn = internalFunction("suspendCoroutineUninterceptedOrReturn")
-
-    override val coroutineContextGetter =
-            findTopLevelPropertyGetter(StandardNames.COROUTINES_PACKAGE_FQ_NAME, "coroutineContext", null)
-
-    override val coroutineGetContext = internalFunction("getCoroutineContext")
-
     override val coroutineImpl get() = TODO()
 
     val baseContinuationImpl = internalCoroutinesClass("BaseContinuationImpl")
