@@ -229,6 +229,7 @@ public actual interface MutableList<E> : List<E>, MutableCollection<E> {
      *
      * @return the element that has been removed.
      */
+    @IgnorableReturnValue
     public actual fun removeAt(index: Int): E
 
     // List Iterators
@@ -442,6 +443,7 @@ public actual interface MutableMap<K, V> : Map<K, V> {
          *
          * @return the previous value corresponding to the key.
          */
+        @IgnorableReturnValue
         public actual fun setValue(newValue: V): V
     }
 }

@@ -225,6 +225,7 @@ public expect interface MutableList<E> : List<E>, MutableCollection<E> {
      *
      * @return the element that has been removed.
      */
+    @IgnorableReturnValue
     public fun removeAt(index: Int): E
 
     // List Iterators
