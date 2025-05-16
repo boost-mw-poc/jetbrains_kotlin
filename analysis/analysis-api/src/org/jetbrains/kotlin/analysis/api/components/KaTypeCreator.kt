@@ -79,7 +79,7 @@ public interface KaClassTypeBuilder : KaTypeBuilder {
      *
      * Default value: `false`.
      *
-     * See [KaTypeInformationProvider.isMarkedNullable].
+     * @see KaTypeInformationProvider.isMarkedNullable
      */
     public var isMarkedNullable: Boolean
 
@@ -114,7 +114,7 @@ public interface KaTypeParameterTypeBuilder : KaTypeBuilder {
      *
      * Default value: `true`.
      *
-     * See [KaTypeInformationProvider.isMarkedNullable].
+     * @see KaTypeInformationProvider.isMarkedNullable
      */
     public var isMarkedNullable: Boolean
 }

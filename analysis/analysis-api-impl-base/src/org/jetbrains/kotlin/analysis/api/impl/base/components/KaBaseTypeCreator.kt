@@ -40,8 +40,9 @@ sealed class KaBaseClassTypeBuilder : KaClassTypeBuilder {
         set(value) {
             withValidityAssertion {
                 field = value
-                if (isMarkedNullable != value.isNullable)
+                if (isMarkedNullable != value.isNullable) {
                     isMarkedNullable = value.isNullable
+                }
             }
         }
 
@@ -50,10 +51,6 @@ sealed class KaBaseClassTypeBuilder : KaClassTypeBuilder {
         set(value) {
             withValidityAssertion {
                 field = value
-                @Suppress("DEPRECATION")
-                if (nullability.isNullable != value)
-                    nullability =
-                        if (value) org.jetbrains.kotlin.analysis.api.types.KaTypeNullability.NULLABLE else org.jetbrains.kotlin.analysis.api.types.KaTypeNullability.NON_NULLABLE
             }
         }
 
@@ -85,8 +82,9 @@ sealed class KaBaseTypeParameterTypeBuilder : KaTypeParameterTypeBuilder {
         set(value) {
             withValidityAssertion {
                 field = value
-                if (isMarkedNullable != value.isNullable)
+                if (isMarkedNullable != value.isNullable) {
                     isMarkedNullable = value.isNullable
+                }
             }
         }
 
@@ -95,10 +93,6 @@ sealed class KaBaseTypeParameterTypeBuilder : KaTypeParameterTypeBuilder {
         set(value) {
             withValidityAssertion {
                 field = value
-                @Suppress("DEPRECATION")
-                if (nullability.isNullable != value)
-                    nullability =
-                        if (value) org.jetbrains.kotlin.analysis.api.types.KaTypeNullability.NULLABLE else org.jetbrains.kotlin.analysis.api.types.KaTypeNullability.NON_NULLABLE
             }
         }
 
