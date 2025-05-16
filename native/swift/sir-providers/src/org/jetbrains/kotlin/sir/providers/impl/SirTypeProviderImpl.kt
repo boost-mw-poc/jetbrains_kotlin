@@ -155,21 +155,18 @@ public class SirTypeProviderImpl(
             ?: buildRegularType(ktType)
     }
 
-    context(kaSession: KaSession)
-    private fun TypeTranslationCtx.translateTypeParameterType(type: KaTypeParameterType): SirType {
+    private fun TypeTranslationCtx.translateTypeParameterType(type: KaTypeParameterType): SirType = sirSession.withSessions {
         val symbol = type.symbol
         val fallbackType = SirUnsupportedType
-        if (symbol.isReified) return fallbackType
-        return when (symbol.upperBounds.size) {
+        if (symbol.isReified) return@withSessions fallbackType
+        return@withSessions when (symbol.upperBounds.size) {
             0 -> SirNominalType(KotlinRuntimeModule.kotlinBase).optional()
             1 -> {
                 val upperBound = symbol.upperBounds.single().translateType(this@translateTypeParameterType)
-                with(kaSession) {
-                    if (type.isMarkedNullable) {
-                        upperBound.optional()
-                    } else {
-                        upperBound
-                    }
+                if (type.isMarkedNullable) {
+                    upperBound.optional()
+                } else {
+                    upperBound
                 }
             }
             else -> fallbackType
@@ -231,11 +228,8 @@ public class SirTypeProviderImpl(
     private fun TypeTranslationCtx.nominalTypeFromClassSymbol(symbol: KaClassLikeSymbol): SirNominalType? = sirSession.withSessions {
         symbol.toSir().allDeclarations.firstIsInstanceOrNull<SirNamedDeclaration>()?.let(::SirNominalType)
     }
-}
 
-context(kaSession: KaSession)
-private fun SirType.optionalIfNeeded(originalKtType: KaType): SirType =
-    with(kaSession) {
+    private fun SirType.optionalIfNeeded(originalKtType: KaType): SirType = sirSession.withSessions {
         if (originalKtType.isMarkedNullable && !originalKtType.isTypealiasToNullableType) {
             optional()
         } else {
@@ -243,11 +237,12 @@ private fun SirType.optionalIfNeeded(originalKtType: KaType): SirType =
         }
     }
 
-context(kaSession: KaSession)
-private val KaType.isTypealiasToNullableType: Boolean
-    get() = with(kaSession) {
-        (symbol as? KaTypeAliasSymbol)
-            .takeIf { it?.expandedType?.isMarkedNullable == true}
-            ?.let { return true }
-            ?: false
-    }
+    private val KaType.isTypealiasToNullableType: Boolean
+        get() = sirSession.withSessions {
+            (symbol as? KaTypeAliasSymbol)
+                .takeIf { it?.expandedType?.isMarkedNullable == true }
+                ?.let { return@let true }
+                ?: false
+        }
+}
+
