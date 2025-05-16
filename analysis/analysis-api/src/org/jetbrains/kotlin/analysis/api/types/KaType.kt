@@ -64,27 +64,24 @@ public interface KaType : KaLifetimeOwner, KaAnnotated {
      * Now the information about the nullability can be acquired via four properties:
      *
      * ##### 1. [org.jetbrains.kotlin.analysis.api.components.KaTypeInformationProvider.isMarkedNullable]
-     * Shows whether some type is marked as nullable, i.e. is represented as `T?` in code. Previously, [nullability] had the same semantics.
+     * Shows whether some type is marked as nullable, i.e., is represented as `T?` in code. Previously, [nullability] had the same semantics.
      *
      * ##### 2. [org.jetbrains.kotlin.analysis.api.components.KaTypeInformationProvider.isNullable]
      * Shows whether some type can hold `null` value. It unwraps type aliases, checks parameter type bounds, etc. and performs a deep nullability calculation.
      *
      * Note the difference between `isMarkedNullable` and `isNullable`. `isMarkedNullable = false` doesn't imply that this type cannot hold `null`. Consider the following example:
      * ```kotlin
-     * fun foo<T: String?>(something: T) {}
+     * fun <T : String?> foo(something: T) {}
      * ```
      *
      * `isMarkedNullable` for type `T` returns `false`, as it's not marked as nullable. However, it still can hold `null`, as its upper bound is nullable, so `isNullable` is `true`.
      *
      * ##### 3. [org.jetbrains.kotlin.analysis.api.components.KaTypeInformationProvider.hasFlexibleNullability]
-     * Shows whether some type has flexible nullability, i.e. it's a flexible / dynamic type with a non-nullable lower bound and a nullable upper bound. Previously, [nullability] in such cases was [KaTypeNullability.UNKNOWN].
+     * Shows whether some type has flexible nullability, i.e., both null-safe and non-null-safe calls are valid on this type.
+     * Such types are error types with unknown nullability or flexible / dynamic types with a non-nullable lower bound and a nullable upper bound. Previously, [nullability] in such cases was [KaTypeNullability.UNKNOWN].
      *
      * Note that `isMarkedNullable` for flexible / dynamic types returns `true` only if both of its bounds are marked as nullable, otherwise both bounds can either be non-nullable or the type can have flexible nullability.
-     *
-     * ##### 4. [org.jetbrains.kotlin.analysis.api.components.KaTypeInformationProvider.isErrorTypeWithUndefinedNullability]
-     * Shown whether some type is an error type with unknown nullability. Previously, [nullability] for such types was [KaTypeNullability.UNKNOWN].
-     *
-     * Note that `isMarkedNullable` for such types always returns `false`.
+     * The same is applied to error types: `isMarkedNullable` returns `true` only when this error type is definitely nullable, otherwise it can either be non-nullable or have unknown nullability.
      */
     @Deprecated(
         "Use `isMarkedNullable`, `isNullable` or `hasFlexibleNullability` instead. See KDocs for the migration guide",
