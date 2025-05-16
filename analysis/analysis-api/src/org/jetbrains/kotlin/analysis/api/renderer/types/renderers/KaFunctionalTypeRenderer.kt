@@ -53,49 +53,47 @@ public interface KaFunctionalTypeRenderer {
             typeRenderer: KaTypeRenderer,
             printer: PrettyPrinter,
             withParameterNames: Boolean
-        ) {
-            with(analysisSession) {
-                printer {
-                    val annotationsRendered = checkIfPrinted {
-                        typeRenderer.annotationsRenderer.renderAnnotations(analysisSession, type, this)
-                    }
-
-                    if (annotationsRendered) printer.append(" ")
-                    if (annotationsRendered || type.isMarkedNullable) append("(")
-                    " ".separated(
-                        {
-                            if (type.isSuspend) {
-                                typeRenderer.keywordsRenderer.renderKeyword(analysisSession, KtTokens.SUSPEND_KEYWORD, type, printer)
-                            }
-                        },
-                        {
-                            if (type.hasContextReceivers) {
-                                typeRenderer.contextReceiversRenderer.renderContextReceivers(analysisSession, type, typeRenderer, printer)
-                            }
-                        },
-                        {
-                            type.receiverType?.let {
-                                if (it is KaFunctionType || it is KaDefinitelyNotNullType) printer.append("(")
-                                typeRenderer.renderType(analysisSession, it, printer)
-                                if (it is KaFunctionType || it is KaDefinitelyNotNullType) printer.append(")")
-                                printer.append('.')
-                            }
-                            printCollection(type.parameters, prefix = "(", postfix = ")") { valueParameter ->
-                                if (withParameterNames) {
-                                    valueParameter.name?.let { name ->
-                                        typeRenderer.typeNameRenderer.renderName(analysisSession, name, valueParameter.type, typeRenderer, this)
-                                        append(": ")
-                                    }
-                                }
-                                typeRenderer.renderType(analysisSession, valueParameter.type, this)
-                            }
-                            append(" -> ")
-                            typeRenderer.renderType(analysisSession, type.returnType, printer)
-                        },
-                    )
-                    if (annotationsRendered || type.isMarkedNullable) append(")")
-                    if (type.isMarkedNullable) append("?")
+        ): Unit = with(analysisSession) {
+            printer {
+                val annotationsRendered = checkIfPrinted {
+                    typeRenderer.annotationsRenderer.renderAnnotations(analysisSession, type, this)
                 }
+
+                if (annotationsRendered) printer.append(" ")
+                if (annotationsRendered || type.isMarkedNullable) append("(")
+                " ".separated(
+                    {
+                        if (type.isSuspend) {
+                            typeRenderer.keywordsRenderer.renderKeyword(analysisSession, KtTokens.SUSPEND_KEYWORD, type, printer)
+                        }
+                    },
+                    {
+                        if (type.hasContextReceivers) {
+                            typeRenderer.contextReceiversRenderer.renderContextReceivers(analysisSession, type, typeRenderer, printer)
+                        }
+                    },
+                    {
+                        type.receiverType?.let {
+                            if (it is KaFunctionType || it is KaDefinitelyNotNullType) printer.append("(")
+                            typeRenderer.renderType(analysisSession, it, printer)
+                            if (it is KaFunctionType || it is KaDefinitelyNotNullType) printer.append(")")
+                            printer.append('.')
+                        }
+                        printCollection(type.parameters, prefix = "(", postfix = ")") { valueParameter ->
+                            if (withParameterNames) {
+                                valueParameter.name?.let { name ->
+                                    typeRenderer.typeNameRenderer.renderName(analysisSession, name, valueParameter.type, typeRenderer, this)
+                                    append(": ")
+                                }
+                            }
+                            typeRenderer.renderType(analysisSession, valueParameter.type, this)
+                        }
+                        append(" -> ")
+                        typeRenderer.renderType(analysisSession, type.returnType, printer)
+                    },
+                )
+                if (annotationsRendered || type.isMarkedNullable) append(")")
+                if (type.isMarkedNullable) append("?")
             }
         }
     }

@@ -51,7 +51,7 @@ public interface KaFlexibleTypeRenderer {
             type: KaFlexibleType,
             typeRenderer: KaTypeRenderer,
             printer: PrettyPrinter,
-        ) {
+        ): Unit = with(analysisSession) {
             printer {
                 val lower = type.lowerBound
                 val upper = type.upperBound
@@ -70,10 +70,8 @@ public interface KaFlexibleTypeRenderer {
                         printCollectionIfNotEmpty(lower.typeArguments, prefix = "<", postfix = ">") { typeArgument ->
                             typeRenderer.typeProjectionRenderer.renderTypeProjection(analysisSession, typeArgument, typeRenderer, this)
                         }
-                        with(analysisSession) {
-                            if (type.hasFlexibleNullability) {
-                                append('!')
-                            }
+                        if (type.hasFlexibleNullability) {
+                            append('!')
                         }
                     }
 
