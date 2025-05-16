@@ -49,6 +49,12 @@ public class LibraryGetOrBuildFirTestGenerated extends AbstractLibraryGetOrBuild
   }
 
   @Test
+  @TestMetadata("contracts.kt")
+  public void testContracts() {
+    runTest("analysis/low-level-api-fir/testData/getOrBuildFirBinary/contracts.kt");
+  }
+
+  @Test
   @TestMetadata("dataClass.kt")
   public void testDataClass() {
     runTest("analysis/low-level-api-fir/testData/getOrBuildFirBinary/dataClass.kt");
