@@ -77,7 +77,8 @@ sealed class KaBaseClassTypeBuilder : KaClassTypeBuilder {
 sealed class KaBaseTypeParameterTypeBuilder : KaTypeParameterTypeBuilder {
     @Deprecated("Use `isMarkedNullable` instead.", replaceWith = ReplaceWith("isMarkedNullable"))
     @Suppress("Deprecation")
-    override var nullability: org.jetbrains.kotlin.analysis.api.types.KaTypeNullability = org.jetbrains.kotlin.analysis.api.types.KaTypeNullability.NULLABLE
+    override var nullability: org.jetbrains.kotlin.analysis.api.types.KaTypeNullability =
+        org.jetbrains.kotlin.analysis.api.types.KaTypeNullability.NON_NULLABLE
         get() = withValidityAssertion { field }
         set(value) {
             withValidityAssertion {
@@ -88,7 +89,7 @@ sealed class KaBaseTypeParameterTypeBuilder : KaTypeParameterTypeBuilder {
             }
         }
 
-    override var isMarkedNullable: Boolean = true
+    override var isMarkedNullable: Boolean = false
         get() = withValidityAssertion { field }
         set(value) {
             withValidityAssertion {

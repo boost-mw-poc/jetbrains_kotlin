@@ -103,7 +103,7 @@ public interface KaClassTypeBuilder : KaTypeBuilder {
  */
 public interface KaTypeParameterTypeBuilder : KaTypeBuilder {
     /**
-     * Default value: [KaTypeNullability.NULLABLE].
+     * Default value: [KaTypeNullability.NON_NULLABLE].
      */
     @Deprecated("Use `isMarkedNullable` instead.", ReplaceWith("isMarkedNullable"))
     @Suppress("Deprecation")
@@ -112,7 +112,7 @@ public interface KaTypeParameterTypeBuilder : KaTypeBuilder {
     /**
      * Whether the type is marked as nullable, i.e. the type is represented as `T?`.
      *
-     * Default value: `true`.
+     * Default value: `false`.
      *
      * @see KaTypeInformationProvider.isMarkedNullable
      */
