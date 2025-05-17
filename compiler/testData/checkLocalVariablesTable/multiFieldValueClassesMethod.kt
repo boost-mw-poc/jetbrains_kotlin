@@ -11,19 +11,19 @@ value class ValueClassTest(val a: UInt, val boolean: Boolean) {
 }
 
 // METHOD : ValueClassTest.foo-wR1AMpA(IZIIIZIIIZIIIIZ)V
-// VARIABLE : NAME=$this$foo-data TYPE=I INDEX=*
 // VARIABLE : NAME=$context-Int TYPE=I INDEX=*
-// VARIABLE : NAME=$context-UInt-data TYPE=I INDEX=*
-// VARIABLE : NAME=$context-ValueClassTest-a-data TYPE=I INDEX=*
-// VARIABLE : NAME=$context-ValueClassTest-boolean TYPE=Z INDEX=*
+// VARIABLE : NAME=$v$c$ValueClassTest$-$context-ValueClassTest$0 TYPE=I INDEX=*
+// VARIABLE : NAME=$v$c$ValueClassTest$-$context-ValueClassTest$1 TYPE=Z INDEX=*
+// VARIABLE : NAME=$v$c$ValueClassTest$-c3$0 TYPE=I INDEX=*
+// VARIABLE : NAME=$v$c$ValueClassTest$-c3$1 TYPE=Z INDEX=*
+// VARIABLE : NAME=$v$c$ValueClassTest$-this$0 TYPE=I INDEX=*
+// VARIABLE : NAME=$v$c$ValueClassTest$-this$1 TYPE=Z INDEX=*
+// VARIABLE : NAME=$v$c$ValueClassTest$-z$0 TYPE=I INDEX=*
+// VARIABLE : NAME=$v$c$ValueClassTest$-z$1 TYPE=Z INDEX=*
+// VARIABLE : NAME=$v$c$kotlin-UInt$-$context-UInt$0 TYPE=I INDEX=*
+// VARIABLE : NAME=$v$c$kotlin-UInt$-$this$foo$0 TYPE=I INDEX=*
+// VARIABLE : NAME=$v$c$kotlin-UInt$-c2$0 TYPE=I INDEX=*
+// VARIABLE : NAME=$v$c$kotlin-UInt$-y$0 TYPE=I INDEX=*
 // VARIABLE : NAME=arg0 TYPE=I INDEX=*
 // VARIABLE : NAME=c1 TYPE=I INDEX=*
-// VARIABLE : NAME=c2-data TYPE=I INDEX=*
-// VARIABLE : NAME=c3-a-data TYPE=I INDEX=*
-// VARIABLE : NAME=c3-boolean TYPE=Z INDEX=*
-// VARIABLE : NAME=this-a-data TYPE=I INDEX=*
-// VARIABLE : NAME=this-boolean TYPE=Z INDEX=*
 // VARIABLE : NAME=x TYPE=I INDEX=*
-// VARIABLE : NAME=y-data TYPE=I INDEX=*
-// VARIABLE : NAME=z-a-data TYPE=I INDEX=*
-// VARIABLE : NAME=z-boolean TYPE=Z INDEX=*

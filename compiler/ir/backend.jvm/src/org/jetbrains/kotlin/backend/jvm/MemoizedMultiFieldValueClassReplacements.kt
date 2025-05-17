@@ -87,15 +87,16 @@ class MemoizedMultiFieldValueClassReplacements(
         defaultValue?.expression?.let { this::oldMfvcDefaultArgument.getOrSetIfNull { it } }
         val newType = type.substitute(substitutionMap) as IrSimpleType
         val localSubstitutionMap = makeTypeArgumentsFromType(newType)
-        val valueParameters = rootMfvcNode.mapLeaves { leaf ->
+        val valueParameters = rootMfvcNode.mapLeavesIndexed { index, leaf ->
             targetFunction.addValueParameter {
                 updateFrom(oldParam)
                 type = leaf.type.substitute(localSubstitutionMap)
-                this.name = Name.identifier("${name ?: oldParam.name}-${leaf.fullFieldName}")
+                this.name = (name?.let(Name::identifier) ?: oldParam.name)
+                    .withValueClassParameterNameIfNeeded(oldParam.type.erasedUpperBound, index)
                 origin = originWhenFlattened
                 isAssignable = isAssignable || oldParam.defaultValue != null
             }.also { newParam ->
-                newParam.addOrInheritInlineClassPropertyNameParts(oldParameter = oldParam)
+                newParam.hasFixedName = true
                 newParam.defaultValue = oldParam.defaultValue?.let {
                     context.createJvmIrBuilder(targetFunction.symbol).run { irExprBody(irGet(newParam)) }
                 }

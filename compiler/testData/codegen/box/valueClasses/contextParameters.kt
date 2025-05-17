@@ -38,8 +38,8 @@ private fun checkParameters(className: String, methodName: String) {
     val parameters = method.getParameters()
     for (parameter in parameters) {
         val condition = when (parameter.name) {
-            "this-x", "this-y" -> parameter.isSynthetic() && !parameter.isImplicit()
-            "z", "z-x", "z-y" -> !parameter.isSynthetic() && parameter.isImplicit()
+            "\$v\$c\$B\$-this\$0", "\$v\$c\$B\$-this\$1" -> parameter.isSynthetic() && !parameter.isImplicit()
+            "z", "\$v\$c\$B\$-z\$0", "\$v\$c\$B\$-z\$1" -> !parameter.isSynthetic() && parameter.isImplicit()
             "regular" -> !parameter.isSynthetic() && !parameter.isImplicit()
             else -> error("Unknown parameter: $parameter")
         }

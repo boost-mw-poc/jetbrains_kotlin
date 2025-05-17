@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.backend.jvm.codegen
 import org.jetbrains.kotlin.backend.common.ir.isReifiable
 import org.jetbrains.kotlin.backend.jvm.JvmLoweredDeclarationOrigin
 import org.jetbrains.kotlin.backend.jvm.JvmLoweredDeclarationOrigin.SUPER_INTERFACE_METHOD_BRIDGE
+import org.jetbrains.kotlin.backend.jvm.hasFixedName
 import org.jetbrains.kotlin.backend.jvm.ir.*
 import org.jetbrains.kotlin.backend.jvm.mapping.mapTypeAsDeclaration
 import org.jetbrains.kotlin.backend.jvm.mapping.mapTypeParameter
@@ -362,7 +363,9 @@ private fun IrValueParameter.isSyntheticMarkerParameter(): Boolean =
 
 private fun generateParameterNames(irFunction: IrFunction, mv: MethodVisitor, config: JvmBackendConfig) {
     for (parameter in irFunction.parameters) {
-        val name = when (parameter.kind) {
+        val name = if (parameter.hasFixedName) {
+            parameter.name.asString()
+        } else when (parameter.kind) {
             IrParameterKind.DispatchReceiver -> continue
             IrParameterKind.Regular -> parameter.name.asString()
             IrParameterKind.Context -> irFunction.anonymousContextParameterName(parameter) ?: parameter.name.asString()

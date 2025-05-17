@@ -115,6 +115,11 @@ public class FirLightTreeCheckLocalVariablesTableTestGenerated extends AbstractF
     runTest("compiler/testData/checkLocalVariablesTable/underscoreNames.kt");
   }
 
+  @TestMetadata("valueClassesEscaping.kt")
+  public void testValueClassesEscaping() {
+    runTest("compiler/testData/checkLocalVariablesTable/valueClassesEscaping.kt");
+  }
+
   @TestMetadata("compiler/testData/checkLocalVariablesTable/parametersInSuspendLambda")
   @TestDataPath("$PROJECT_ROOT")
   @RunWith(JUnit3RunnerWithInners.class)
