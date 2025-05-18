@@ -12,11 +12,11 @@ import io.ktor.server.engine.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.pipeline.*
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.*
 import org.gradle.util.GradleVersion
+import org.jetbrains.kotlin.gradle.tasks.CheckSigningTask
 import org.jetbrains.kotlin.gradle.testbase.*
 import org.jetbrains.kotlin.gradle.util.awaitInitialization
 import org.junit.jupiter.api.DisplayName
@@ -107,16 +107,17 @@ class PgpHelpersTest : KGPBaseTest() {
             val parameters = mutableListOf<Parameters>()
 
             runWithKtorService(
-                {
-                    val formParameters: Parameters = call.receiveParameters()
-                    parameters += formParameters
-                    call.respond(HttpStatusCode.OK)
-                }
-            ) { port ->
+                routingSetup = {
+                    post("/pks/add") {
+                        val formParameters: Parameters = call.receiveParameters()
+                        parameters += formParameters
+                        call.respond(HttpStatusCode.OK)
+                    }
+                }) { port ->
                 build(
                     "uploadPublicPgpKey",
                     "--keyring",
-                    findGeneratedPublicKeyAsc().absolutePathString(),
+                    findGeneratedKey().absolutePathString(),
                     "--keyserver",
                     "http://localhost:$port",
                 )
@@ -124,7 +125,7 @@ class PgpHelpersTest : KGPBaseTest() {
             assert(parameters.size == 1) { "Exactly one request must be sent to the server, but the number of requests was: ${parameters.size}" }
             val params = parameters.single()
             assertEquals("nm", params["options"])
-            assertEquals(findGeneratedPublicKeyAsc().readText(), params["keytext"])
+            assertEquals(findGeneratedKey().readText(), params["keytext"])
         }
     }
 
@@ -138,14 +139,15 @@ class PgpHelpersTest : KGPBaseTest() {
                 "-Psigning.password=abc",
             )
             runWithKtorService(
-                {
-                    call.respond(HttpStatusCode.BadRequest, "Some reason")
-                }
-            ) { port ->
+                routingSetup = {
+                    post("/pks/add") {
+                        call.respond(HttpStatusCode.BadRequest, "Some reason")
+                    }
+                }) { port ->
                 buildAndFail(
                     "uploadPublicPgpKey",
                     "--keyring",
-                    findGeneratedPublicKeyAsc().absolutePathString(),
+                    findGeneratedKey().absolutePathString(),
                     "--keyserver",
                     "http://localhost:$port",
                 ) {
@@ -195,6 +197,153 @@ class PgpHelpersTest : KGPBaseTest() {
         }
     }
 
+    @GradleTest
+    @DisplayName("Verify generated pom.xml")
+    internal fun verifyGeneratedPom(gradleVersion: GradleVersion) {
+        project("empty", gradleVersion) {
+            plugins {
+                kotlin("jvm")
+                `maven-publish`
+            }
+            buildScriptInjection {
+                project.group = "someGroup"
+                project.version = "1.0.0"
+
+                publishing.repositories {
+                    it.maven(project.layout.buildDirectory.dir("repo")) {
+                        name = "repo"
+                    }
+                }
+                publishing.publications.create<MavenPublication>("mavenJava") {
+                    pom {
+                        it.name.set("My Library")
+                        it.description.set("A concise description of my library")
+                        it.url.set("http://www.example.com/library")
+                        it.licenses { licenses ->
+                            licenses.license { license ->
+                                license.name.set("The Apache License, Version 2.0")
+                                license.url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                            }
+                        }
+                        it.developers { developers ->
+                            developers.developer { developer ->
+                                developer.name.set("John Doe")
+                                developer.email.set("john.doe@example.com")
+                                developer.organization.set("Example")
+                                developer.organizationUrl.set("http://example.com")
+                            }
+                        }
+                        it.scm { scm ->
+                            scm.connection.set("scm:git:git://example.com/my-library.git")
+                            scm.developerConnection.set("scm:git:ssh://example.com/my-library.git")
+                            scm.url.set("http://example.com/my-library/")
+                        }
+                    }
+                }
+            }
+            build("checkPomFileForMavenJavaPublication") {
+                assertTasksExecuted(":generatePomFileForMavenJavaPublication")
+                println(output)
+            }
+        }
+    }
+
+    @GradleTest
+    @DisplayName("Should fail verification of pom.xml with missing tags")
+    internal fun shouldFailVerificationGeneratedPom(gradleVersion: GradleVersion) {
+        project("empty", gradleVersion) {
+            plugins {
+                kotlin("jvm")
+                `maven-publish`
+            }
+            buildScriptInjection {
+                project.group = "someGroup"
+                project.version = "1.0.0"
+
+                publishing.repositories {
+                    it.maven(project.layout.buildDirectory.dir("repo")) {
+                        name = "repo"
+                    }
+                }
+                publishing.publications.create<MavenPublication>("mavenJava") {
+                    pom {
+                        it.name.set("My Library")
+                        it.description.set("A concise description of my library")
+                        it.url.set("http://www.example.com/library")
+                        it.licenses { licenses ->
+                            licenses.license { license ->
+                                license.name.set("The Apache License, Version 2.0")
+                                license.url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                            }
+                        }
+                        it.developers { developers ->
+                            developers.developer { developer ->
+                                developer.name.set("John Doe")
+                                developer.email.set("john.doe@example.com")
+                            }
+                        }
+                        it.scm { scm ->
+                            scm.connection.set("scm:git:git://example.com/my-library.git")
+                            scm.developerConnection.set("scm:git:ssh://example.com/my-library.git")
+                            scm.url.set("http://example.com/my-library/")
+                        }
+                    }
+                }
+            }
+            buildAndFail("checkPomFileForMavenJavaPublication") {
+                assertTasksFailed(":checkPomFileForMavenJavaPublication")
+                assertOutputContains(
+                    """
+                    Missing tags:
+                    <developers> <developer> <organization>
+                    <developers> <developer> <organizationUrl>
+                """.trimIndent()
+                )
+            }
+        }
+    }
+
+    @GradleTest
+    @DisplayName("Verify signing is configured")
+    internal fun verifySigningConfigured(gradleVersion: GradleVersion) {
+        project("empty", gradleVersion) {
+            plugins {
+                kotlin("jvm")
+                `maven-publish`
+                signing
+            }
+
+            build("generatePgpKeys", "--name='Jane Doe <janedoe@example.com>'", "--password=abc")
+            val keyring = findGeneratedKey("secret_", ".gpg")
+            val keyId = keyring.fileName.toString().substringAfter("secret_").substringBefore(".gpg")
+
+            runWithKtorService(
+                routingSetup = {
+                    get("/pks/lookup") {
+                        if (call.request.queryParameters["op"] == "get" && call.request.queryParameters["search"]?.startsWith("0x") == true) {
+                            call.respond(HttpStatusCode.OK, "<ASCII KEY TEXT HERE>")
+                        } else {
+                            call.respond(HttpStatusCode.BadRequest, "Wrong parameters for getting key.")
+                        }
+                    }
+                }) { port ->
+                buildScriptInjection {
+                    project.tasks.named<CheckSigningTask>("checkSigningConfiguration").configure {
+                        it.keyservers.set(listOf("http://localhost:$port"))
+                    }
+                }
+                build(
+                    "checkSigningConfiguration",
+                    "-Psigning.keyId=$keyId",
+                    "-Psigning.secretKeyRingFile=$keyring",
+                    "-Psigning.password=abc"
+                ) {
+                    assertTasksExecuted(":checkSigningConfiguration")
+                }
+            }
+        }
+    }
+
     private fun TestProject.assertPgpKeysWereGenerated() {
         val expectedFileNames =
             listOf("secret_" to ".gpg", "secret_" to ".asc", "public_" to ".gpg", "public_" to ".asc", "example_" to ".properties")
@@ -206,24 +355,23 @@ class PgpHelpersTest : KGPBaseTest() {
         }
     }
 
-    private fun TestProject.findGeneratedPublicKeyAsc(): Path {
+    private fun TestProject.findGeneratedKey(prefix: String = "public_", suffix: String = ".asc"): Path {
         return projectPath.resolve("build/pgp").listDirectoryEntries()
-            .single { it.fileName.toString().startsWith("public_") && it.fileName.toString().endsWith(".asc") }
+            .single { it.fileName.toString().startsWith(prefix) && it.fileName.toString().endsWith(suffix) }
     }
 
     private fun runWithKtorService(
-        addEndpointAction: PipelineInterceptor<Unit, ApplicationCall>,
+        routingSetup: Routing.() -> Unit,
         action: (Int) -> Unit,
     ) {
         var server: ApplicationEngine? = null
         try {
-            server = embeddedServer(CIO, host = "localhost", port = 0)
-            {
+            server = embeddedServer(CIO, host = "localhost", port = 0) {
                 routing {
                     get("/isReady") {
                         call.respond(HttpStatusCode.OK)
                     }
-                    post("/pks/add", addEndpointAction)
+                    routingSetup()
                 }
             }.start()
             val port = runBlocking { server.resolvedConnectors().single().port }
