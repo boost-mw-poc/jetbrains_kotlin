@@ -624,6 +624,7 @@ class FirCallResolver(
             transformer.transformAnnotationCallArguments(annotation, constructorSymbol)
 
             val callInfo = toCallInfo(annotation, reference)
+            session.constraintsLogger?.logCall(annotation)
 
             val resolutionResult = constructorSymbol
                 ?.let { runResolutionForGivenSymbol(callInfo, it) }
