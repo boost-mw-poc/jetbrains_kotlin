@@ -18,6 +18,8 @@ abstract class FirConstraintsDumper {
 
     protected abstract fun monospace(text: String): String
 
+    protected abstract fun formatCode(code: Any): String
+
     protected fun ConeTypeParameterBasedTypeVariable.renderReferenceToPrototype(): String {
         @OptIn(SymbolInternals::class)
         val fir = typeParameterSymbol.containingDeclarationSymbol.fir as? FirTypeParameterRefsOwner
@@ -33,7 +35,7 @@ abstract class FirConstraintsDumper {
         val naiveString = sanitizeFqNames(error.toString())
         val customRepresentation = when {
             naiveString == error::class.simpleName -> ""
-            else -> ": " + monospace(naiveString)
+            else -> ": " + formatCode(naiveString)
         }
         return error::class.simpleName + customRepresentation
     }

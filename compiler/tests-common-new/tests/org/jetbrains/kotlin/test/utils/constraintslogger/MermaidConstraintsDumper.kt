@@ -45,6 +45,12 @@ class MermaidConstraintsDumper : FirConstraintsDumper() {
 
     override fun monospace(text: String): String = "<tt>$text</tt>"
 
+    override fun formatCode(code: Any): String = code.toString()
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace("*", "\\*")
+        .let(::monospace)
+
     private data class RenderingResult(
         val rendered: String,
         val firstNodeId: String,
@@ -390,12 +396,6 @@ class MermaidConstraintsDumper : FirConstraintsDumper() {
 
     private fun VariableReadinessElement.render(): RenderingResult =
         node("variableReadiness", formatCode(variable) + " is " + formatCode(readiness))
-
-    private fun formatCode(code: Any): String = code.toString()
-        .replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace("*", "\\*")
-        .let(::monospace)
 
     private var printingOptions = PrintingOptions()
     private val indent get() = printingOptions.indent

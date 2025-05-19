@@ -20,6 +20,8 @@ class MarkdownConstraintsDumper(private val ignoreDuplicates: Boolean = true) : 
 
     override fun monospace(text: String): String = "`$text`"
 
+    override fun formatCode(code: Any): String = monospace(code.toString())
+
     private val stack = mutableListOf<LoggingElement>()
 
     private fun LoggingElement.render(indexWithinParent: Int): String? {
