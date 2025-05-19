@@ -28,13 +28,6 @@ class ConstraintInjector(
     private val languageVersionSettings: LanguageVersionSettings,
     val constraintsLogger: ConstraintsLogger? = null,
 ) {
-    // Prevents `Container: LazyResolveWithJava: Dependencies for ConstraintInjector(...) cannot be satisfied`
-    constructor(
-        constraintIncorporator: ConstraintIncorporator,
-        typeApproximator: AbstractTypeApproximator,
-        languageVersionSettings: LanguageVersionSettings,
-    ) : this(constraintIncorporator, typeApproximator, languageVersionSettings, constraintsLogger = null)
-
     private val ALLOWED_DEPTH_DELTA_FOR_INCORPORATION = 1
 
     interface Context : TypeSystemInferenceExtensionContext {

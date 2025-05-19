@@ -28,12 +28,6 @@ class VariableFixationFinder(
     private val languageVersionSettings: LanguageVersionSettings,
     private val constraintsLogger: ConstraintsLogger? = null,
 ) {
-    // Prevents `Container: LazyResolveWithJava: Dependencies for ConstraintInjector(...) cannot be satisfied`
-    constructor(
-        trivialConstraintTypeInferenceOracle: TrivialConstraintTypeInferenceOracle,
-        languageVersionSettings: LanguageVersionSettings,
-    ) : this(trivialConstraintTypeInferenceOracle, languageVersionSettings, constraintsLogger = null)
-
     @K2Only
     var provideFixationLogs: Boolean = false
 

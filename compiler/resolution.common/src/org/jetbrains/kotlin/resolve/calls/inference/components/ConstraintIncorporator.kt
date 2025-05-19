@@ -24,14 +24,6 @@ class ConstraintIncorporator(
     private val languageVersionSettings: LanguageVersionSettings,
     val constraintsLogger: ConstraintsLogger? = null,
 ) {
-    // Prevents `Container: LazyResolveWithJava: Dependencies for ConstraintInjector(...) cannot be satisfied`
-    constructor(
-        typeApproximator: AbstractTypeApproximator,
-        trivialConstraintTypeInferenceOracle: TrivialConstraintTypeInferenceOracle,
-        utilContext: ConstraintSystemUtilContext,
-        languageVersionSettings: LanguageVersionSettings,
-    ) : this(typeApproximator, trivialConstraintTypeInferenceOracle, utilContext, languageVersionSettings, constraintsLogger = null)
-
     interface Context : TypeSystemInferenceExtensionContext {
         val allTypeVariablesWithConstraints: Collection<VariableWithConstraints>
 

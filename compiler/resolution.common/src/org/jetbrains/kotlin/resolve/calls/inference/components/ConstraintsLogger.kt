@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.resolve.calls.inference.components
 
+import org.jetbrains.kotlin.container.DefaultImplementation
 import org.jetbrains.kotlin.resolve.calls.inference.model.Constraint
 import org.jetbrains.kotlin.resolve.calls.inference.model.ConstraintSystemError
 import org.jetbrains.kotlin.resolve.calls.inference.model.InitialConstraint
@@ -12,6 +13,7 @@ import org.jetbrains.kotlin.types.model.TypeConstructorMarker
 import org.jetbrains.kotlin.types.model.TypeSystemInferenceExtensionContext
 import org.jetbrains.kotlin.types.model.TypeVariableMarker
 
+@DefaultImplementation(ConstraintsLogger.Dummy::class)
 abstract class ConstraintsLogger {
     protected abstract val currentContext: TypeSystemInferenceExtensionContext
 
@@ -54,6 +56,68 @@ abstract class ConstraintsLogger {
         abstract fun logReadiness()
 
         abstract fun restore()
+    }
+
+    /**
+     * Exists to satisfy K1's dependency injection as it doesn't support `null` values.
+     */
+    object Dummy : ConstraintsLogger() {
+        override val currentContext: TypeSystemInferenceExtensionContext
+            get() = error("Should not be called")
+
+        override fun logInitial(
+            constraint: InitialConstraint,
+            context: TypeSystemInferenceExtensionContext
+        ) {
+        }
+
+        override fun log(
+            variable: TypeVariableMarker,
+            constraint: Constraint,
+            context: TypeSystemInferenceExtensionContext
+        ) {
+        }
+
+        override fun logConstraintSubstitution(
+            variable: TypeVariableMarker,
+            substitutedConstraint: Constraint,
+            context: TypeSystemInferenceExtensionContext
+        ) {
+        }
+
+        override fun logError(
+            error: ConstraintSystemError,
+            context: TypeSystemInferenceExtensionContext
+        ) {
+        }
+
+        override fun logNewVariable(
+            variable: TypeVariableMarker,
+            context: TypeSystemInferenceExtensionContext
+        ) {
+        }
+
+        override fun logReadiness(
+            variable: TypeConstructorMarker,
+            readiness: VariableFixationFinder.TypeVariableFixationReadiness,
+            context: TypeSystemInferenceExtensionContext
+        ) {
+        }
+
+        override val currentState: State = object : State() {
+            override fun withPrevious(constraint: InitialConstraint) {}
+
+            override fun withPrevious(
+                variable1: TypeVariableMarker,
+                constraint1: Constraint,
+                variable2: TypeVariableMarker,
+                constraint2: Constraint
+            ) {
+            }
+
+            override fun logReadiness() {}
+            override fun restore() {}
+        }
     }
 }
 
