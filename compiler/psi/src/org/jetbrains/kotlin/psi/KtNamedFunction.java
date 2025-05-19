@@ -199,6 +199,24 @@ public class KtNamedFunction extends KtTypeParameterListOwnerStub<KotlinFunction
     @Nullable
     @Override
     public KtUserType getStaticReceiverType() {
+        KotlinFunctionStub stub = getGreenStub();
+        if (stub != null) {
+            if (!stub.isStaticExtension()) {
+                return null;
+            }
+            List<KtUserType> childStaticTypeReferences = getStubOrPsiChildrenAsList(KtStubElementTypes.USER_TYPE);
+            if (!childStaticTypeReferences.isEmpty()) {
+                return childStaticTypeReferences.get(0);
+            }
+            else {
+                return null;
+            }
+        }
+        return getStaticReceiverTypeByTree();
+    }
+
+    @Nullable
+    private KtUserType getStaticReceiverTypeByTree() {
         PsiElement child = getFirstChild();
         while (child != null) {
             IElementType tt = child.getNode().getElementType();
