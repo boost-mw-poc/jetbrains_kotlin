@@ -15,14 +15,19 @@ import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.orEmpty
 
-class MermaidConstraintsDumper : FirConstraintsDumper() {
-    companion object {
-        // Breaks too wide diagrams resulting from the regular topological sorting
-        // by assigning all further elements the next rank.
-        // IJ's Mermaid plugin can't zoom, so the space is precious :(
-        private const val MAX_ELEMENTS_PER_RANK = 3
-    }
-
+class MermaidConstraintsDumper(
+    /**
+     * Breaks too wide diagrams resulting from the regular topological sorting
+     * by assigning all further elements the next rank.
+     * IJ's Mermaid plugin can't zoom, so the space is precious :(
+     */
+    private val maxElementsPerRank: Int = 3,
+    /**
+     * Turns `kotlin/Comparable<kotlin/Long>` into `Comparable<Long>` to make
+     * the diagrams narrower.
+     */
+    private val renderPackageQualifiers: Boolean = false,
+) : FirConstraintsDumper() {
     override fun renderDump(sessionsToLoggers: Map<FirSession, FirConstraintsLogger>): String {
         val header = listOf(
             "flowchart TD",
@@ -50,6 +55,11 @@ class MermaidConstraintsDumper : FirConstraintsDumper() {
         .replace("<", "&lt;")
         .replace("*", "\\*")
         .let(::monospace)
+
+    private fun formatConstraint(constraint: String): String = when {
+        !renderPackageQualifiers -> constraint.replace("""\b(?:\w+/)*""".toRegex(), "")
+        else -> constraint
+    }.let(::formatCode)
 
     private data class RenderingResult(
         val rendered: String,
@@ -349,7 +359,7 @@ class MermaidConstraintsDumper : FirConstraintsDumper() {
             if (printingOptions.seenConstraints[element.renderRelation()] != element) continue
             var rank = 1 + (element.previous.maxOfOrNull { ranks[it.renderRelation()] ?: -1 } ?: -1)
 
-            while (getCountForRank(rank) >= MAX_ELEMENTS_PER_RANK) {
+            while (getCountForRank(rank) >= maxElementsPerRank) {
                 rank++
             }
 
@@ -372,19 +382,19 @@ class MermaidConstraintsDumper : FirConstraintsDumper() {
     private fun InitialConstraintElement.render(): RenderingResult? {
         if (printingOptions.seenConstraints[constraint] != this) return null
         val position = sanitizeFqNames(position)
-        return node("constraint", formatCode(constraint) + "<br> <i>from ${position}</i>")
+        return node("constraint", formatConstraint(constraint) + "<br> <i>from ${position}</i>")
             .also { printingOptions.judgmentNodeCache.putIfAbsent(renderRelation(), it) }
     }
 
     private fun IncorporatedConstraintElement.render(): RenderingResult? {
         if (printingOptions.seenConstraints[constraint] != this) return null
-        return node("constraint", formatCode(constraint))
+        return node("constraint", formatConstraint(constraint))
             .also { printingOptions.judgmentNodeCache.putIfAbsent(renderRelation(), it) }
     }
 
     private fun ConstraintSubstitutionElement.render(): RenderingResult? {
         if (printingOptions.seenConstraints[constraint] != this) return null
-        return node("constraint", formatCode(constraint))
+        return node("constraint", formatConstraint(constraint))
             .also { printingOptions.judgmentNodeCache.putIfAbsent(renderRelation(), it) }
     }
 
