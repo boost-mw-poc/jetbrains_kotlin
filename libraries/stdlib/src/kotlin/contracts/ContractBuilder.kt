@@ -108,7 +108,7 @@ public interface ContractBuilder {
     public infix fun Boolean.implies(value: ReturnsNotNull)
 
     /**
-     * Specifies the effect that will be observed in the body of the function [lambda]
+     * Specifies the condition, passed as a receiver argument, that is guaranteed to be true in the body of a function parameter [lambda]
      */
     @ExperimentalExtendedContracts
     @ContractsDsl
