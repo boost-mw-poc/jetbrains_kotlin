@@ -15,10 +15,11 @@ import org.jetbrains.kotlin.types.model.TypeVariableMarker
 abstract class ConstraintsLogger {
     protected abstract val currentContext: TypeSystemInferenceExtensionContext
 
-    protected fun requireSameContext(context: TypeSystemInferenceExtensionContext) =
+    protected fun requireSameContext(context: TypeSystemInferenceExtensionContext) {
         require(context == currentContext) {
             "Logging a constraint from $context together with constraints from $currentContext. Make sure you call `logContext()` when you create the constraints system."
         }
+    }
 
     abstract fun logInitial(constraint: InitialConstraint, context: TypeSystemInferenceExtensionContext)
 
@@ -57,13 +58,12 @@ abstract class ConstraintsLogger {
 }
 
 inline fun <T> ConstraintsLogger?.withStateAdvancement(block: () -> T, advance: ConstraintsLogger.State.() -> Unit): T {
-    if (this == null) return block()
-    val oldContext = currentState
+    val oldContext = this?.currentState
     return try {
-        currentState.advance()
+        oldContext?.advance()
         block()
     } finally {
-        oldContext.restore()
+        oldContext?.restore()
     }
 }
 
