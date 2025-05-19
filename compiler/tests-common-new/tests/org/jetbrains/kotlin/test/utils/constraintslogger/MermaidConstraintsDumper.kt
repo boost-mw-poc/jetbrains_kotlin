@@ -27,11 +27,16 @@ class MermaidConstraintsDumper(
      * the diagrams narrower.
      */
     private val renderPackageQualifiers: Boolean = false,
+    /**
+     * Render the supertype above the subtype instead of `A <: B` and `A == B`.
+     * Makes the diagrams narrower, but the unconventional notation may be confusing.
+     */
+    private val renderConstraintsVertically: Boolean = false,
 ) : FirConstraintsDumper() {
     override fun renderDump(sessionsToLoggers: Map<FirSession, FirConstraintsLogger>): String {
         val header = listOf(
             "flowchart TD",
-            withIndent { "${indent}classDef nowrapClass text-align:left,white-space:nowrap;" },
+            withIndent { "${indent}classDef nowrapClass text-align:center,white-space:nowrap;" },
             withIndent { "${indent}classDef callStyle fill:#f2debb,stroke:#333,stroke-width:4px;" },
             withIndent { "${indent}classDef candidateStyle fill:#f2e5ce,stroke:#333,stroke-width:4px;" },
             withIndent { "${indent}classDef stageStyle fill:#c8f0f7,stroke:#333,stroke-width:4px;" },
@@ -54,12 +59,19 @@ class MermaidConstraintsDumper(
         .replace("&", "&amp;")
         .replace("<", "&lt;")
         .replace("*", "\\*")
+        .replace("*\n", "<br>")
         .let(::monospace)
 
-    private fun formatConstraint(constraint: String): String = when {
-        !renderPackageQualifiers -> constraint.replace("""\b(?:\w+/)*""".toRegex(), "")
-        else -> constraint
-    }.let(::formatCode)
+    private fun formatConstraint(constraint: String): String = constraint
+        .let {
+            if (renderPackageQualifiers) return@let it
+            it.replace("""\b(?:\w+/)*""".toRegex(), "")
+        }
+        .let {
+            if (!renderConstraintsVertically) return@let it
+            it.replace("""(.*) <: (.*)""".toRegex(), "$2\n▽\n$1").replace(" == ", "\n‖\n")
+        }
+        .let(::formatCode)
 
     private data class RenderingResult(
         val rendered: String,
