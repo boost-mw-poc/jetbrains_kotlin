@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.analysis.api.fir.types.KaFirType
 import org.jetbrains.kotlin.analysis.api.fir.types.PublicTypeApproximator
 import org.jetbrains.kotlin.analysis.api.fir.utils.firSymbol
 import org.jetbrains.kotlin.analysis.api.impl.base.components.KaBaseSessionComponent
+import org.jetbrains.kotlin.analysis.api.impl.base.components.withPsiValidityAssertion
 import org.jetbrains.kotlin.analysis.api.lifetime.withValidityAssertion
 import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.analysis.api.types.KaType
@@ -106,7 +107,7 @@ internal class KaFirJavaInteroperabilityComponent(
         suppressWildcards: Boolean?,
         preserveAnnotations: Boolean,
         allowNonJvmPlatforms: Boolean,
-    ): PsiType? = withValidityAssertion {
+    ): PsiType? = withPsiValidityAssertion(useSitePosition) {
         val coneType = this.coneType
 
         with(rootModuleSession.typeContext) {
@@ -198,7 +199,7 @@ internal class KaFirJavaInteroperabilityComponent(
         }
     }
 
-    override fun PsiType.asKaType(useSitePosition: PsiElement): KaType? = withValidityAssertion {
+    override fun PsiType.asKaType(useSitePosition: PsiElement): KaType? = withPsiValidityAssertion(useSitePosition) {
         val javaElementSourceFactory = JavaElementSourceFactory.getInstance(project)
         val javaType = JavaTypeImpl.create(this, javaElementSourceFactory.createTypeSource(this))
 
@@ -289,7 +290,7 @@ internal class KaFirJavaInteroperabilityComponent(
         }
 
     override val PsiClass.namedClassSymbol: KaNamedClassSymbol?
-        get() = withValidityAssertion {
+        get() = withPsiValidityAssertion {
             if (this is PsiTypeParameter) return null
             if (this is KtLightElement<*, *>) return null
             if (qualifiedName == null) return null
@@ -304,7 +305,7 @@ internal class KaFirJavaInteroperabilityComponent(
         this is ClsElementImpl && hasAnnotation(JvmAnnotationNames.METADATA_FQ_NAME.asString())
 
     override val PsiMember.callableSymbol: KaCallableSymbol?
-        get() = withValidityAssertion {
+        get() = withPsiValidityAssertion {
             if (this !is PsiMethod && this !is PsiField) return null
             if (this is KtLightElement<*, *>) return null
 
