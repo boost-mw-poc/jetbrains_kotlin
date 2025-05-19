@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.resolve.calls.inference.model.ConstraintSystemError
 import org.jetbrains.kotlin.types.model.TypeVariableMarker
 
 abstract class FirConstraintsDumper {
-    abstract fun renderDump(topLevelElements: List<FirConstraintsLogger.LoggingElement>, owningSession: FirSession): String
+    abstract fun renderDump(sessionsToLoggers: Map<FirSession, FirConstraintsLogger>): String
 
     protected abstract fun monospace(text: String): String
 

@@ -7,9 +7,13 @@ package org.jetbrains.kotlin.test.utils.constraintslogger
 
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.renderer.FirRenderer
+import org.jetbrains.kotlin.fir.resolve.inference.FirConstraintsLogger
 import org.jetbrains.kotlin.fir.resolve.inference.FirConstraintsLogger.*
 import org.jetbrains.kotlin.fir.resolve.inference.FirConstraintsLogger.Companion.sanitizeFqNames
 import org.jetbrains.kotlin.fir.symbols.SymbolInternals
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.orEmpty
 
 class MermaidConstraintsDumper : FirConstraintsDumper() {
     companion object {
@@ -19,17 +23,24 @@ class MermaidConstraintsDumper : FirConstraintsDumper() {
         private const val MAX_ELEMENTS_PER_RANK = 3
     }
 
-    override fun renderDump(topLevelElements: List<LoggingElement>, owningSession: FirSession): String {
-        val contents = withIndent { topLevelElements.renderList() } ?: return ""
-
-        return listOf(
+    override fun renderDump(sessionsToLoggers: Map<FirSession, FirConstraintsLogger>): String {
+        val header = listOf(
             "flowchart TD",
             withIndent { "${indent}classDef nowrapClass text-align:left,white-space:nowrap;" },
             withIndent { "${indent}classDef callStyle fill:#f2debb,stroke:#333,stroke-width:4px;" },
             withIndent { "${indent}classDef candidateStyle fill:#f2e5ce,stroke:#333,stroke-width:4px;" },
             withIndent { "${indent}classDef stageStyle fill:#c8f0f7,stroke:#333,stroke-width:4px;" },
-            contents.rendered,
         ).joinToString("\n")
+
+        val contents = withIndent {
+            sessionsToLoggers.entries.mapNotNull { (session, logger) ->
+                val title = node("session", formatCode(session))
+                val rendered = withIndent { logger.topLevelElements.renderList() }
+                listOfNotNull(title, rendered).join("\n\n")
+            }.join("\n\n")
+        }
+
+        return listOfNotNull(header, contents?.rendered).joinToString("\n\n")
     }
 
     override fun monospace(text: String): String = "<tt>$text</tt>"

@@ -6,6 +6,8 @@
 package org.jetbrains.kotlin.test.frontend.fir.handlers
 
 import org.jetbrains.kotlin.config.ConstraintsDumpFormat
+import org.jetbrains.kotlin.fir.FirSession
+import org.jetbrains.kotlin.fir.resolve.inference.FirConstraintsLogger
 import org.jetbrains.kotlin.fir.resolve.inference.constraintsLogger
 import org.jetbrains.kotlin.test.directives.FirDiagnosticsDirectives
 import org.jetbrains.kotlin.test.directives.model.DirectivesContainer
@@ -15,6 +17,7 @@ import org.jetbrains.kotlin.test.services.TestServices
 import org.jetbrains.kotlin.test.services.assertions
 import org.jetbrains.kotlin.test.services.configuration.constraintsDumpFormats
 import org.jetbrains.kotlin.test.services.moduleStructure
+import org.jetbrains.kotlin.test.utils.constraintslogger.FirConstraintsDumper
 import org.jetbrains.kotlin.test.utils.constraintslogger.MarkdownConstraintsDumper
 import org.jetbrains.kotlin.test.utils.constraintslogger.MermaidConstraintsDumper
 import org.jetbrains.kotlin.test.utils.originalTestDataFile
@@ -27,36 +30,24 @@ class FirConstraintsDumpHandler(
     override val directiveContainers: List<DirectivesContainer>
         get() = listOf(FirDiagnosticsDirectives)
 
-    private val modulePartDumps = mutableMapOf<ConstraintsDumpFormat, MutableList<String>>()
+    private val constraintsLoggers = mutableMapOf<FirSession, FirConstraintsLogger>()
 
     override fun processModule(module: TestModule, info: FirOutputArtifact) {
         if (FirDiagnosticsDirectives.DUMP_CONSTRAINTS !in testServices.moduleStructure.allDirectives) return
 
-        for (format in testServices.moduleStructure.allDirectives.constraintsDumpFormats) {
-            val dumper = when (format) {
-                ConstraintsDumpFormat.MARKDOWN -> MarkdownConstraintsDumper()
-                ConstraintsDumpFormat.MERMAID -> MermaidConstraintsDumper()
-            }
-
-            for (part in info.partsForDependsOnModules) {
-                modulePartDumps.getOrPut(format) { mutableListOf() } += part.session.constraintsLogger
-                    ?.let { dumper.renderDump(it.topLevelElements, part.session) }
-                    ?: continue
-            }
+        for (part in info.partsForDependsOnModules) {
+            constraintsLoggers[part.session] = part.session.constraintsLogger ?: continue
         }
     }
 
     override fun processAfterAllModules(someAssertionWasFailed: Boolean) {
         ensureNoStrayDumps()
-        if (FirDiagnosticsDirectives.DUMP_CONSTRAINTS !in testServices.moduleStructure.allDirectives) return
+        if (FirDiagnosticsDirectives.DUMP_CONSTRAINTS !in testServices.moduleStructure.allDirectives || constraintsLoggers.isEmpty()) return
 
         for (format in testServices.moduleStructure.allDirectives.constraintsDumpFormats) {
+            val dumper = format.dumper
             val dumpFile = format.file
-
-            // Check if the logger even exists as we have runners that don't set it because they don't need it.
-            if (modulePartDumps.isNotEmpty()) {
-                testServices.assertions.assertEqualsToFile(dumpFile, modulePartDumps[format]?.joinToString("\n\n") ?: "")
-            }
+            testServices.assertions.assertEqualsToFile(dumpFile, dumper.renderDump(constraintsLoggers))
         }
     }
 
@@ -82,5 +73,11 @@ class FirConstraintsDumpHandler(
         get() = when (this) {
             ConstraintsDumpFormat.MARKDOWN -> ".inference.md"
             ConstraintsDumpFormat.MERMAID -> ".inference.mmd"
+        }
+
+    private val ConstraintsDumpFormat.dumper: FirConstraintsDumper
+        get() = when (this) {
+            ConstraintsDumpFormat.MARKDOWN -> MarkdownConstraintsDumper()
+            ConstraintsDumpFormat.MERMAID -> MermaidConstraintsDumper()
         }
 }

@@ -7,13 +7,16 @@ package org.jetbrains.kotlin.test.utils.constraintslogger
 
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.renderer.FirRenderer
+import org.jetbrains.kotlin.fir.resolve.inference.FirConstraintsLogger
 import org.jetbrains.kotlin.fir.resolve.inference.FirConstraintsLogger.*
 import org.jetbrains.kotlin.fir.resolve.inference.FirConstraintsLogger.Companion.sanitizeFqNames
 import org.jetbrains.kotlin.fir.symbols.SymbolInternals
 
 class MarkdownConstraintsDumper(private val ignoreDuplicates: Boolean = true) : FirConstraintsDumper() {
-    override fun renderDump(topLevelElements: List<LoggingElement>, owningSession: FirSession): String =
-        listOf("## `${owningSession}`", *topLevelElements.renderList().orEmpty().toTypedArray()).joinToString("\n\n")
+    override fun renderDump(sessionsToLoggers: Map<FirSession, FirConstraintsLogger>): String =
+        sessionsToLoggers.entries.joinToString("\n\n") { (session, logger) ->
+            listOf("## `${session}`", *logger.topLevelElements.renderList().orEmpty().toTypedArray()).joinToString("\n\n")
+        }
 
     override fun monospace(text: String): String = "`$text`"
 
