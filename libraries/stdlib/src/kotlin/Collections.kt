@@ -77,6 +77,7 @@ public expect interface MutableCollection<E> : Collection<E>, MutableIterable<E>
      * @return `true` if the element has been added, `false` if the collection does not support duplicates
      * and the element is already contained in the collection.
      */
+    @IgnorableReturnValue
     public fun add(element: E): Boolean
 
     /**
@@ -85,6 +86,7 @@ public expect interface MutableCollection<E> : Collection<E>, MutableIterable<E>
      *
      * @return `true` if the element has been successfully removed; `false` if it was not present in the collection.
      */
+    @IgnorableReturnValue
     public fun remove(element: E): Boolean
 
     // Bulk Modification Operations
@@ -93,6 +95,7 @@ public expect interface MutableCollection<E> : Collection<E>, MutableIterable<E>
      *
      * @return `true` if any of the specified elements was added to the collection, `false` if the collection was not modified.
      */
+    @IgnorableReturnValue
     public fun addAll(elements: Collection<E>): Boolean
 
     /**
@@ -100,6 +103,7 @@ public expect interface MutableCollection<E> : Collection<E>, MutableIterable<E>
      *
      * @return `true` if any of the specified elements was removed from the collection, `false` if the collection was not modified.
      */
+    @IgnorableReturnValue
     public fun removeAll(elements: Collection<E>): Boolean
 
     /**
@@ -107,6 +111,7 @@ public expect interface MutableCollection<E> : Collection<E>, MutableIterable<E>
      *
      * @return `true` if any element was removed from the collection, `false` if the collection was not modified.
      */
+    @IgnorableReturnValue
     public fun retainAll(elements: Collection<E>): Boolean
 
     /**
@@ -182,8 +187,10 @@ public expect interface MutableList<E> : List<E>, MutableCollection<E> {
      *
      * @return `true` because the list is always modified as the result of this operation.
      */
+    @IgnorableReturnValue
     override fun add(element: E): Boolean
 
+    @IgnorableReturnValue
     override fun remove(element: E): Boolean
 
     // Bulk Modification Operations
@@ -194,6 +201,7 @@ public expect interface MutableList<E> : List<E>, MutableCollection<E> {
      *
      * @return `true` if the list was changed as the result of the operation.
      */
+    @IgnorableReturnValue
     override fun addAll(elements: Collection<E>): Boolean
 
     /**
@@ -201,9 +209,13 @@ public expect interface MutableList<E> : List<E>, MutableCollection<E> {
      *
      * @return `true` if the list was changed as the result of the operation.
      */
+    @IgnorableReturnValue
     public fun addAll(index: Int, elements: Collection<E>): Boolean
 
+    @IgnorableReturnValue
     override fun removeAll(elements: Collection<E>): Boolean
+
+    @IgnorableReturnValue
     override fun retainAll(elements: Collection<E>): Boolean
     override fun clear(): Unit
 
@@ -213,6 +225,7 @@ public expect interface MutableList<E> : List<E>, MutableCollection<E> {
      *
      * @return the element previously at the specified position.
      */
+    @IgnorableReturnValue
     public operator fun set(index: Int, element: E): E
 
     /**
@@ -271,14 +284,17 @@ public expect interface MutableSet<E> : Set<E>, MutableCollection<E> {
      *
      * @return `true` if the element has been added, `false` if the element is already contained in the set.
      */
+    @IgnorableReturnValue
     override fun add(element: E): Boolean
 
     override fun remove(element: E): Boolean
 
     // Bulk Modification Operations
-
+    @IgnorableReturnValue
     override fun addAll(elements: Collection<E>): Boolean
+    @IgnorableReturnValue
     override fun removeAll(elements: Collection<E>): Boolean
+    @IgnorableReturnValue
     override fun retainAll(elements: Collection<E>): Boolean
     override fun clear(): Unit
 }
@@ -367,6 +383,7 @@ public expect interface MutableMap<K, V> : Map<K, V> {
      *
      * @return the previous value associated with the key, or `null` if the key was not present in the map.
      */
+    @IgnorableReturnValue
     public fun put(key: K, value: V): V?
 
     /**
@@ -374,6 +391,7 @@ public expect interface MutableMap<K, V> : Map<K, V> {
      *
      * @return the previous value associated with the key, or `null` if the key was not present in the map.
      */
+    @IgnorableReturnValue
     public fun remove(key: K): V?
 
     // Bulk Modification Operations

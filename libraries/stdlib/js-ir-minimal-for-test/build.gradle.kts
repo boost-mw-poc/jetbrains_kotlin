@@ -167,6 +167,7 @@ tasks.withType<KotlinCompilationTask<*>>().configureEach {
                 "-opt-in=kotlin.ExperimentalMultiplatform",
                 "-opt-in=kotlin.contracts.ExperimentalContracts",
                 "-Xcontext-parameters",
+                "-Xreturn-value-checker=full",
             )
         )
     }
