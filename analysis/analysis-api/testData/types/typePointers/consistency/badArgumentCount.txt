@@ -16,3 +16,4 @@ KaClassErrorType:
   ]
   isMarkedNullable: false
   isNullable: true
+  hasFlexibleNullability: true

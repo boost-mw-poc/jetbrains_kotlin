@@ -277,7 +277,7 @@ public class DebugSymbolRenderer(
                 renderByPropertyNames(typeToRender, printer, currentSymbolStack)
                 renderComputedValue("isMarkedNullable", printer, currentSymbolStack) { typeToRender.isMarkedNullable }
                 renderComputedValue("isNullable", printer, currentSymbolStack) { typeToRender.isNullable }
-                if (typeToRender is KaFlexibleType || typeToRender is KaDynamicType) {
+                if (typeToRender is KaFlexibleType || typeToRender is KaDynamicType || typeToRender is KaErrorType) {
                     renderComputedValue("hasFlexibleNullability", printer, currentSymbolStack) { typeToRender.hasFlexibleNullability }
                 }
             } else {
