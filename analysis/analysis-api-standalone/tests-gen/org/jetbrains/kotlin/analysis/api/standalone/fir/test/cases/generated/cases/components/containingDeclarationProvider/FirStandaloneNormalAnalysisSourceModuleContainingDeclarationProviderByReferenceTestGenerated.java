@@ -113,6 +113,12 @@ public class FirStandaloneNormalAnalysisSourceModuleContainingDeclarationProvide
   }
 
   @Test
+  @TestMetadata("syntheticJavaProperty.kt")
+  public void testSyntheticJavaProperty() {
+    runTest("analysis/analysis-api/testData/components/containingDeclarationProvider/containingDeclarationByReference/syntheticJavaProperty.kt");
+  }
+
+  @Test
   @TestMetadata("topLevelFunctionFromInside.kt")
   public void testTopLevelFunctionFromInside() {
     runTest("analysis/analysis-api/testData/components/containingDeclarationProvider/containingDeclarationByReference/topLevelFunctionFromInside.kt");
