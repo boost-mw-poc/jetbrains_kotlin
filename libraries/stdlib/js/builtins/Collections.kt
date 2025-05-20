@@ -58,14 +58,9 @@ public actual interface MutableIterable<out T> : Iterable<T> {
  * [Collection.contains] behavior is implementation-specific, but usually, it uses [Any.equals] to compare elements
  * for equality.
  *
- * While it is not enforced explicitly, [Collection] implementations are expected to override [Any.toString],
- * [Any.equals] and [Any.hashCode]:
- * - [Collection.toString] implementations are expected to return a string representation of all contained elements.
- * - [Collection.equals] and [Collection.hashCode] should have the same properties as [Any.equals] and [Any.hashCode] correspondingly:
- *   both have to be consistent; equality of two collections must imply equality of their hash codes; [Collection.equals] has also be
- *   reflective, symmetric, and transitive.
- *   Other than that, [Collection] does not impose additional restrictions on these functions, however more specialized interfaces
- *   extending [Collection] (like [List], [Set] and [Map]) may impose stricter requirements.
+ * [Collection] does not impose any requirements for [toString], [equals] and [hashCode] functions
+ * and implementations are free to inherit a default behavior.
+ * More specialized interfaces extending [Collection] (like [List], [Set] and [Map]) may impose stricter requirements.
  *
  * @param E the type of elements contained in the collection. The collection is covariant in its element type.
  */
