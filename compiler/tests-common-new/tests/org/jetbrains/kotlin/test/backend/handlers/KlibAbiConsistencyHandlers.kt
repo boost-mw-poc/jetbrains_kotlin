@@ -40,7 +40,7 @@ private val TestServices.abiDumpBeforeInlining: File
 
 private fun shouldCheckAbiConsistency(module: TestModule): Boolean =
     KlibAbiConsistencyDirectives.CHECK_SAME_ABI_AFTER_INLINING in module.directives &&
-            "+${LanguageFeature.IrInlinerBeforeKlibSerialization.name}" in module.directives[LANGUAGE]
+            module.languageVersionSettings.supportsFeature(LanguageFeature.IrInlinerBeforeKlibSerialization)
 
 abstract class AbstractKlibAbiDumpBeforeInliningSavingHandler(
     testServices: TestServices,
