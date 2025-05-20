@@ -323,8 +323,10 @@ class DispatchReceiverMemberScopeTowerLevel(
         return ProcessResult.FOUND
     }
 
-    private fun FirCallableSymbol<*>.hasConsistentExtensionReceiver(givenExtensionReceivers: List<FirExpression>): Boolean {
-        return givenExtensionReceivers.isNotEmpty() == hasExtensionReceiver()
+    private fun FirCallableSymbol<*>.hasConsistentExtensionReceiver(givenExtensionReceivers: List<FirExpression>): Boolean = when {
+        fir.receiverParameter != null -> givenExtensionReceivers.any { it !is FirStaticPhantomThisExpression }
+        fir.staticReceiverParameter != null -> givenExtensionReceivers.any { it is FirStaticPhantomThisExpression }
+        else -> givenExtensionReceivers.isEmpty()
     }
 }
 
@@ -416,12 +418,14 @@ internal class ScopeBasedTowerLevel(
         }
     }
 
-    private fun shouldSkipCandidateWithInconsistentExtensionReceiver(candidate: FirCallableSymbol<*>): Boolean {
-        return shouldSkipCandidateWithInconsistentValueExtensionReceiver(candidate) || shouldSkipCandidateWithInconsistentStaticExtensionReceiver(candidate)
+    private fun shouldSkipCandidateWithInconsistentExtensionReceiver(candidate: FirCallableSymbol<*>): Boolean = when {
+        candidate.resolvedReceiverType != null -> shouldSkipCandidateWithInconsistentValueExtensionReceiver(candidate)
+        candidate.fir.staticReceiverParameter != null -> shouldSkipCandidateWithInconsistentStaticExtensionReceiver(candidate)
+        else -> false
     }
 
     private fun shouldSkipCandidateWithInconsistentValueExtensionReceiver(candidate: FirCallableSymbol<*>): Boolean {
-        if (candidate.resolvedReceiverType != null && givenExtensionReceiverOptions.all { it is FirStaticPhantomThisExpression }) return true
+        if (givenExtensionReceiverOptions.all { it is FirStaticPhantomThisExpression }) return true
 
         // Pre-check explicit extension receiver for default package top-level members
         if (scope !is FirDefaultStarImportingScope || !areThereExtensionReceiverOptions()) return false
@@ -448,7 +452,7 @@ internal class ScopeBasedTowerLevel(
     }
 
     private fun shouldSkipCandidateWithInconsistentStaticExtensionReceiver(candidate: FirCallableSymbol<*>): Boolean {
-        if (candidate.fir.staticReceiverParameter != null && givenExtensionReceiverOptions.all { it !is FirStaticPhantomThisExpression }) return true
+        if (givenExtensionReceiverOptions.all { it !is FirStaticPhantomThisExpression }) return true
         val staticExtensionReceiverType = candidate.fir.staticReceiverParameter?.coneTypeOrNull?.toClassSymbol(session) ?: return false
         return givenExtensionReceiverOptions.none { extensionReceiver ->
             if (extensionReceiver !is FirStaticPhantomThisExpression) return@none false

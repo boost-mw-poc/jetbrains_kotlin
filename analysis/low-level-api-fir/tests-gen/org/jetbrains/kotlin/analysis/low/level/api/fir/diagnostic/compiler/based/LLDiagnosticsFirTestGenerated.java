@@ -6852,6 +6852,12 @@ public class LLDiagnosticsFirTestGenerated extends AbstractLLDiagnosticsTest {
       }
 
       @Test
+      @TestMetadata("Invoke.kt")
+      public void testInvoke() {
+        runTest("compiler/fir/analysis-tests/testData/resolve/static/Invoke.kt");
+      }
+
+      @Test
       @TestMetadata("Nested.kt")
       public void testNested() {
         runTest("compiler/fir/analysis-tests/testData/resolve/static/Nested.kt");
@@ -6867,6 +6873,12 @@ public class LLDiagnosticsFirTestGenerated extends AbstractLLDiagnosticsTest {
       @TestMetadata("StaticAndCompanion.kt")
       public void testStaticAndCompanion() {
         runTest("compiler/fir/analysis-tests/testData/resolve/static/StaticAndCompanion.kt");
+      }
+
+      @Test
+      @TestMetadata("StaticExtension.kt")
+      public void testStaticExtension() {
+        runTest("compiler/fir/analysis-tests/testData/resolve/static/StaticExtension.kt");
       }
 
       @Test
