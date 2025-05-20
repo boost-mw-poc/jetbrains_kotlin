@@ -2106,6 +2106,12 @@ public class PhasedJvmDiagnosticPsiTestGenerated extends AbstractPhasedJvmDiagno
     }
 
     @Test
+    @TestMetadata("tests.kt")
+    public void testTests() {
+      runTest("compiler/testData/diagnostics/tests/tests.kt");
+    }
+
+    @Test
     @TestMetadata("TraitOverrideObjectMethods.kt")
     public void testTraitOverrideObjectMethods() {
       runTest("compiler/testData/diagnostics/tests/TraitOverrideObjectMethods.kt");
@@ -52565,6 +52571,12 @@ public class PhasedJvmDiagnosticPsiTestGenerated extends AbstractPhasedJvmDiagno
       @TestMetadata("ambiguityBetweenReceiverAndContext.kt")
       public void testAmbiguityBetweenReceiverAndContext() {
         runTest("compiler/fir/analysis-tests/testData/resolve/contextParameters/ambiguityBetweenReceiverAndContext.kt");
+      }
+
+      @Test
+      @TestMetadata("analysisTest.kt")
+      public void testAnalysisTest() {
+        runTest("compiler/fir/analysis-tests/testData/resolve/contextParameters/analysisTest.kt");
       }
 
       @Test

@@ -180,6 +180,12 @@ public class FirLightTreeOldFrontendDiagnosticsWithoutAliasExpansionTestGenerate
     }
 
     @Test
+    @TestMetadata("tests.kt")
+    public void testTests() {
+      runTest("compiler/testData/diagnostics/tests/tests.kt");
+    }
+
+    @Test
     @TestMetadata("typealiasAnnotationWithFixedTypeArgument.kt")
     public void testTypealiasAnnotationWithFixedTypeArgument() {
       runTest("compiler/testData/diagnostics/tests/typealiasAnnotationWithFixedTypeArgument.kt");

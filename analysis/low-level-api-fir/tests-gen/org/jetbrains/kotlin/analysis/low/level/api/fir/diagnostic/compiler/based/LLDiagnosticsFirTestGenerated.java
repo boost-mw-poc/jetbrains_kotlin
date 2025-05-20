@@ -1916,6 +1916,12 @@ public class LLDiagnosticsFirTestGenerated extends AbstractLLDiagnosticsTest {
       }
 
       @Test
+      @TestMetadata("analysisTest.kt")
+      public void testAnalysisTest() {
+        runTest("compiler/fir/analysis-tests/testData/resolve/contextParameters/analysisTest.kt");
+      }
+
+      @Test
       @TestMetadata("callableReference.kt")
       public void testCallableReference() {
         runTest("compiler/fir/analysis-tests/testData/resolve/contextParameters/callableReference.kt");

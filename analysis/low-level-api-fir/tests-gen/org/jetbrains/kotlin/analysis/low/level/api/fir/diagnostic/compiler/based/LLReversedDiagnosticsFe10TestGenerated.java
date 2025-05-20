@@ -2110,6 +2110,12 @@ public class LLReversedDiagnosticsFe10TestGenerated extends AbstractLLReversedDi
     }
 
     @Test
+    @TestMetadata("tests.kt")
+    public void testTests() {
+      runTest("compiler/testData/diagnostics/tests/tests.kt");
+    }
+
+    @Test
     @TestMetadata("TraitOverrideObjectMethods.kt")
     public void testTraitOverrideObjectMethods() {
       runTest("compiler/testData/diagnostics/tests/TraitOverrideObjectMethods.kt");
