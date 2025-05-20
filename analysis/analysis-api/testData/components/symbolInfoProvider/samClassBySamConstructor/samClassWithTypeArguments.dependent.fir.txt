@@ -42,6 +42,8 @@ CONSTRUCTOR:
               getContainingFileSymbol: null
               getContainingModule: KaDanglingFileModule "Temporary file"
               deprecationStatus: null
+            isMarkedNullable: false
+            isNullable: true
         ]
     ]
     symbol: KaNamedClassSymbol(Predicate)
@@ -66,7 +68,11 @@ CONSTRUCTOR:
           getContainingFileSymbol: null
           getContainingModule: KaDanglingFileModule "Temporary file"
           deprecationStatus: null
+        isMarkedNullable: false
+        isNullable: true
     ]
+    isMarkedNullable: false
+    isNullable: false
   typeParameters: [
     KaTypeParameterSymbol:
       annotations: []
@@ -137,6 +143,8 @@ CONSTRUCTOR:
               getContainingFileSymbol: null
               getContainingModule: KaDanglingFileModule "Temporary file"
               deprecationStatus: null
+            isMarkedNullable: false
+            isNullable: true
         ]
         parameters: [
           KaBaseFunctionValueParameter [name: null, type: null]
@@ -166,6 +174,8 @@ CONSTRUCTOR:
                   getContainingFileSymbol: null
                   getContainingModule: KaDanglingFileModule "Temporary file"
                   deprecationStatus: null
+                isMarkedNullable: false
+                isNullable: true
               KaUsualClassType:
                 abbreviation: null
                 annotations: []
@@ -178,6 +188,8 @@ CONSTRUCTOR:
                 ]
                 symbol: KaNamedClassSymbol(kotlin/Boolean)
                 typeArguments: []
+                isMarkedNullable: false
+                isNullable: false
             ]
         ]
         receiverType: null
@@ -193,6 +205,8 @@ CONSTRUCTOR:
           ]
           symbol: KaNamedClassSymbol(kotlin/Boolean)
           typeArguments: []
+          isMarkedNullable: false
+          isNullable: false
         symbol: KaNamedClassSymbol(kotlin/Function1)
         typeArguments: [
           KaTypeParameterType:
@@ -215,6 +229,8 @@ CONSTRUCTOR:
               getContainingFileSymbol: null
               getContainingModule: KaDanglingFileModule "Temporary file"
               deprecationStatus: null
+            isMarkedNullable: false
+            isNullable: true
           KaUsualClassType:
             abbreviation: null
             annotations: []
@@ -227,7 +243,11 @@ CONSTRUCTOR:
             ]
             symbol: KaNamedClassSymbol(kotlin/Boolean)
             typeArguments: []
+            isMarkedNullable: false
+            isNullable: false
         ]
+        isMarkedNullable: false
+        isNullable: false
       visibility: PUBLIC
       getContainingFileSymbol: null
       getContainingJvmClassName: null
@@ -271,6 +291,8 @@ CLASS:
       ]
       symbol: KaNamedClassSymbol(kotlin/Any)
       typeArguments: []
+      isMarkedNullable: false
+      isNullable: false
   ]
   typeParameters: [
     KaTypeParameterSymbol:

@@ -21,6 +21,8 @@ KaFunctionType:
       ]
       symbol: KaNamedClassSymbol(kotlin/Nothing)
       typeArguments: []
+      isMarkedNullable: false
+      isNullable: false
   ]
   parameters: [
     KaBaseFunctionValueParameter [name: null, type: kotlin/Nothing]
@@ -46,6 +48,8 @@ KaFunctionType:
           typeArguments: [
             *
           ]
+          isMarkedNullable: false
+          isNullable: false
         KaUsualClassType:
           abbreviation: null
           annotations: []
@@ -58,6 +62,8 @@ KaFunctionType:
           ]
           symbol: KaNamedClassSymbol(kotlin/Nothing)
           typeArguments: []
+          isMarkedNullable: false
+          isNullable: false
         KaUsualClassType:
           abbreviation: null
           annotations: []
@@ -70,6 +76,8 @@ KaFunctionType:
           ]
           symbol: KaNamedClassSymbol(kotlin/Unit)
           typeArguments: []
+          isMarkedNullable: false
+          isNullable: false
       ]
   ]
   receiverType: KaUsualClassType:
@@ -88,6 +96,8 @@ KaFunctionType:
     typeArguments: [
       *
     ]
+    isMarkedNullable: false
+    isNullable: false
   returnType: KaUsualClassType:
     abbreviation: null
     annotations: []
@@ -100,6 +110,8 @@ KaFunctionType:
     ]
     symbol: KaNamedClassSymbol(kotlin/Unit)
     typeArguments: []
+    isMarkedNullable: false
+    isNullable: false
   symbol: KaNamedClassSymbol(kotlin/reflect/KFunction2)
   typeArguments: [
     KaUsualClassType:
@@ -118,6 +130,8 @@ KaFunctionType:
       typeArguments: [
         *
       ]
+      isMarkedNullable: false
+      isNullable: false
     KaUsualClassType:
       abbreviation: null
       annotations: []
@@ -130,6 +144,8 @@ KaFunctionType:
       ]
       symbol: KaNamedClassSymbol(kotlin/Nothing)
       typeArguments: []
+      isMarkedNullable: false
+      isNullable: false
     KaUsualClassType:
       abbreviation: null
       annotations: []
@@ -142,7 +158,11 @@ KaFunctionType:
       ]
       symbol: KaNamedClassSymbol(kotlin/Unit)
       typeArguments: []
+      isMarkedNullable: false
+      isNullable: false
   ]
+  isMarkedNullable: false
+  isNullable: false
 
 Rendered type:
 kotlin.reflect.KFunction2<A<*>, kotlin.Nothing, kotlin.Unit>

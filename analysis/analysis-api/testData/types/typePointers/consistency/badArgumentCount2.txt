@@ -14,3 +14,5 @@ KaClassErrorType:
       symbol: KaNamedClassSymbol(Either)
       typeArguments: []
   ]
+  isMarkedNullable: false
+  isNullable: true

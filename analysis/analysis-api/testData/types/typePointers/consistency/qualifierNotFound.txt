@@ -25,5 +25,9 @@ KaClassErrorType:
           ]
           symbol: KaNamedClassSymbol(kotlin/String)
           typeArguments: []
+          isMarkedNullable: false
+          isNullable: false
       ]
   ]
+  isMarkedNullable: false
+  isNullable: false

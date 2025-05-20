@@ -12,6 +12,8 @@ KaClassErrorType:
       name: Any
       typeArguments: []
   ]
+  isMarkedNullable: false
+  isNullable: false
 
 Rendered type:
 kotlin.Any
