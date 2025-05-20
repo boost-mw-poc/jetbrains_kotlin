@@ -634,22 +634,24 @@ class Strings {
 
     @Sample
     fun encodeToByteArray() {
+        val format = HexFormat { bytes { groupSeparator = " "; bytesPerGroup = 1 } }
+
         // \u00a0 is a non-breaking space
         val str = "Kòtlin\u00a02.1.255"
 
         // The original string contains 14 characters, but some of them are represented with multiple UTF-8 code units
         val byteArray = str.encodeToByteArray()
-        assertPrints(byteArray.contentToString(), "[75, -61, -78, 116, 108, 105, 110, -62, -96, 50, 46, 49, 46, 50, 53, 53]")
+        assertPrints(byteArray.toHexString(format), "4b c3 b2 74 6c 69 6e c2 a0 32 2e 31 2e 32 35 35")
 
         // Replacing all "wide" characters with some ASCII ones results in a byte sequence matching the length of the string
         val byteArrayWithAsciiCharacters = str.replace("\u00a0", " ").replace("ò", "o").encodeToByteArray()
-        assertPrints(byteArrayWithAsciiCharacters.contentToString(), "[75, 111, 116, 108, 105, 110, 32, 50, 46, 49, 46, 50, 53, 53]")
+        assertPrints(byteArrayWithAsciiCharacters.toHexString(format), "4b 6f 74 6c 69 6e 20 32 2e 31 2e 32 35 35")
 
         val byteArrayWithVersion = str.encodeToByteArray(startIndex = 7)
-        assertPrints(byteArrayWithVersion.contentToString(), "[50, 46, 49, 46, 50, 53, 53]")
+        assertPrints(byteArrayWithVersion.toHexString(format), "32 2e 31 2e 32 35 35")
 
         val byteArrayWithoutTheVersion = str.encodeToByteArray(startIndex = 0, endIndex = 6)
-        assertPrints(byteArrayWithoutTheVersion.contentToString(), "[75, -61, -78, 116, 108, 105, 110]")
+        assertPrints(byteArrayWithoutTheVersion.toHexString(format), "4b c3 b2 74 6c 69 6e")
     }
 
     @Sample
