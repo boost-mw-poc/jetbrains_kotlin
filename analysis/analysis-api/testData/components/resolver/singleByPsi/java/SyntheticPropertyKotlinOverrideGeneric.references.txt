@@ -1,0 +1,14 @@
+<caret_1>:
+  KtNameReferenceExpression(308,311): 'foo'
+    KtSimpleNameReference:
+      (in KotlinClass) override var foo: Foo<kotlin.Any>
+
+<caret_2>:
+  KtNameReferenceExpression(329,332): 'foo'
+    KtSimpleNameReference:
+      (in KotlinClass) override var foo: Foo<kotlin.Any>
+
+<caret_3>:
+  KtNameReferenceExpression(456,459): 'foo'
+    KtSimpleNameReference:
+      (in KotlinClass) override var foo: Foo<kotlin.Any> & Foo<T!>

@@ -1,0 +1,23 @@
+<caret_1>:
+  KtNameReferenceExpression(308,311): 'foo'
+    KtSimpleNameReference:
+      (in KotlinClass) var KotlinClass.foo: Foo<kotlin.Any>
+
+    SyntheticPropertyAccessorReference:
+      (in KotlinClass) override fun getFoo(): Foo<kotlin.Any>
+
+<caret_2>:
+  KtNameReferenceExpression(329,332): 'foo'
+    KtSimpleNameReference:
+      (in KotlinClass) var KotlinClass.foo: Foo<kotlin.Any>
+
+    SyntheticPropertyAccessorReference:
+      (in KotlinClass) override fun setFoo(foo: Foo<kotlin.Any>)
+
+<caret_3>:
+  KtNameReferenceExpression(456,459): 'foo'
+    KtSimpleNameReference:
+      (in KotlinClass) var KotlinClass.foo: Foo<kotlin.Any>
+
+    SyntheticPropertyAccessorReference:
+      (in KotlinClass) override fun getFoo(): Foo<kotlin.Any>
