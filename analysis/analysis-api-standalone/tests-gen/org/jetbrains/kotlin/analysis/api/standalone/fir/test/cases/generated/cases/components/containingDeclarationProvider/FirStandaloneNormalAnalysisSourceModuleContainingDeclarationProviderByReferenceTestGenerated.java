@@ -113,15 +113,15 @@ public class FirStandaloneNormalAnalysisSourceModuleContainingDeclarationProvide
   }
 
   @Test
-  @TestMetadata("syntheticJavaProperty.kt")
-  public void testSyntheticJavaProperty() {
-    runTest("analysis/analysis-api/testData/components/containingDeclarationProvider/containingDeclarationByReference/syntheticJavaProperty.kt");
-  }
-
-  @Test
   @TestMetadata("syntheticPropertyKotlinIntersectionOverride.kt")
   public void testSyntheticPropertyKotlinIntersectionOverride() {
     runTest("analysis/analysis-api/testData/components/containingDeclarationProvider/containingDeclarationByReference/syntheticPropertyKotlinIntersectionOverride.kt");
+  }
+
+  @Test
+  @TestMetadata("syntheticPropertyKotlinOverride.kt")
+  public void testSyntheticPropertyKotlinOverride() {
+    runTest("analysis/analysis-api/testData/components/containingDeclarationProvider/containingDeclarationByReference/syntheticPropertyKotlinOverride.kt");
   }
 
   @Test
