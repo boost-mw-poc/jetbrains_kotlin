@@ -323,6 +323,12 @@ public class FirIdeNormalAnalysisSourceModuleSymbolByPsiTestGenerated extends Ab
   }
 
   @Test
+  @TestMetadata("nestedAnnotationWithFqName.kt")
+  public void testNestedAnnotationWithFqName() {
+    runTest("analysis/analysis-api/testData/symbols/symbolByPsi/nestedAnnotationWithFqName.kt");
+  }
+
+  @Test
   @TestMetadata("outerAndInnerClasses.kt")
   public void testOuterAndInnerClasses() {
     runTest("analysis/analysis-api/testData/symbols/symbolByPsi/outerAndInnerClasses.kt");

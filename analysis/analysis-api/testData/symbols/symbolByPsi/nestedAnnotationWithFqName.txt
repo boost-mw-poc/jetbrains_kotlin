@@ -1,0 +1,461 @@
+KaConstructorSymbol:
+  annotations: []
+  callableId: null
+  compilerVisibility: Public
+  containingClassId: lib/Sources
+  contextReceivers: []
+  hasStableParameterNames: true
+  isActual: false
+  isExpect: false
+  isExtension: false
+  isPrimary: true
+  location: CLASS
+  modality: FINAL
+  origin: SOURCE
+  receiverParameter: null
+  returnType: KaUsualClassType:
+    annotations: []
+    typeArguments: []
+    type: lib/Sources
+  typeParameters: []
+  valueParameters: [
+    KaValueParameterSymbol:
+      annotations: []
+      callableId: null
+      compilerVisibility: Public
+      contextReceivers: []
+      generatedPrimaryConstructorProperty: KaKotlinPropertySymbol:
+        annotations: []
+        backingFieldSymbol: KaBackingFieldSymbol:
+          annotations: []
+          callableId: null
+          compilerVisibility: Private
+          contextReceivers: []
+          isActual: false
+          isExpect: false
+          isExtension: false
+          isVal: true
+          location: PROPERTY
+          modality: FINAL
+          name: field
+          origin: PROPERTY_BACKING_FIELD
+          owningProperty: KaKotlinPropertySymbol(lib/Sources.value)
+          receiverParameter: null
+          returnType: KaUsualClassType:
+            annotations: []
+            typeArguments: [
+              out KaUsualClassType:
+                annotations: []
+                typeArguments: []
+                type: lib/Source
+            ]
+            type: kotlin/Array<out lib/Source>
+          visibility: PRIVATE
+          getDispatchReceiver(): KaUsualClassType:
+            annotations: []
+            typeArguments: []
+            type: lib/Sources
+          getContainingFileSymbol: KaFileSymbol(nestedAnnotationWithFqName.kt)
+          getContainingJvmClassName: lib.Sources
+          getContainingModule: KaSourceModule "Sources of main"
+          deprecationStatus: null
+        callableId: lib/Sources.value
+        compilerVisibility: Public
+        contextParameters: []
+        contextReceivers: []
+        getter: KaPropertyGetterSymbol:
+          annotations: []
+          callableId: null
+          compilerVisibility: Public
+          contextReceivers: []
+          hasStableParameterNames: true
+          isActual: false
+          isExpect: false
+          isExtension: false
+          isInline: false
+          isNotDefault: false
+          isOverride: false
+          location: PROPERTY
+          modality: FINAL
+          origin: SOURCE
+          receiverParameter: null
+          returnType: KaUsualClassType:
+            annotations: []
+            typeArguments: [
+              out KaUsualClassType:
+                annotations: []
+                typeArguments: []
+                type: lib/Source
+            ]
+            type: kotlin/Array<out lib/Source>
+          valueParameters: []
+          visibility: PUBLIC
+          getDispatchReceiver(): KaUsualClassType:
+            annotations: []
+            typeArguments: []
+            type: lib/Sources
+          getContainingFileSymbol: KaFileSymbol(nestedAnnotationWithFqName.kt)
+          getContainingJvmClassName: lib.Sources
+          getContainingModule: KaSourceModule "Sources of main"
+          deprecationStatus: null
+        hasBackingField: true
+        hasGetter: true
+        hasSetter: false
+        initializer: KaNonConstantInitializerValue(vararg val value: Source)
+        isActual: false
+        isConst: false
+        isDelegatedProperty: false
+        isExpect: false
+        isExtension: false
+        isExternal: false
+        isFromPrimaryConstructor: true
+        isLateInit: false
+        isOverride: false
+        isStatic: false
+        isVal: true
+        location: CLASS
+        modality: FINAL
+        name: value
+        origin: SOURCE
+        receiverParameter: null
+        returnType: KaUsualClassType:
+          annotations: []
+          typeArguments: [
+            out KaUsualClassType:
+              annotations: []
+              typeArguments: []
+              type: lib/Source
+          ]
+          type: kotlin/Array<out lib/Source>
+        setter: null
+        typeParameters: []
+        visibility: PUBLIC
+        getDispatchReceiver(): KaUsualClassType:
+          annotations: []
+          typeArguments: []
+          type: lib/Sources
+        getContainingFileSymbol: KaFileSymbol(nestedAnnotationWithFqName.kt)
+        getContainingJvmClassName: lib.Sources
+        getContainingModule: KaSourceModule "Sources of main"
+        deprecationStatus: null
+        getterDeprecationStatus: null
+        javaGetterName: getValue
+        javaSetterName: null
+        setterDeprecationStatus: null
+        isInline: false
+      hasDefaultValue: false
+      isActual: false
+      isCrossinline: false
+      isExpect: false
+      isExtension: false
+      isImplicitLambdaParameter: false
+      isNoinline: false
+      isVal: true
+      isVararg: true
+      location: LOCAL
+      modality: FINAL
+      name: value
+      origin: SOURCE
+      receiverParameter: null
+      returnType: KaUsualClassType:
+        annotations: []
+        typeArguments: []
+        type: lib/Source
+      visibility: PUBLIC
+      getContainingFileSymbol: KaFileSymbol(nestedAnnotationWithFqName.kt)
+      getContainingJvmClassName: lib.Sources
+      getContainingModule: KaSourceModule "Sources of main"
+      deprecationStatus: null
+  ]
+  visibility: PUBLIC
+  getContainingFileSymbol: KaFileSymbol(nestedAnnotationWithFqName.kt)
+  getContainingJvmClassName: lib.Sources
+  getContainingModule: KaSourceModule "Sources of main"
+  deprecationStatus: null
+
+KaNamedClassSymbol:
+  annotations: [
+    kotlin/annotation/Target(allowedTargets = [kotlin.annotation.AnnotationTarget.CLASS])
+      psi: KtAnnotationEntry
+    kotlin/annotation/Retention(value = kotlin.annotation.AnnotationRetention.RUNTIME)
+      psi: KtAnnotationEntry
+    kotlin/annotation/MustBeDocumented()
+      psi: KtAnnotationEntry
+  ]
+  classId: lib/Sources
+  classKind: ANNOTATION_CLASS
+  companionObject: null
+  compilerVisibility: Public
+  contextReceivers: []
+  isActual: false
+  isData: false
+  isExpect: false
+  isExternal: false
+  isFun: false
+  isInline: false
+  isInner: false
+  location: TOP_LEVEL
+  modality: FINAL
+  name: Sources
+  origin: SOURCE
+  superTypes: [
+    KaUsualClassType:
+      annotations: []
+      typeArguments: []
+      type: kotlin/Annotation
+  ]
+  typeParameters: []
+  visibility: PUBLIC
+  getContainingFileSymbol: KaFileSymbol(nestedAnnotationWithFqName.kt)
+  getContainingModule: KaSourceModule "Sources of main"
+  annotationApplicableTargets: [CLASS]
+  deprecationStatus: null
+
+KaConstructorSymbol:
+  annotations: []
+  callableId: null
+  compilerVisibility: Public
+  containingClassId: lib/Source
+  contextReceivers: []
+  hasStableParameterNames: true
+  isActual: false
+  isExpect: false
+  isExtension: false
+  isPrimary: true
+  location: CLASS
+  modality: FINAL
+  origin: SOURCE
+  receiverParameter: null
+  returnType: KaUsualClassType:
+    annotations: []
+    typeArguments: []
+    type: lib/Source
+  typeParameters: []
+  valueParameters: [
+    KaValueParameterSymbol:
+      annotations: []
+      callableId: null
+      compilerVisibility: Public
+      contextReceivers: []
+      generatedPrimaryConstructorProperty: KaKotlinPropertySymbol:
+        annotations: []
+        backingFieldSymbol: KaBackingFieldSymbol:
+          annotations: []
+          callableId: null
+          compilerVisibility: Private
+          contextReceivers: []
+          isActual: false
+          isExpect: false
+          isExtension: false
+          isVal: true
+          location: PROPERTY
+          modality: FINAL
+          name: field
+          origin: PROPERTY_BACKING_FIELD
+          owningProperty: KaKotlinPropertySymbol(lib/Source.value)
+          receiverParameter: null
+          returnType: KaUsualClassType:
+            annotations: []
+            typeArguments: [
+              out KaUsualClassType:
+                annotations: []
+                typeArguments: []
+                type: kotlin/String
+            ]
+            type: kotlin/Array<out kotlin/String>
+          visibility: PRIVATE
+          getDispatchReceiver(): KaUsualClassType:
+            annotations: []
+            typeArguments: []
+            type: lib/Source
+          getContainingFileSymbol: KaFileSymbol(nestedAnnotationWithFqName.kt)
+          getContainingJvmClassName: lib.Source
+          getContainingModule: KaSourceModule "Sources of main"
+          deprecationStatus: null
+        callableId: lib/Source.value
+        compilerVisibility: Public
+        contextParameters: []
+        contextReceivers: []
+        getter: KaPropertyGetterSymbol:
+          annotations: []
+          callableId: null
+          compilerVisibility: Public
+          contextReceivers: []
+          hasStableParameterNames: true
+          isActual: false
+          isExpect: false
+          isExtension: false
+          isInline: false
+          isNotDefault: false
+          isOverride: false
+          location: PROPERTY
+          modality: FINAL
+          origin: SOURCE
+          receiverParameter: null
+          returnType: KaUsualClassType:
+            annotations: []
+            typeArguments: [
+              out KaUsualClassType:
+                annotations: []
+                typeArguments: []
+                type: kotlin/String
+            ]
+            type: kotlin/Array<out kotlin/String>
+          valueParameters: []
+          visibility: PUBLIC
+          getDispatchReceiver(): KaUsualClassType:
+            annotations: []
+            typeArguments: []
+            type: lib/Source
+          getContainingFileSymbol: KaFileSymbol(nestedAnnotationWithFqName.kt)
+          getContainingJvmClassName: lib.Source
+          getContainingModule: KaSourceModule "Sources of main"
+          deprecationStatus: null
+        hasBackingField: true
+        hasGetter: true
+        hasSetter: false
+        initializer: KaNonConstantInitializerValue(vararg val value: String)
+        isActual: false
+        isConst: false
+        isDelegatedProperty: false
+        isExpect: false
+        isExtension: false
+        isExternal: false
+        isFromPrimaryConstructor: true
+        isLateInit: false
+        isOverride: false
+        isStatic: false
+        isVal: true
+        location: CLASS
+        modality: FINAL
+        name: value
+        origin: SOURCE
+        receiverParameter: null
+        returnType: KaUsualClassType:
+          annotations: []
+          typeArguments: [
+            out KaUsualClassType:
+              annotations: []
+              typeArguments: []
+              type: kotlin/String
+          ]
+          type: kotlin/Array<out kotlin/String>
+        setter: null
+        typeParameters: []
+        visibility: PUBLIC
+        getDispatchReceiver(): KaUsualClassType:
+          annotations: []
+          typeArguments: []
+          type: lib/Source
+        getContainingFileSymbol: KaFileSymbol(nestedAnnotationWithFqName.kt)
+        getContainingJvmClassName: lib.Source
+        getContainingModule: KaSourceModule "Sources of main"
+        deprecationStatus: null
+        getterDeprecationStatus: null
+        javaGetterName: getValue
+        javaSetterName: null
+        setterDeprecationStatus: null
+        isInline: false
+      hasDefaultValue: false
+      isActual: false
+      isCrossinline: false
+      isExpect: false
+      isExtension: false
+      isImplicitLambdaParameter: false
+      isNoinline: false
+      isVal: true
+      isVararg: true
+      location: LOCAL
+      modality: FINAL
+      name: value
+      origin: SOURCE
+      receiverParameter: null
+      returnType: KaUsualClassType:
+        annotations: []
+        typeArguments: []
+        type: kotlin/String
+      visibility: PUBLIC
+      getContainingFileSymbol: KaFileSymbol(nestedAnnotationWithFqName.kt)
+      getContainingJvmClassName: lib.Source
+      getContainingModule: KaSourceModule "Sources of main"
+      deprecationStatus: null
+  ]
+  visibility: PUBLIC
+  getContainingFileSymbol: KaFileSymbol(nestedAnnotationWithFqName.kt)
+  getContainingJvmClassName: lib.Source
+  getContainingModule: KaSourceModule "Sources of main"
+  deprecationStatus: null
+
+KaNamedClassSymbol:
+  annotations: [
+    kotlin/annotation/Target(allowedTargets = [kotlin.annotation.AnnotationTarget.TYPE])
+      psi: KtAnnotationEntry
+    kotlin/annotation/Retention(value = kotlin.annotation.AnnotationRetention.RUNTIME)
+      psi: KtAnnotationEntry
+    kotlin/annotation/MustBeDocumented()
+      psi: KtAnnotationEntry
+    kotlin/annotation/Repeatable()
+      psi: KtAnnotationEntry
+  ]
+  classId: lib/Source
+  classKind: ANNOTATION_CLASS
+  companionObject: null
+  compilerVisibility: Public
+  contextReceivers: []
+  isActual: false
+  isData: false
+  isExpect: false
+  isExternal: false
+  isFun: false
+  isInline: false
+  isInner: false
+  location: TOP_LEVEL
+  modality: FINAL
+  name: Source
+  origin: SOURCE
+  superTypes: [
+    KaUsualClassType:
+      annotations: []
+      typeArguments: []
+      type: kotlin/Annotation
+  ]
+  typeParameters: []
+  visibility: PUBLIC
+  getContainingFileSymbol: KaFileSymbol(nestedAnnotationWithFqName.kt)
+  getContainingModule: KaSourceModule "Sources of main"
+  annotationApplicableTargets: [TYPE]
+  deprecationStatus: null
+
+KaNamedClassSymbol:
+  annotations: [
+    lib/Sources(value = [lib/Source(value = [""], )])
+      psi: KtAnnotationEntry
+  ]
+  classId: lib/Simple
+  classKind: CLASS
+  companionObject: null
+  compilerVisibility: Public
+  contextReceivers: []
+  isActual: false
+  isData: false
+  isExpect: false
+  isExternal: false
+  isFun: false
+  isInline: false
+  isInner: false
+  location: TOP_LEVEL
+  modality: OPEN
+  name: Simple
+  origin: SOURCE
+  superTypes: [
+    KaUsualClassType:
+      annotations: []
+      typeArguments: []
+      type: kotlin/Any
+  ]
+  typeParameters: []
+  visibility: PUBLIC
+  getContainingFileSymbol: KaFileSymbol(nestedAnnotationWithFqName.kt)
+  getContainingModule: KaSourceModule "Sources of main"
+  annotationApplicableTargets: null
+  deprecationStatus: null

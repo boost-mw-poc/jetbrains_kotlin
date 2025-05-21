@@ -1,0 +1,17 @@
+@kotlin.annotation.Target(allowedTargets = [kotlin.annotation.AnnotationTarget.CLASS])
+@kotlin.annotation.Retention(value = kotlin.annotation.AnnotationRetention.RUNTIME)
+@kotlin.annotation.MustBeDocumented
+annotation class Sources(vararg value: lib.Source) {
+  val value: kotlin.Array<out lib.Source>
+}
+
+@kotlin.annotation.Target(allowedTargets = [kotlin.annotation.AnnotationTarget.TYPE])
+@kotlin.annotation.Retention(value = kotlin.annotation.AnnotationRetention.RUNTIME)
+@kotlin.annotation.MustBeDocumented
+@kotlin.annotation.Repeatable
+annotation class Source(vararg value: kotlin.String) {
+  val value: kotlin.Array<out kotlin.String>
+}
+
+@lib.Sources(value = [lib/Source(value = [""], )])
+open class Simple
