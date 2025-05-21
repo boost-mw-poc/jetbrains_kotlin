@@ -42,7 +42,7 @@ internal val KotlinCreateNativeCompileTasksSideEffect = KotlinCompilationSideEff
         task.group = BasePlugin.BUILD_GROUP
         task.description = "Compiles a klibrary from the '${compilationInfo.compilationName}' " +
                 "compilation in target '${compilationInfo.targetDisambiguationClassifier}'."
-        val enabledOnCurrentHost = compilation.konanTarget.enabledOnCurrentHostForKlibCompilation(project.kotlinPropertiesProvider)
+        val enabledOnCurrentHost = compilation.target.enabledOnCurrentHostForKlibCompilation
         task.enabled = enabledOnCurrentHost
 
         task.destinationDirectory.set(project.klibOutputDirectory(compilationInfo).dir("klib"))

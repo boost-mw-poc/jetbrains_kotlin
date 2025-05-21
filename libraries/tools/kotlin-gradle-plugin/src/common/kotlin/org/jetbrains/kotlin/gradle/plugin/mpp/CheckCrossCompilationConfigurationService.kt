@@ -77,8 +77,7 @@ internal val Project.kotlinCheckCrossCompilationConfigurationServiceProvider: Pr
             multiplatformExtensionOrNull?.let { kotlin ->
                 kotlin.targets
                     .withType(KotlinNativeTarget::class.java)
-                    .matching { !HostManager().isEnabled(it.konanTarget) }
-                    .matching { it.cinterops.isNotEmpty() }
+                    .matching { !HostManager().isEnabled(it.konanTarget) && it.cinterops.isNotEmpty() }
                     .map { target ->
                         IncompatibleTargets(
                             target.targetName,
