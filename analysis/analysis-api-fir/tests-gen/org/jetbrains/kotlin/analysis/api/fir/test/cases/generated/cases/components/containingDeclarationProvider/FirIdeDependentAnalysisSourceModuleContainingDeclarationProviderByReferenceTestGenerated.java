@@ -119,6 +119,12 @@ public class FirIdeDependentAnalysisSourceModuleContainingDeclarationProviderByR
   }
 
   @Test
+  @TestMetadata("syntheticPropertyKotlinIntersectionOverride.kt")
+  public void testSyntheticPropertyKotlinIntersectionOverride() {
+    runTest("analysis/analysis-api/testData/components/containingDeclarationProvider/containingDeclarationByReference/syntheticPropertyKotlinIntersectionOverride.kt");
+  }
+
+  @Test
   @TestMetadata("topLevelFunctionFromInside.kt")
   public void testTopLevelFunctionFromInside() {
     runTest("analysis/analysis-api/testData/components/containingDeclarationProvider/containingDeclarationByReference/topLevelFunctionFromInside.kt");

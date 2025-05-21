@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.fir
 
 import org.jetbrains.kotlin.fir.declarations.*
+import org.jetbrains.kotlin.fir.declarations.synthetic.FirSyntheticProperty
 import org.jetbrains.kotlin.fir.declarations.utils.isLocal
 import org.jetbrains.kotlin.fir.declarations.utils.isSynthetic
 import org.jetbrains.kotlin.fir.symbols.impl.*
@@ -14,11 +15,16 @@ import org.jetbrains.kotlin.fir.types.*
 fun FirCallableSymbol<*>.dispatchReceiverClassTypeOrNull(): ConeClassLikeType? =
     fir.dispatchReceiverClassTypeOrNull()
 
-fun FirCallableDeclaration.dispatchReceiverClassTypeOrNull(): ConeClassLikeType? =
-    if (dispatchReceiverType is ConeIntersectionType && isIntersectionOverride)
-        baseForIntersectionOverride!!.dispatchReceiverClassTypeOrNull()
-    else
-        dispatchReceiverType as? ConeClassLikeType
+fun FirCallableDeclaration.dispatchReceiverClassTypeOrNull(): ConeClassLikeType? {
+    val baseDeclaration = if (this is FirSyntheticProperty) getter.delegate else this
+    return with(baseDeclaration) {
+        if (dispatchReceiverType is ConeIntersectionType && isIntersectionOverride) {
+            baseForIntersectionOverride!!.dispatchReceiverClassTypeOrNull()
+        } else {
+            dispatchReceiverType as? ConeClassLikeType
+        }
+    }
+}
 
 fun FirCallableSymbol<*>.dispatchReceiverClassLookupTagOrNull(): ConeClassLikeLookupTag? =
     fir.dispatchReceiverClassLookupTagOrNull()
