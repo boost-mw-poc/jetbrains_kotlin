@@ -7,7 +7,7 @@ class A {
         class LocalGet {
             fun localGet(): Int = privateVar
         }
-        return LocalGet().localGet()
+        return <!LESS_VISIBLE_CONTAINING_CLASS_IN_INLINE_WARNING, LESS_VISIBLE_TYPE_IN_INLINE_ACCESSED_SIGNATURE_WARNING!>LocalGet<!>().<!LESS_VISIBLE_CONTAINING_CLASS_IN_INLINE_WARNING!>localGet<!>()
     }
 
     @Suppress("NOT_YET_SUPPORTED_IN_INLINE")
@@ -15,7 +15,7 @@ class A {
         class LocalSet {
             fun localSet(n: Int) { privateVar = n }
         }
-        LocalSet().localSet(value)
+        <!LESS_VISIBLE_CONTAINING_CLASS_IN_INLINE_WARNING, LESS_VISIBLE_TYPE_IN_INLINE_ACCESSED_SIGNATURE_WARNING!>LocalSet<!>().<!LESS_VISIBLE_CONTAINING_CLASS_IN_INLINE_WARNING!>localSet<!>(value)
     }
 }
 
