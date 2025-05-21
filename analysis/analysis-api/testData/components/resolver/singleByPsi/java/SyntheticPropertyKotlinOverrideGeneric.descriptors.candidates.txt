@@ -1,0 +1,181 @@
+<caret_1>:
+  KtNameReferenceExpression(308,311): 'foo'
+    KaApplicableCallCandidateInfo:
+      candidate = KaSimpleVariableAccessCall:
+        partiallyAppliedSymbol = KaPartiallyAppliedSymbol:
+          contextArguments = []
+          dispatchReceiver = KaExplicitReceiverValue:
+            expression = kotlinClass
+            isSafeNavigation = false
+            type = KotlinClass
+          extensionReceiver = null
+          signature = KaVariableSignature:
+            name = foo
+            receiverType = null
+            returnType = Foo<kotlin.Any>
+            symbol = var foo: Foo<kotlin.Any>
+            contextParameters = []
+            callableId = /KotlinClass.foo
+        simpleAccess = Read
+        typeArgumentsMapping = {}
+      isInBestCandidates = true
+
+    KaInapplicableCallCandidateInfo:
+      candidate = KaSimpleFunctionCall:
+        argumentMapping = {}
+        isImplicitInvoke = false
+        partiallyAppliedSymbol = KaPartiallyAppliedSymbol:
+          contextArguments = []
+          dispatchReceiver = null
+          extensionReceiver = KaExplicitReceiverValue:
+            expression = kotlinClass
+            isSafeNavigation = false
+            type = KotlinClass
+          signature = KaFunctionSignature:
+            receiverType = KotlinClass
+            returnType = kotlin.Unit
+            symbol = /foo(<extension receiver>: KotlinClass, kotlinClass: KotlinClass, foo: Foo<kotlin.Any>): kotlin.Unit
+            valueParameters = [
+              KaVariableSignature:
+                name = kotlinClass
+                receiverType = null
+                returnType = KotlinClass
+                symbol = kotlinClass: KotlinClass
+                contextParameters = []
+                callableId = null,
+              KaVariableSignature:
+                name = foo
+                receiverType = null
+                returnType = Foo<kotlin.Any>
+                symbol = foo: Foo<kotlin.Any>
+                contextParameters = []
+                callableId = null
+            ]
+            contextParameters = []
+            callableId = /foo
+        typeArgumentsMapping = {}
+      diagnostic = ERROR<NO_VALUE_FOR_PARAMETER: No value passed for parameter 'kotlinClass'>
+      isInBestCandidates = false
+
+<caret_2>:
+  KtNameReferenceExpression(329,332): 'foo'
+    KaApplicableCallCandidateInfo:
+      candidate = KaSimpleVariableAccessCall:
+        partiallyAppliedSymbol = KaPartiallyAppliedSymbol:
+          contextArguments = []
+          dispatchReceiver = KaExplicitReceiverValue:
+            expression = kotlinClass
+            isSafeNavigation = false
+            type = KotlinClass
+          extensionReceiver = null
+          signature = KaVariableSignature:
+            name = foo
+            receiverType = null
+            returnType = Foo<kotlin.Any>
+            symbol = var foo: Foo<kotlin.Any>
+            contextParameters = []
+            callableId = /KotlinClass.foo
+        simpleAccess = Write:
+          value = foo
+        typeArgumentsMapping = {}
+      isInBestCandidates = true
+
+    KaInapplicableCallCandidateInfo:
+      candidate = KaSimpleFunctionCall:
+        argumentMapping = {}
+        isImplicitInvoke = false
+        partiallyAppliedSymbol = KaPartiallyAppliedSymbol:
+          contextArguments = []
+          dispatchReceiver = null
+          extensionReceiver = KaExplicitReceiverValue:
+            expression = kotlinClass
+            isSafeNavigation = false
+            type = KotlinClass
+          signature = KaFunctionSignature:
+            receiverType = KotlinClass
+            returnType = kotlin.Unit
+            symbol = /foo(<extension receiver>: KotlinClass, kotlinClass: KotlinClass, foo: Foo<kotlin.Any>): kotlin.Unit
+            valueParameters = [
+              KaVariableSignature:
+                name = kotlinClass
+                receiverType = null
+                returnType = KotlinClass
+                symbol = kotlinClass: KotlinClass
+                contextParameters = []
+                callableId = null,
+              KaVariableSignature:
+                name = foo
+                receiverType = null
+                returnType = Foo<kotlin.Any>
+                symbol = foo: Foo<kotlin.Any>
+                contextParameters = []
+                callableId = null
+            ]
+            contextParameters = []
+            callableId = /foo
+        typeArgumentsMapping = {}
+      diagnostic = ERROR<NO_VALUE_FOR_PARAMETER: No value passed for parameter 'kotlinClass'>
+      isInBestCandidates = false
+
+<caret_3>:
+  KtNameReferenceExpression(456,459): 'foo'
+    KaApplicableCallCandidateInfo:
+      candidate = KaSimpleVariableAccessCall:
+        partiallyAppliedSymbol = KaPartiallyAppliedSymbol:
+          contextArguments = []
+          dispatchReceiver = KaSmartCastedReceiverValue:
+            original = KaExplicitReceiverValue:
+              expression = javaClass
+              isSafeNavigation = false
+              type = JavaClass<T>
+            type = KotlinClass
+          extensionReceiver = null
+          signature = KaVariableSignature:
+            name = foo
+            receiverType = null
+            returnType = Foo<kotlin.Any>
+            symbol = var foo: Foo<kotlin.Any>
+            contextParameters = []
+            callableId = /KotlinClass.foo
+        simpleAccess = Read
+        typeArgumentsMapping = {}
+      isInBestCandidates = true
+
+    KaInapplicableCallCandidateInfo:
+      candidate = KaSimpleFunctionCall:
+        argumentMapping = {}
+        isImplicitInvoke = false
+        partiallyAppliedSymbol = KaPartiallyAppliedSymbol:
+          contextArguments = []
+          dispatchReceiver = null
+          extensionReceiver = KaSmartCastedReceiverValue:
+            original = KaExplicitReceiverValue:
+              expression = javaClass
+              isSafeNavigation = false
+              type = JavaClass<T>
+            type = KotlinClass
+          signature = KaFunctionSignature:
+            receiverType = KotlinClass
+            returnType = kotlin.Unit
+            symbol = /foo(<extension receiver>: KotlinClass, kotlinClass: KotlinClass, foo: Foo<kotlin.Any>): kotlin.Unit
+            valueParameters = [
+              KaVariableSignature:
+                name = kotlinClass
+                receiverType = null
+                returnType = KotlinClass
+                symbol = kotlinClass: KotlinClass
+                contextParameters = []
+                callableId = null,
+              KaVariableSignature:
+                name = foo
+                receiverType = null
+                returnType = Foo<kotlin.Any>
+                symbol = foo: Foo<kotlin.Any>
+                contextParameters = []
+                callableId = null
+            ]
+            contextParameters = []
+            callableId = /foo
+        typeArgumentsMapping = {}
+      diagnostic = ERROR<NO_VALUE_FOR_PARAMETER: No value passed for parameter 'kotlinClass'>
+      isInBestCandidates = false
