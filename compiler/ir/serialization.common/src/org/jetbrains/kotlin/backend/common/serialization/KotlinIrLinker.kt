@@ -73,6 +73,8 @@ abstract class KotlinIrLinker(
     open val returnUnboundSymbolsIfSignatureNotFound: Boolean
         get() = partialLinkageSupport.isEnabled
 
+    open val moduleDependencyTracker: IrModuleDependencyTracker? get() = null
+
     protected open val userVisibleIrModulesSupport: UserVisibleIrModulesSupport get() = UserVisibleIrModulesSupport.DEFAULT
 
     fun deserializeOrReturnUnboundIrSymbolIfPartialLinkageEnabled(
@@ -92,17 +94,22 @@ abstract class KotlinIrLinker(
         // might return null (like KonanInteropModuleDeserializer does) or non-null unbound symbol (like JsModuleDeserializer does).
         val symbol: IrSymbol? = actualModuleDeserializer?.tryDeserializeIrSymbol(idSignature, symbolKind)
 
-        return symbol ?: run {
-            if (returnUnboundSymbolsIfSignatureNotFound)
-                referenceDeserializedSymbol(symbolTable, null, symbolKind, idSignature)
-            else
-                SignatureIdNotFoundInModuleWithDependencies(
-                    idSignature = idSignature,
-                    problemModuleDeserializer = moduleDeserializer,
-                    allModuleDeserializers = deserializersForModules.values,
-                    userVisibleIrModulesSupport = userVisibleIrModulesSupport
-                ).raiseIssue(messageCollector)
-        }
+        if (symbol != null) {
+            moduleDependencyTracker?.trackDependency(
+                fromModule = moduleDeserializer.moduleFragment,
+                toModule = actualModuleDeserializer.moduleFragment
+            )
+
+            return symbol
+        } else if (returnUnboundSymbolsIfSignatureNotFound)
+            return referenceDeserializedSymbol(symbolTable, null, symbolKind, idSignature)
+        else
+            SignatureIdNotFoundInModuleWithDependencies(
+                idSignature = idSignature,
+                problemModuleDeserializer = moduleDeserializer,
+                allModuleDeserializers = deserializersForModules.values,
+                userVisibleIrModulesSupport = userVisibleIrModulesSupport
+            ).raiseIssue(messageCollector)
     }
 
     fun resolveModuleDeserializer(module: ModuleDescriptor, idSignature: IdSignature?): IrModuleDeserializer {
@@ -323,10 +330,18 @@ abstract class KotlinIrLinker(
         }
 
         val moduleFragment = deserializersForModules.getOrPut(moduleName) {
-            maybeWrapWithBuiltInAndInit(moduleDescriptor, createModuleDeserializer(moduleDescriptor, kotlinLibrary, deserializationStrategy))
+            maybeWrapWithBuiltInAndInit(
+                moduleDescriptor = moduleDescriptor,
+                moduleDeserializer = createModuleDeserializer(
+                    moduleDescriptor = moduleDescriptor,
+                    klib = kotlinLibrary,
+                    strategyResolver = deserializationStrategy
+                )
+            )
         }.moduleFragment
 
         moduleFragment.kotlinLibrary = kotlinLibrary
+        moduleDependencyTracker?.addModuleForTracking(module = moduleFragment)
 
         // The IrModule and its IrFiles have been created during module initialization.
         return moduleFragment
