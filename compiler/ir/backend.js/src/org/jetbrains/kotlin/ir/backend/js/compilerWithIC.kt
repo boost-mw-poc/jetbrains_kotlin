@@ -113,7 +113,7 @@ fun lowerPreservingTags(
 
     jsLowerings.forEachIndexed { i, lowering ->
         controller.currentStage = i + 1
-        modules.forEach { module ->
+        modules.forEach { module -> // ?
             lowering.invoke(context.phaseConfig, phaserState, context, module)
         }
     }

@@ -96,11 +96,6 @@ fun compileIr(
     val shouldGeneratePolyfills = configuration.getBoolean(JSConfigurationKeys.GENERATE_POLYFILLS)
     val performanceManager = configuration[CLIConfigurationKeys.PERF_MANAGER]
 
-    val allModules = when (mainModule) {
-        is MainModule.SourceFiles -> moduleDependencies.all + listOf(moduleFragment)
-        is MainModule.Klib -> moduleDependencies.all
-    }
-
     val context = JsIrBackendContext(
         moduleDescriptor,
         irBuiltIns,
@@ -124,6 +119,13 @@ fun compileIr(
     irLinker.checkNoUnboundSymbols(symbolTable, "at the end of IR linkage process")
     irLinker.clear()
 
+    val sortedModuleDependencies = irLinker.moduleDependencyTracker.reverseTopoOrder(moduleDependencies)
+
+    val allModules = when (mainModule) {
+        is MainModule.SourceFiles -> sortedModuleDependencies.all + listOf(moduleFragment)
+        is MainModule.Klib -> sortedModuleDependencies.all
+    }
+
     allModules.forEach { module ->
         if (shouldGeneratePolyfills) {
             collectNativeImplementations(context, module)
@@ -144,6 +146,7 @@ fun compileIr(
             val phaserState = PhaserState()
             getJsLowerings(configuration).forEachIndexed { _, lowering ->
                 allModules.forEach { module ->
+                    // ?
                     lowering.invoke(context.phaseConfig, phaserState, context, module)
                 }
             }

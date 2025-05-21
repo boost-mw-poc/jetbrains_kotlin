@@ -52,6 +52,8 @@ class JsIrLinker(
         partialLinkageSupport = partialLinkageSupport
     )
 
+    override val moduleDependencyTracker: IrModuleDependencyTracker = IrModuleDependencyTracker()
+
     override fun isBuiltInModule(moduleDescriptor: ModuleDescriptor): Boolean =
         moduleDescriptor === moduleDescriptor.builtIns.builtInsModule
 
