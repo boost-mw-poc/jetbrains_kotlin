@@ -259,8 +259,8 @@ class SwiftExportUnitTests {
         val actualModules = swiftExportTask.parameters.swiftModules.getOrElse(emptyList())
 
         val expectedModules = buildSmartList {
-            add(SwiftExportModuleForAssertion("Subproject", "subproject", true))
             add(SwiftExportModuleForAssertion("KotlinxCoroutinesCore", "kotlinx-coroutines-core.klib", true))
+            add(SwiftExportModuleForAssertion("Subproject", "subproject", true))
             add(SwiftExportModuleForAssertion("Atomicfu", "atomicfu.klib", false))
         }
 
@@ -650,8 +650,8 @@ class SwiftExportUnitTests {
         val actualModules = swiftExportTask.parameters.swiftModules.getOrElse(emptyList())
 
         val expectedModules = buildSmartList {
-            add(SwiftExportModuleForAssertion("KotlinxSerializationJson", "kotlinx-serialization-json-iosSimulatorArm64Main-1.8.1.klib", false))
             add(SwiftExportModuleForAssertion("KotlinxDatetime", "kotlinx-datetime.klib", true))
+            add(SwiftExportModuleForAssertion("KotlinxSerializationJson", "kotlinx-serialization-json-iosSimulatorArm64Main-1.8.1.klib", false))
             add(SwiftExportModuleForAssertion("KotlinxSerializationCore", "kotlinx-serialization-core-iosSimulatorArm64Main-1.8.1.klib", false))
         }
 
@@ -785,8 +785,8 @@ class SwiftExportUnitTests {
         val actualModules = swiftExportTask.parameters.swiftModules.getOrElse(emptyList())
 
         val expectedModules = buildSmartList {
-            add(SwiftExportModuleForAssertion("Subproject", "subproject", false))
             add(SwiftExportModuleForAssertion("KotlinxCoroutinesCore", "kotlinx-coroutines-core-iosSimulatorArm64Main-1.10.0.klib", true))
+            add(SwiftExportModuleForAssertion("Subproject", "subproject", false))
             add(SwiftExportModuleForAssertion("Atomicfu", "atomicfu.klib", false))
         }
 
@@ -831,8 +831,8 @@ class SwiftExportUnitTests {
         val actualModules = swiftExportTask.parameters.swiftModules.getOrElse(emptyList())
 
         val expectedModules = buildSmartList {
-            add(SwiftExportModuleForAssertion("Subproject", "subproject", false))
             add(SwiftExportModuleForAssertion("KotlinxCoroutinesCore", "kotlinx-coroutines-core-iosSimulatorArm64Main-1.10.0.klib", true))
+            add(SwiftExportModuleForAssertion("Subproject", "subproject", false))
             add(SwiftExportModuleForAssertion("Atomicfu", "atomicfu.klib", false))
         }
 
