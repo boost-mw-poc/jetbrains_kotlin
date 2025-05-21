@@ -99,6 +99,10 @@ internal class KaFirJavaInteroperabilityComponent(
         }
     }
 
+    /**
+     * [useSitePosition] is used as pure psi, so there is no need to validate it.
+     * Also, it might represent some complex expressions like light classes or UAST
+     */
     override fun KaType.asPsiType(
         useSitePosition: PsiElement,
         allowErrorTypes: Boolean,
@@ -107,7 +111,7 @@ internal class KaFirJavaInteroperabilityComponent(
         suppressWildcards: Boolean?,
         preserveAnnotations: Boolean,
         allowNonJvmPlatforms: Boolean,
-    ): PsiType? = withPsiValidityAssertion(useSitePosition) {
+    ): PsiType? = withValidityAssertion {
         val coneType = this.coneType
 
         with(rootModuleSession.typeContext) {
@@ -199,7 +203,11 @@ internal class KaFirJavaInteroperabilityComponent(
         }
     }
 
-    override fun PsiType.asKaType(useSitePosition: PsiElement): KaType? = withPsiValidityAssertion(useSitePosition) {
+    /**
+     * [useSitePosition] is used as pure psi, so there is no need to validate it.
+     * Also, it might represent some complex expressions like light classes or UAST
+     */
+    override fun PsiType.asKaType(useSitePosition: PsiElement): KaType? = withValidityAssertion {
         val javaElementSourceFactory = JavaElementSourceFactory.getInstance(project)
         val javaType = JavaTypeImpl.create(this, javaElementSourceFactory.createTypeSource(this))
 
