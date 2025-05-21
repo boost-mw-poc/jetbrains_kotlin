@@ -138,7 +138,7 @@ class MppCInteropDependencyTransformationIT : KGPBaseTest() {
                 assertTasksExecuted(":p2:compileTestKotlinLinuxX64")
                 assertTasksExecuted(":p3:compileTestKotlinLinuxX64")
 
-                /* Configurations should not be resol ved during configuration phase */
+                /* Configurations should not be resolved during configuration phase */
                 assertOutputDoesNotContain("Configuration resolved before Task Graph is ready")
             }
         }
